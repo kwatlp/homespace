@@ -19,7 +19,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@homespace/schema": "*",
+    "@homespace/schema": "^0.2.0",
     "micromark": "^4.0.2",
     "micromark-extension-gfm": "^3.0.0"
   }

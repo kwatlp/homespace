@@ -19,10 +19,10 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@homespace/cli": "*",
-    "@homespace/renderer": "*",
-    "@homespace/scanner": "*",
-    "@homespace/schema": "*",
+    "@homespace/cli": "^0.2.0",
+    "@homespace/renderer": "^0.2.0",
+    "@homespace/scanner": "^0.2.0",
+    "@homespace/schema": "^0.2.0",
     "chokidar": "^4.0.3"
   }
 }
