@@ -16,7 +16,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "templates"
   ],
   "scripts": {
     "test": "vitest run"
@@ -24,6 +25,8 @@
   "dependencies": {
     "@kwatlp/renderer": "*",
     "@kwatlp/scanner": "*",
-    "@kwatlp/schema": "*"
+    "@kwatlp/schema": "*",
+    "bonjour-service": "^1.4.4",
+    "chokidar": "^4.0.3"
   }
 }
