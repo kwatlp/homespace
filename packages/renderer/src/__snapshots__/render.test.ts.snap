@@ -110,9 +110,37 @@ exports[`render — demo node > golden: game detail 1`] = `
 <h1>Solterra</h1>
 <p>A tiny game.</p>
 <img src="../../packs/solterra/files/cover.webp" alt="Solterra">
-<p><a class="open" href="../../packs/solterra/files/index.html">Open</a></p>
+<div class="player" data-src="../../packs/solterra/files/index.html" data-sandbox="allow-scripts allow-pointer-lock allow-fullscreen allow-same-origin">
+  <div class="player-stage"><button type="button" class="player-play" aria-label="Play">▶ Play</button></div>
+  <div class="player-controls">
+    <button type="button" class="player-fullscreen">⛶ Fullscreen</button>
+    <span class="tag">Gamepad supported</span>
+    <noscript><a href="../../packs/solterra/files/index.html">Open the build directly</a></noscript>
+  </div>
+</div>
 <p class="tag">rpg</p>
 </div></article>
+<script>
+(function () {
+  document.querySelectorAll(".player").forEach(function (el) {
+    var stage = el.querySelector(".player-stage");
+    var play = el.querySelector(".player-play");
+    if (play) play.addEventListener("click", function () {
+      var frame = document.createElement("iframe");
+      frame.className = "player-frame";
+      frame.setAttribute("sandbox", el.dataset.sandbox);
+      frame.setAttribute("allow", "fullscreen; gamepad");
+      frame.src = el.dataset.src;
+      stage.replaceChildren(frame);
+      el.classList.add("is-playing");
+    });
+    var fs = el.querySelector(".player-fullscreen");
+    if (fs) fs.addEventListener("click", function () {
+      if (stage.requestFullscreen) stage.requestFullscreen();
+    });
+  });
+})();
+</script>
 
 </main>
 <footer class="site-footer"><div class="wrap"><p>© demo</p></div></footer>

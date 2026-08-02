@@ -114,4 +114,29 @@ ul.links li, ul.feed li { background: var(--color-surface); border-radius: var(-
 }
 
 .embed { border-radius: var(--radius); }
+
+.player { margin-block: calc(var(--space-unit) * 2); }
+.player-stage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.player-frame { width: 100%; height: 100%; border: 0; }
+.player-play {
+  font: inherit;
+  font-size: 1.2rem;
+  padding: calc(var(--space-unit) * 1.5) calc(var(--space-unit) * 3);
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--color-accent);
+  color: var(--color-bg);
+  cursor: pointer;
+}
+.player-controls { display: flex; align-items: center; gap: calc(var(--space-unit) * 2); margin-top: calc(var(--space-unit) * 1); }
+.player-fullscreen { font: inherit; background: none; border: 0; color: var(--color-accent); cursor: pointer; }
 `;

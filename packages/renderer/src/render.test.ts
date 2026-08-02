@@ -12,6 +12,7 @@ import {
   render,
   renderMarkdown,
   renderTokensCss,
+  sandboxTokens,
   writeDist,
   type OutputFile,
   type RenderResult,
@@ -248,6 +249,56 @@ describe("embed + html sections", () => {
     const external: NodeManifest = { name: "x", sections: [{ type: "embed", src: "https://evil.example/x.html" }] };
     const result = await render({ catalog: emptyCatalog, node: external, root: demoRoot });
     expect(findBudgetViolations(result.files).length).toBeGreaterThan(0);
+  });
+});
+
+describe("player & downloads (WO-6)", () => {
+  const players: Catalog = {
+    version: 1,
+    packs: [
+      { id: "std", type: "game", title: "Std", slug: "std", dir: "content/packs/std", entrypoint: { web: "index.html" } },
+      { id: "strict-game", type: "game", title: "Strict", slug: "strict-game", dir: "content/packs/strict-game", entrypoint: { web: "index.html" }, sandbox: "strict" },
+      { id: "dl", type: "game", title: "DL", slug: "dl", dir: "content/packs/dl", entrypoint: { download: "game.zip" }, checksums: { "game.zip": `sha256:${"a".repeat(64)}` } },
+    ],
+  };
+  const playerNode: NodeManifest = { name: "players", sections: [{ type: "packs", source: {} }] };
+
+  test("sandboxTokens: strict omits allow-same-origin; standard includes it", () => {
+    expect(sandboxTokens("strict")).not.toContain("allow-same-origin");
+    expect(sandboxTokens(undefined)).toContain("allow-same-origin");
+    expect(sandboxTokens("standard")).toContain("allow-same-origin");
+  });
+
+  test("web pack detail is a load-on-click player with the right sandbox", async () => {
+    const result = await render({ catalog: players, node: playerNode, root: demoRoot });
+    expect(result.errors).toEqual([]);
+
+    const std = file(result, "packs/std/index.html").contents;
+    expect(std).toContain('class="player"');
+    expect(std).toContain('data-src="../../packs/std/files/index.html"');
+    expect(std).toContain("allow-same-origin"); // standard sandbox
+    expect(std).toContain("player-play"); // load-on-click button, no autoloaded iframe
+    expect(std).not.toContain("<iframe"); // iframe is injected by script, not in static HTML
+    expect(std).toContain("player-fullscreen");
+    expect(std).toContain("<script>"); // inline player script
+    expect(std).toContain("<noscript>"); // JS-disabled fallback
+
+    const strict = file(result, "packs/strict-game/index.html").contents;
+    expect(strict).toContain("data-sandbox=");
+    expect(strict).not.toContain("allow-same-origin");
+  });
+
+  test("download pack detail shows a download link with its checksum", async () => {
+    const result = await render({ catalog: players, node: playerNode, root: demoRoot });
+    const dl = file(result, "packs/dl/index.html").contents;
+    expect(dl).toContain('class="download"');
+    expect(dl).toContain("download>");
+    expect(dl).toContain(`sha256:${"a".repeat(64)}`);
+  });
+
+  test("player pages keep the offline budget (inline script, local iframe src)", async () => {
+    const result = await render({ catalog: players, node: playerNode, root: demoRoot });
+    expect(findBudgetViolations(result.files)).toEqual([]);
   });
 });
 
