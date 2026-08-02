@@ -1,5 +1,10 @@
 #!/usr/bin/env node
-import { run } from "../cli.js";
+/**
+ * `homespace` — the public launcher. `npx homespace <command>` resolves to this
+ * package (named `homespace`), which delegates to the `@homespace/cli`
+ * implementation. See `internal-docs/HomespaceTDD.md` §7.
+ */
+import { run } from "@homespace/cli";
 
 run(process.argv.slice(2))
   .then((code) => {
