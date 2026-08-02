@@ -21,9 +21,9 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@homespace/renderer": "*",
-    "@homespace/scanner": "*",
-    "@homespace/schema": "*",
+    "@homespace/renderer": "^0.2.0",
+    "@homespace/scanner": "^0.2.0",
+    "@homespace/schema": "^0.2.0",
     "bonjour-service": "^1.4.4",
     "chokidar": "^4.0.3"
   }

@@ -19,6 +19,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@homespace/schema": "*"
+    "@homespace/schema": "^0.2.0"
   }
 }
