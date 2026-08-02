@@ -1,0 +1,11 @@
+{
+  "id": "cedar-study",
+  "type": "art",
+  "title": "Cedar Study",
+  "media": {
+    "cover": "cover.webp",
+    "gallery": ["a.webp", "b.webp"],
+    "alt": { "cover.webp": "A stand of cedar." }
+  },
+  "tags": ["art"]
+}

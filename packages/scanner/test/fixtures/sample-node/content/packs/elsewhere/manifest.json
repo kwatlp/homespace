@@ -1,0 +1,8 @@
+{
+  "id": "elsewhere",
+  "type": "link",
+  "title": "Elsewhere",
+  "summary": "An outbound destination with depth.",
+  "entrypoint": { "link": "https://example.com/thing" },
+  "tags": ["reading"]
+}

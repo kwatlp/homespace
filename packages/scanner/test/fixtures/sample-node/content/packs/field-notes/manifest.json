@@ -1,0 +1,8 @@
+{
+  "id": "field-notes",
+  "type": "post",
+  "title": "Field Notes 01",
+  "summary": "First dev log.",
+  "entrypoint": { "post": "index.md" },
+  "tags": ["devlog"]
+}

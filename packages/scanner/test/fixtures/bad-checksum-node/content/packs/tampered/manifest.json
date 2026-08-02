@@ -1,0 +1,9 @@
+{
+  "id": "tampered",
+  "type": "game",
+  "title": "Tampered Build",
+  "entrypoint": { "download": "dist/game.zip" },
+  "checksums": {
+    "dist/game.zip": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  }
+}

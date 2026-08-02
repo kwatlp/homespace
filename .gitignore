@@ -10,6 +10,11 @@ dist/
 **/dist/
 *.tsbuildinfo
 
+# ...but test fixture nodes may legitimately contain a dist/ folder as data
+# (e.g. a pack's downloadable build that the scanner checksums). Keep those.
+!**/test/fixtures/**/dist/
+!**/test/fixtures/**/dist/**
+
 # Test / coverage
 coverage/
 .vitest/

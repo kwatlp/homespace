@@ -1,0 +1,13 @@
+{
+  "id": "solterra-demo",
+  "type": "game",
+  "title": "Solterra Demo",
+  "summary": "A tiny playable slice.",
+  "version": "1.0.0",
+  "entrypoint": { "web": "index.html" },
+  "media": { "cover": "cover.webp" },
+  "tags": ["rpg", "html5"],
+  "license": "MIT",
+  "created": "2026-01-01T00:00:00Z",
+  "updated": "2026-01-02T00:00:00Z"
+}
