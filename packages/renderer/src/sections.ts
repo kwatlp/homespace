@@ -9,12 +9,22 @@ export interface RenderContext {
   catalog: Catalog;
   /** Prefix to reach dist root from the page being rendered. */
   basePrefix: string;
+  /** Verbatim contents of `html` section files, keyed by manifest path. */
+  htmlFiles?: ReadonlyMap<string, string>;
 }
 
-/** Section types this WO can render. gallery/embed/html arrive in WO-5. */
-export const SUPPORTED_SECTIONS = new Set(["hero", "links", "packs", "posts"]);
+/** The full v0 section registry (TDD §4). */
+export const SUPPORTED_SECTIONS = new Set([
+  "hero",
+  "links",
+  "packs",
+  "posts",
+  "gallery",
+  "embed",
+  "html",
+]);
 
-/** Render one section, or `null` if its type isn't supported yet. */
+/** Render one section, or `null` if its type isn't in the registry. */
 export function renderSection(section: Section, ctx: RenderContext): string | null {
   switch (section.type) {
     case "hero":
@@ -25,9 +35,41 @@ export function renderSection(section: Section, ctx: RenderContext): string | nu
       return packs(section, ctx);
     case "posts":
       return posts(section, ctx);
+    case "gallery":
+      return gallery(section, ctx);
+    case "embed":
+      return embed(section, ctx);
+    case "html":
+      return htmlSection(section, ctx);
     default:
       return null;
   }
+}
+
+/** Human label for a section (used in generated nav / grid tiles). */
+export function sectionLabel(section: Section): string {
+  if (typeof section.title === "string" && section.title) return section.title;
+  return section.type.charAt(0).toUpperCase() + section.type.slice(1);
+}
+
+const RESERVED_SLUGS = new Set(["packs", "posts"]);
+
+function slugify(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "section";
+}
+
+/**
+ * Derive a unique, URL-safe slug for a section page (pages/grid layouts).
+ * Avoids the reserved `packs/` and `posts/` detail directories.
+ */
+export function sectionSlug(section: Section, used: Set<string>): string {
+  let base = typeof section.title === "string" && section.title ? slugify(section.title) : section.type;
+  if (RESERVED_SLUGS.has(base)) base = `${base}-section`;
+  let slug = base;
+  let n = 2;
+  while (used.has(slug)) slug = `${base}-${n++}`;
+  used.add(slug);
+  return slug;
 }
 
 function wrapSection(id: string, inner: string, extraClass = ""): string {
@@ -105,4 +147,42 @@ function posts(section: Section, ctx: RenderContext): string {
     })
     .join("\n");
   return wrapSection("posts", `${heading(section.title)}<ul class="feed">\n${items}\n</ul>`);
+}
+
+function gallery(section: Section, ctx: RenderContext): string {
+  const selected = selectPacks(ctx.catalog, section.source);
+  const figures: string[] = [];
+  for (const pack of selected) {
+    const images: string[] = [];
+    if (typeof pack.media?.cover === "string") images.push(pack.media.cover);
+    if (Array.isArray(pack.media?.gallery)) {
+      for (const g of pack.media.gallery) if (typeof g === "string") images.push(g);
+    }
+    const href = packPageUrl(ctx.basePrefix, pack);
+    for (const img of images) {
+      const alt = pack.media?.alt?.[img] ?? pack.title;
+      const src = packAssetUrl(ctx.basePrefix, pack, img);
+      figures.push(
+        `<a href="${escapeAttr(href)}"><img src="${escapeAttr(src)}" alt="${escapeAttr(alt)}" loading="lazy"></a>`,
+      );
+    }
+  }
+  return wrapSection("gallery", `${heading(section.title)}<div class="gallery">\n${figures.join("\n")}\n</div>`);
+}
+
+function embed(section: Section, ctx: RenderContext): string {
+  if (typeof section.src !== "string") return wrapSection("embed", heading(section.title));
+  const src = escapeAttr(ctx.basePrefix + section.src);
+  const height = typeof section.height === "number" ? section.height : 420;
+  const title = escapeAttr(sectionLabel(section));
+  const iframe =
+    `<iframe class="embed" src="${src}" title="${title}" loading="lazy" ` +
+    `style="width:100%;height:${height}px;border:0"></iframe>`;
+  return wrapSection("embed", `${heading(section.title)}${iframe}`, "embed-section");
+}
+
+function htmlSection(section: Section, ctx: RenderContext): string {
+  const raw = typeof section.file === "string" ? ctx.htmlFiles?.get(section.file) ?? "" : "";
+  // Operator-authored: inserted verbatim (TDD §6.5).
+  return wrapSection("html", raw, "html-section");
 }

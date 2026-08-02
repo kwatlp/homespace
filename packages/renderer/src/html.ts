@@ -2,6 +2,11 @@ import type { NodeManifest } from "@kwatlp/schema";
 
 import { escapeAttr, escapeHtml } from "./escape.js";
 
+export interface NavItem {
+  label: string;
+  href: string;
+}
+
 export interface PageOptions {
   node: NodeManifest;
   /** Text for <title>. */
@@ -10,6 +15,10 @@ export interface PageOptions {
   basePrefix: string;
   /** Rendered contents of <main>. */
   main: string;
+  /** Nav override (already-resolved hrefs); falls back to node.nav when absent. */
+  nav?: NavItem[];
+  /** Emit an RSS <link rel="alternate"> pointing at feed.xml. */
+  feed?: boolean;
 }
 
 /** Rewrite an in-page nav anchor so it resolves from a nested detail page. */
@@ -23,13 +32,19 @@ export function page(options: PageOptions): string {
   const lang = typeof node.lang === "string" && node.lang ? node.lang : "en";
   const siteTitle = node.title ?? node.name;
 
-  const nav = Array.isArray(node.nav) && node.nav.length > 0
-    ? `<nav class="site-nav" aria-label="Primary"><ul>${node.nav
-        .map(
-          (item) =>
-            `<li><a href="${escapeAttr(navHref(item.href, basePrefix))}">${escapeHtml(item.label)}</a></li>`,
-        )
+  const navItems: NavItem[] = options.nav
+    ? options.nav
+    : Array.isArray(node.nav)
+      ? node.nav.map((item) => ({ label: item.label, href: navHref(item.href, basePrefix) }))
+      : [];
+  const nav = navItems.length > 0
+    ? `<nav class="site-nav" aria-label="Primary"><ul>${navItems
+        .map((item) => `<li><a href="${escapeAttr(item.href)}">${escapeHtml(item.label)}</a></li>`)
         .join("")}</ul></nav>`
+    : "";
+
+  const feedLink = options.feed === true
+    ? `\n<link rel="alternate" type="application/rss+xml" href="${escapeAttr(basePrefix)}feed.xml" title="${escapeAttr(siteTitle)}">`
     : "";
 
   const footer = node.footer
@@ -47,7 +62,7 @@ export function page(options: PageOptions): string {
   typeof node.theme?.css === "string"
     ? `\n<link rel="stylesheet" href="${escapeAttr(basePrefix)}custom.css">`
     : ""
-}
+}${feedLink}
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
