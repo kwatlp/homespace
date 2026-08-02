@@ -96,4 +96,22 @@ ul.links li, ul.feed li { background: var(--color-surface); border-radius: var(-
 }
 
 .tag { color: var(--color-muted); font-size: 0.85rem; }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: calc(var(--space-unit) * 3); }
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 128px;
+  padding: calc(var(--space-unit) * 2);
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  text-align: center;
+  text-decoration: none;
+  color: var(--color-text);
+}
+
+.embed { border-radius: var(--radius); }
 `;

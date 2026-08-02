@@ -5,12 +5,19 @@ import type { Catalog, CatalogPack, NodeManifest, Section } from "@kwatlp/schema
 
 import { BASE_CSS } from "./assets.js";
 import { DETAIL_PREFIX, renderPackDetail, renderPostDetail } from "./detail.js";
+import { escapeAttr, escapeHtml } from "./escape.js";
 import { renderFeed, renderSitemap } from "./feed.js";
-import { page } from "./html.js";
+import { page, type NavItem } from "./html.js";
 import { stableStringify } from "./json.js";
 import { renderMarkdown } from "./markdown.js";
 import { renderTokensCss } from "./tokens.js";
-import { renderSection, SUPPORTED_SECTIONS, type RenderContext } from "./sections.js";
+import {
+  renderSection,
+  sectionLabel,
+  sectionSlug,
+  SUPPORTED_SECTIONS,
+  type RenderContext,
+} from "./sections.js";
 
 export interface RenderInput {
   catalog: Catalog;
@@ -74,6 +81,14 @@ function packBase(pack: CatalogPack): string {
   return pack.type === "post" ? `posts/${pack.slug}` : `packs/${pack.slug}`;
 }
 
+/** Resolve a node-relative path, or null if it escapes the node root. */
+function confinedPath(root: string, rel: string): string | null {
+  const rootAbs = path.resolve(root);
+  const abs = path.resolve(rootAbs, rel);
+  if (abs !== rootAbs && !abs.startsWith(rootAbs + path.sep)) return null;
+  return abs;
+}
+
 /**
  * Render a node to a set of static files + an asset copy plan. Pure with
  * respect to the network; deterministic given its inputs (TDD §6). Writes
@@ -105,39 +120,96 @@ export async function render(input: RenderInput): Promise<RenderResult> {
     else warnings.push({ severity: "warning", message: `theme.css '${node.theme.css}' not found in the node` });
   }
 
-  // 2. Layout + sections (scroll only this WO).
-  if (typeof node.layout === "string" && node.layout !== "scroll") {
-    warnings.push({ severity: "warning", message: `layout '${node.layout}' arrives in WO-5 — rendering as scroll` });
-  }
-  const ctx: RenderContext = { node, catalog, basePrefix: "" };
+  // 2. Pre-read html-section files (operator-authored, confined to the node).
   const sections = Array.isArray(node.sections) ? node.sections : [];
-  const rendered: string[] = [];
-  const feedPosts: CatalogPack[] = [];
-  const seenFeed = new Set<string>();
-
+  const htmlFiles = new Map<string, string>();
   for (const section of sections) {
-    if (!SUPPORTED_SECTIONS.has(section.type)) {
-      warnings.push({ severity: "warning", message: `section type '${section.type}' is not rendered yet (WO-5)` });
+    if (section.type !== "html" || typeof section.file !== "string") continue;
+    const abs = confinedPath(root, section.file);
+    if (abs === null) {
+      errors.push({ severity: "error", message: `html section file '${section.file}' escapes the node root` });
       continue;
     }
-    const html = renderSection(section, ctx);
-    if (html !== null) rendered.push(html);
+    if (!(await exists(abs))) {
+      errors.push({ severity: "error", message: `html section file '${section.file}' does not exist` });
+      continue;
+    }
+    htmlFiles.set(section.file, await readFile(abs, "utf8"));
+  }
+
+  // 3. Sections + layout.
+  const supported = sections.filter((s) => {
+    if (SUPPORTED_SECTIONS.has(s.type)) return true;
+    warnings.push({ severity: "warning", message: `unknown section type '${s.type}' — skipped` });
+    return false;
+  });
+
+  const feedPosts: CatalogPack[] = [];
+  const seenFeed = new Set<string>();
+  for (const section of supported) {
     if (section.type === "posts" && section.rss === true) {
-      for (const pack of catalog.packs.filter((p) => p.type === "post")) {
-        if (!seenFeed.has(pack.id)) {
+      for (const pack of catalog.packs) {
+        if (pack.type === "post" && !seenFeed.has(pack.id)) {
           seenFeed.add(pack.id);
           feedPosts.push(pack);
         }
       }
     }
   }
+  const hasFeed = feedPosts.length > 0;
 
   const title = node.title ?? node.name;
-  files.push({ path: "index.html", contents: page({ node, title, basePrefix: "", main: rendered.join("\n") }) });
-
-  // 3. Detail pages + pack file copies.
-  const detailCtx: RenderContext = { node, catalog, basePrefix: DETAIL_PREFIX };
+  const layout = node.layout === "pages" || node.layout === "grid" ? node.layout : "scroll";
   const sitemapPaths = ["/"];
+
+  const renderInto = (section: Section, basePrefix: string): string =>
+    renderSection(section, { node, catalog, basePrefix, htmlFiles }) ?? "";
+
+  if (layout === "scroll") {
+    const main = supported.map((s) => renderInto(s, "")).join("\n");
+    files.push({ path: "index.html", contents: page({ node, title, basePrefix: "", main, feed: hasFeed }) });
+  } else {
+    // pages + grid share per-section pages; slugs are assigned once, in order.
+    const used = new Set<string>();
+    const metas = supported.map((section) => ({ section, slug: sectionSlug(section, used) }));
+    const navFor = (basePrefix: string): NavItem[] =>
+      metas.map((m, i) => ({
+        label: sectionLabel(m.section),
+        href: layout === "pages" && i === 0 ? (basePrefix === "" ? "./" : basePrefix) : `${basePrefix}${m.slug}/`,
+      }));
+
+    const emitSectionPage = (section: Section, slug: string): void => {
+      files.push({
+        path: `${slug}/index.html`,
+        contents: page({
+          node,
+          title: `${sectionLabel(section)} — ${title}`,
+          basePrefix: "../",
+          main: renderInto(section, "../"),
+          nav: navFor("../"),
+          feed: hasFeed,
+        }),
+      });
+      sitemapPaths.push(`/${slug}/`);
+    };
+
+    if (layout === "pages") {
+      const landing = metas[0];
+      const main = landing ? renderInto(landing.section, "") : "";
+      files.push({ path: "index.html", contents: page({ node, title, basePrefix: "", main, nav: navFor(""), feed: hasFeed }) });
+      for (const m of metas.slice(1)) emitSectionPage(m.section, m.slug);
+    } else {
+      const tiles = metas
+        .map((m) => `<a class="tile" href="${escapeAttr(`${m.slug}/`)}">${escapeHtml(sectionLabel(m.section))}</a>`)
+        .join("\n");
+      const gridMain = `<section class="section"><div class="wrap">\n<div class="tiles">\n${tiles}\n</div>\n</div></section>\n`;
+      files.push({ path: "index.html", contents: page({ node, title, basePrefix: "", main: gridMain, nav: navFor(""), feed: hasFeed }) });
+      for (const m of metas) emitSectionPage(m.section, m.slug);
+    }
+  }
+
+  // 4. Detail pages + pack file copies (generated regardless of layout).
+  const detailCtx: RenderContext = { node, catalog, basePrefix: DETAIL_PREFIX };
 
   for (const pack of catalog.packs) {
     if (pack.type === "link") continue; // link packs are cards only
@@ -170,10 +242,10 @@ export async function render(input: RenderInput): Promise<RenderResult> {
       }
       const html = renderMarkdown(await readFile(mdPath, "utf8"), { allowHtml: node.markdown?.allowHtml === true });
       const body = renderPostDetail(pack, html);
-      files.push({ path: `${base}/index.html`, contents: page({ node, title: `${pack.title} — ${title}`, basePrefix: DETAIL_PREFIX, main: body }) });
+      files.push({ path: `${base}/index.html`, contents: page({ node, title: `${pack.title} — ${title}`, basePrefix: DETAIL_PREFIX, main: body, feed: hasFeed }) });
     } else {
       const body = renderPackDetail(pack, detailCtx);
-      files.push({ path: `${base}/index.html`, contents: page({ node, title: `${pack.title} — ${title}`, basePrefix: DETAIL_PREFIX, main: body }) });
+      files.push({ path: `${base}/index.html`, contents: page({ node, title: `${pack.title} — ${title}`, basePrefix: DETAIL_PREFIX, main: body, feed: hasFeed }) });
     }
   }
 

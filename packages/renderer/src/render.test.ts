@@ -65,9 +65,21 @@ describe("render — demo node", () => {
     result = await render({ catalog, node, root: demoRoot });
   });
 
-  test("no errors; unsupported section warns", () => {
+  test("renders with no errors and includes the gallery section", () => {
     expect(result.errors).toEqual([]);
-    expect(result.warnings.map((w) => w.message).join("\n")).toMatch(/section type 'gallery'/);
+    expect(file(result, "index.html").contents).toContain('id="gallery"');
+  });
+
+  test("emits an RSS alternate link in the head when a feed exists", () => {
+    expect(file(result, "index.html").contents).toContain('rel="alternate" type="application/rss+xml"');
+  });
+
+  test("feed.xml is well-formed RSS with one item per post", () => {
+    const feed = file(result, "feed.xml").contents;
+    expect(feed.startsWith("<?xml")).toBe(true);
+    expect(feed).toContain('<rss version="2.0">');
+    expect(feed).toContain("<channel>");
+    expect((feed.match(/<item>/g) ?? []).length).toBe(catalog.packs.filter((p) => p.type === "post").length);
   });
 
   test("emits the expected file set", () => {
@@ -152,6 +164,90 @@ describe("tokens", () => {
     const { css, fontAssets } = renderTokensCss({ font: { body: "theme/fonts/inter.woff2" } });
     expect(css).toContain("@font-face");
     expect(fontAssets).toEqual([{ family: "kwatlp-body", path: "theme/fonts/inter.woff2" }]);
+  });
+});
+
+describe("pages layout", () => {
+  test("landing + one page per section, with generated section nav and sitemap", async () => {
+    const result = await render({ catalog, node: { ...node, layout: "pages" }, root: demoRoot });
+    expect(result.errors).toEqual([]);
+
+    const paths = result.files.map((f) => f.path);
+    // landing + a page per non-landing section (hero is the landing)
+    expect(paths).toContain("index.html");
+    expect(paths).toContain("games/index.html");
+    expect(paths).toContain("writing/index.html");
+    expect(paths).toContain("elsewhere/index.html");
+    expect(paths).toContain("art/index.html");
+
+    const index = file(result, "index.html").contents;
+    expect(index).toContain('href="games/"');
+    expect(index).toContain('href="./"'); // landing nav link
+
+    const games = file(result, "games/index.html").contents;
+    expect(games).toContain('href="../base.css"'); // depth-1 asset prefix
+    expect(games).toContain('href="../games/"'); // nav from a section page
+
+    const sitemap = file(result, "sitemap.txt").contents;
+    expect(sitemap).toContain("/games/");
+    expect(sitemap).toContain("/writing/");
+
+    expect(findBudgetViolations(result.files)).toEqual([]);
+    expect(index).toMatchSnapshot();
+  });
+});
+
+describe("grid layout", () => {
+  test("index is a tile grid; every section gets its own page", async () => {
+    const result = await render({ catalog, node: { ...node, layout: "grid" }, root: demoRoot });
+    expect(result.errors).toEqual([]);
+
+    const index = file(result, "index.html").contents;
+    expect(index).toContain('class="tiles"');
+    expect(index).toContain('class="tile" href="hero/"');
+    expect(index).toContain('class="tile" href="games/"');
+
+    const paths = result.files.map((f) => f.path);
+    expect(paths).toContain("hero/index.html"); // grid: even the first section is a page
+    expect(paths).toContain("games/index.html");
+
+    expect(findBudgetViolations(result.files)).toEqual([]);
+    expect(index).toMatchSnapshot();
+  });
+});
+
+describe("embed + html sections", () => {
+  const embedNode: NodeManifest = {
+    name: "embed-demo",
+    title: "Embed Demo",
+    layout: "scroll",
+    sections: [
+      { type: "embed", title: "Toy", src: "static/toy.html", height: 300 },
+      { type: "html", file: "sections/extra.html" },
+    ],
+  };
+  const emptyCatalog = { version: 1 as const, packs: [] };
+
+  test("embed iframes a local file; html is inserted verbatim; budget stays clean", async () => {
+    const result = await render({ catalog: emptyCatalog, node: embedNode, root: demoRoot });
+    expect(result.errors).toEqual([]);
+    const index = file(result, "index.html").contents;
+    expect(index).toContain('<iframe class="embed" src="static/toy.html"');
+    expect(index).toContain("height:300px");
+    expect(index).toContain("<h2>Hand-written section</h2>"); // verbatim, not escaped
+    expect(findBudgetViolations(result.files)).toEqual([]);
+  });
+
+  test("a missing html-section file is a render error", async () => {
+    const bad: NodeManifest = { name: "x", sections: [{ type: "html", file: "sections/missing.html" }] };
+    const result = await render({ catalog: emptyCatalog, node: bad, root: demoRoot });
+    expect(result.errors.map((e) => e.message).join("\n")).toMatch(/does not exist/);
+  });
+
+  test("an external iframe src trips the offline-budget gate", async () => {
+    const external: NodeManifest = { name: "x", sections: [{ type: "embed", src: "https://evil.example/x.html" }] };
+    const result = await render({ catalog: emptyCatalog, node: external, root: demoRoot });
+    expect(findBudgetViolations(result.files).length).toBeGreaterThan(0);
   });
 });
 

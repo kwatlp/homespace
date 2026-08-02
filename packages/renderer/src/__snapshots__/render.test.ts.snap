@@ -1,5 +1,73 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`grid layout > index is a tile grid; every section gets its own page 1`] = `
+"<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo Node</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="custom.css">
+<link rel="alternate" type="application/rss+xml" href="feed.xml" title="Demo Node">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><div class="wrap">
+<p class="site-title">Demo Node</p>
+<nav class="site-nav" aria-label="Primary"><ul><li><a href="hero/">Hero</a></li><li><a href="games/">Games</a></li><li><a href="writing/">Writing</a></li><li><a href="elsewhere/">Elsewhere</a></li><li><a href="art/">Art</a></li></ul></nav>
+</div></header>
+<main id="main">
+<section class="section"><div class="wrap">
+<div class="tiles">
+<a class="tile" href="hero/">Hero</a>
+<a class="tile" href="games/">Games</a>
+<a class="tile" href="writing/">Writing</a>
+<a class="tile" href="elsewhere/">Elsewhere</a>
+<a class="tile" href="art/">Art</a>
+</div>
+</div></section>
+
+</main>
+<footer class="site-footer"><div class="wrap"><p>© demo</p></div></footer>
+</body>
+</html>
+"
+`;
+
+exports[`pages layout > landing + one page per section, with generated section nav and sitemap 1`] = `
+"<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo Node</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="custom.css">
+<link rel="alternate" type="application/rss+xml" href="feed.xml" title="Demo Node">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><div class="wrap">
+<p class="site-title">Demo Node</p>
+<nav class="site-nav" aria-label="Primary"><ul><li><a href="./">Hero</a></li><li><a href="games/">Games</a></li><li><a href="writing/">Writing</a></li><li><a href="elsewhere/">Elsewhere</a></li><li><a href="art/">Art</a></li></ul></nav>
+</div></header>
+<main id="main">
+<section class="section hero" id="hero"><div class="wrap">
+<h1>Demo Node</h1>
+<p>a test node</p>
+<img src="static/hero.webp" alt="">
+</div></section>
+
+</main>
+<footer class="site-footer"><div class="wrap"><p>© demo</p></div></footer>
+</body>
+</html>
+"
+`;
+
 exports[`render — demo node > golden: feed.xml 1`] = `
 "<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
@@ -29,6 +97,7 @@ exports[`render — demo node > golden: game detail 1`] = `
 <link rel="stylesheet" href="../../tokens.css">
 <link rel="stylesheet" href="../../base.css">
 <link rel="stylesheet" href="../../custom.css">
+<link rel="alternate" type="application/rss+xml" href="../../feed.xml" title="Demo Node">
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -62,6 +131,7 @@ exports[`render — demo node > golden: index.html 1`] = `
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="base.css">
 <link rel="stylesheet" href="custom.css">
+<link rel="alternate" type="application/rss+xml" href="feed.xml" title="Demo Node">
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -97,6 +167,14 @@ exports[`render — demo node > golden: index.html 1`] = `
 </ul>
 </div></section>
 
+<section class="section" id="gallery"><div class="wrap">
+<h2>Art</h2>
+<div class="gallery">
+<a href="packs/portfolio/"><img src="packs/portfolio/files/cover.webp" alt="cover art" loading="lazy"></a>
+<a href="packs/portfolio/"><img src="packs/portfolio/files/a.webp" alt="Portfolio" loading="lazy"></a>
+</div>
+</div></section>
+
 </main>
 <footer class="site-footer"><div class="wrap"><p>© demo</p></div></footer>
 </body>
@@ -114,6 +192,7 @@ exports[`render — demo node > golden: post detail 1`] = `
 <link rel="stylesheet" href="../../tokens.css">
 <link rel="stylesheet" href="../../base.css">
 <link rel="stylesheet" href="../../custom.css">
+<link rel="alternate" type="application/rss+xml" href="../../feed.xml" title="Demo Node">
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
