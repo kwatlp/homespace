@@ -1,0 +1,6 @@
+{
+  "id": "escape",
+  "type": "game",
+  "title": "Escape Attempt",
+  "entrypoint": { "web": "../../../../etc/passwd" }
+}

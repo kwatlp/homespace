@@ -1,0 +1,9 @@
+{
+  "id": "checksum-typo",
+  "type": "game",
+  "title": "Checksum Key Typo",
+  "entrypoint": { "download": "build.zip" },
+  "checksums": {
+    "buildx.zip": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  }
+}

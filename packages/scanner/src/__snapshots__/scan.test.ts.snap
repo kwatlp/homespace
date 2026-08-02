@@ -1,0 +1,99 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`scan — valid sample node > serialized catalog matches snapshot 1`] = `
+"{
+  "packs": [
+    {
+      "dir": "content/packs/cedar-study",
+      "id": "cedar-study",
+      "media": {
+        "alt": {
+          "cover.webp": "A stand of cedar."
+        },
+        "cover": "cover.webp",
+        "gallery": [
+          "a.webp",
+          "b.webp"
+        ]
+      },
+      "slug": "cedar-study",
+      "tags": [
+        "art"
+      ],
+      "title": "Cedar Study",
+      "type": "art"
+    },
+    {
+      "dir": "content/packs/elsewhere",
+      "entrypoint": {
+        "link": "https://example.com/thing"
+      },
+      "id": "elsewhere",
+      "slug": "elsewhere",
+      "summary": "An outbound destination with depth.",
+      "tags": [
+        "reading"
+      ],
+      "title": "Elsewhere",
+      "type": "link"
+    },
+    {
+      "dir": "content/packs/field-notes",
+      "entrypoint": {
+        "post": "index.md"
+      },
+      "id": "field-notes",
+      "slug": "field-notes",
+      "summary": "First dev log.",
+      "tags": [
+        "devlog"
+      ],
+      "title": "Field Notes 01",
+      "type": "post"
+    },
+    {
+      "checksums": {
+        "dist/game.zip": "sha256:2f304cab9fa3e8d324c14b23ae2b5c158db734fefec400073fe93b5c17990902"
+      },
+      "dir": "content/packs/solterra-build",
+      "entrypoint": {
+        "download": "dist/game.zip"
+      },
+      "id": "solterra-build",
+      "license": "MIT",
+      "media": {
+        "cover": "cover.webp"
+      },
+      "slug": "solterra-build",
+      "summary": "Downloadable build with an integrity checksum.",
+      "title": "Solterra Build",
+      "type": "game",
+      "version": "1.0.0"
+    },
+    {
+      "created": "2026-01-01T00:00:00Z",
+      "dir": "content/packs/solterra-demo",
+      "entrypoint": {
+        "web": "index.html"
+      },
+      "id": "solterra-demo",
+      "license": "MIT",
+      "media": {
+        "cover": "cover.webp"
+      },
+      "slug": "solterra-demo",
+      "summary": "A tiny playable slice.",
+      "tags": [
+        "rpg",
+        "html5"
+      ],
+      "title": "Solterra Demo",
+      "type": "game",
+      "updated": "2026-01-02T00:00:00Z",
+      "version": "1.0.0"
+    }
+  ],
+  "version": 1
+}
+"
+`;
