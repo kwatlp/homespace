@@ -2,6 +2,7 @@ import { build } from "./commands/build.js";
 import { dev, type MdnsFactory } from "./commands/dev.js";
 import { init } from "./commands/init.js";
 import { newCommand } from "./commands/new.js";
+import { serve } from "./commands/serve.js";
 import { validate } from "./commands/validate.js";
 import { consoleIO, type Context, type IO } from "./io.js";
 
@@ -22,6 +23,7 @@ Commands:
   validate [--verify]                        Validate the node manifest and all packs
   build [--out DIR] [--verify] [--stamp] [--base-url URL]   Build to dist/
   dev [--port N] [--host H] [--coi] [--hosts-hint]         Serve dist/ with live rebuild
+  serve [--port N] [--host H]                              Tier-2 daemon (needs @kwatlp/serve)
 `;
 
 /** Route a CLI invocation to a command. Returns a process exit code. */
@@ -46,8 +48,7 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
     case "dev":
       return dev(rest, ctx, options.mdns);
     case "serve":
-      ctx.io.err("kwatlp serve requires @kwatlp/serve (Tier 2) — arrives in WO-9\n");
-      return 1;
+      return serve(rest, ctx);
     default:
       ctx.io.err(`unknown command '${command}'. Try: init, new, validate, build, dev\n`);
       return 1;
