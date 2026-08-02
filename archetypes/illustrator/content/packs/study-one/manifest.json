@@ -1,0 +1,12 @@
+{
+  "id": "study-one",
+  "type": "art",
+  "title": "Study One",
+  "summary": "Charcoal, morning.",
+  "media": {
+    "cover": "cover.svg",
+    "gallery": ["detail.svg"],
+    "alt": { "cover.svg": "A study in charcoal.", "detail.svg": "A close detail of the study." }
+  },
+  "tags": ["charcoal"]
+}

@@ -1,0 +1,7 @@
+{
+  "id": "newsletter",
+  "type": "link",
+  "title": "Newsletter",
+  "summary": "Subscribe for new essays.",
+  "entrypoint": { "link": "https://example.com/newsletter" }
+}

@@ -1,0 +1,26 @@
+{
+  // illustrator — image-first. "grid" layout: the landing page is a grid of
+  // section tiles; the gallery pulls every art pack's images.
+  "name": "illustrator",
+  "title": "Studio",
+  "tagline": "drawings & studies",
+  "lang": "en",
+  "layout": "grid",
+
+  "theme": {
+    "tokens": {
+      "color": { "bg": "#101014", "surface": "#1b1b22", "text": "#f4f4f8", "muted": "#a6a6b3", "accent": "#e0a94e" },
+      "maxWidth": 960
+    }
+  },
+
+  "nav": [{ "label": "Art", "href": "#gallery" }],
+
+  "sections": [
+    { "type": "hero", "heading": "Studio", "sub": "Drawings and studies." },
+    { "type": "gallery", "title": "Art", "source": { "types": ["art"] } },
+    { "type": "links", "title": "Elsewhere", "source": { "types": ["link"] } }
+  ],
+
+  "footer": { "text": "© Studio" }
+}

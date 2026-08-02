@@ -1,0 +1,26 @@
+{
+  // author — writing-first. Each section is its own page ("pages" layout), an
+  // RSS feed is on, and posts lead.
+  "name": "author",
+  "title": "A. Writer",
+  "tagline": "essays & notes",
+  "lang": "en",
+  "layout": "pages",
+
+  "theme": {
+    "tokens": {
+      "color": { "bg": "#fbf7f0", "surface": "#f1e9db", "text": "#231d16", "muted": "#6b5d4a", "accent": "#9a3b2e" },
+      "maxWidth": 680
+    }
+  },
+
+  "nav": [{ "label": "Writing", "href": "#posts" }],
+
+  "sections": [
+    { "type": "hero", "heading": "A. Writer", "sub": "Essays and notes." },
+    { "type": "posts", "title": "Writing", "source": { "types": ["post"], "sort": "created" }, "rss": true },
+    { "type": "links", "title": "Elsewhere", "source": { "types": ["link"] } }
+  ],
+
+  "footer": { "text": "© A. Writer" }
+}

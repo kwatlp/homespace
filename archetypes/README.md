@@ -1,11 +1,10 @@
 # archetypes/
 
-Presets a creator copies with `kwatlp init <archetype>`. An archetype is exactly
-one annotated `node.manifest.jsonc` + `theme/` defaults (OFL-licensed fonts,
-vendored) + 2–4 sample packs + a `THEME.md` documenting every exposed variable
-in designer language. Nothing else.
+Presets a creator copies with `kwatlp init <archetype>`. An archetype is
+exactly one annotated `node.manifest.jsonc` + theme tokens + sample packs + a
+`THEME.md` documenting every exposed variable in designer language.
 
-v0 ships four (TDD §8); they land in **WO-7**:
+v0 ships four (TDD §8):
 
 | Archetype | Layout | Focus |
 |---|---|---|
@@ -14,4 +13,7 @@ v0 ships four (TDD §8); they land in **WO-7**:
 | `illustrator` | grid | image-first; gallery + lightbox |
 | `game-designer` | scroll | playable games/apps + dev log |
 
-Empty until WO-7. See `internal-docs/KwatlpTDD.md` §8.
+Each builds to a complete, offline node with `kwatlp build`. Sample images are
+SVGs so the presets ship zero external resources; fonts are left to the visitor's
+system by default (self-host a `.woff2` in `theme/fonts/` to override — see each
+archetype's `THEME.md`). See `internal-docs/KwatlpTDD.md` §8.

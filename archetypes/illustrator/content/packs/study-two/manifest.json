@@ -1,0 +1,11 @@
+{
+  "id": "study-two",
+  "type": "art",
+  "title": "Study Two",
+  "summary": "Ink, evening.",
+  "media": {
+    "cover": "cover.svg",
+    "alt": { "cover.svg": "A study in ink." }
+  },
+  "tags": ["ink"]
+}

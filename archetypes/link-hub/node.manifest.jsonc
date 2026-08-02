@@ -1,0 +1,27 @@
+{
+  // link-hub — "linktree with depth". The smallest promise: a scrollable page
+  // of outbound links (each with a cover + summary) and a few recent posts.
+  "name": "link-hub",
+  "title": "My Links",
+  "tagline": "everything, in one place",
+  "lang": "en",
+  "layout": "scroll",
+
+  // Restyle everything by editing these tokens — see THEME.md.
+  "theme": {
+    "tokens": {
+      "color": { "bg": "#0f1216", "surface": "#171b21", "text": "#eef2f6", "accent": "#6cc4a1" },
+      "maxWidth": 620
+    }
+  },
+
+  "nav": [{ "label": "Links", "href": "#links" }],
+
+  "sections": [
+    { "type": "hero", "heading": "My Links", "sub": "Everything I make, in one place." },
+    { "type": "links", "title": "Elsewhere", "source": { "types": ["link"] } },
+    { "type": "posts", "title": "Recently", "source": { "types": ["post"], "sort": "created", "limit": 3 }, "rss": true }
+  ],
+
+  "footer": { "text": "© My Links" }
+}

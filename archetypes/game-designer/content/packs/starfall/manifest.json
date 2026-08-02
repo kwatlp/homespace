@@ -1,0 +1,11 @@
+{
+  "id": "starfall",
+  "type": "game",
+  "title": "Starfall",
+  "summary": "A tiny browser toy.",
+  "version": "0.1.0",
+  "entrypoint": { "web": "index.html" },
+  "media": { "cover": "cover.svg", "alt": { "cover.svg": "Starfall cover art." } },
+  "sandbox": "standard",
+  "tags": ["html5", "toy"]
+}
