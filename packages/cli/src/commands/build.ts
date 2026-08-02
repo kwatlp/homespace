@@ -8,8 +8,8 @@ import {
   writeDist,
   type RenderInput,
   type WriteOptions,
-} from "@homespace/renderer";
-import { scan, type ScanOptions } from "@homespace/scanner";
+} from "homespace-renderer";
+import { scan, type ScanOptions } from "homespace-scanner";
 
 import type { Context } from "../io.js";
 import { loadHomespace } from "../load.js";

@@ -1,14 +1,14 @@
 import path from "node:path";
 
-import { loadHomespace } from "@homespace/cli";
+import { loadHomespace } from "homespace-cli";
 import {
   findBudgetViolations,
   loadSharpThumbnailer,
   render,
   writeDist,
   type WriteOptions,
-} from "@homespace/renderer";
-import { scan } from "@homespace/scanner";
+} from "homespace-renderer";
+import { scan } from "homespace-scanner";
 
 export interface RebuildResult {
   ok: boolean;

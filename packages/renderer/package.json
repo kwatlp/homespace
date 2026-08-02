@@ -1,5 +1,5 @@
 {
-  "name": "@homespace/renderer",
+  "name": "homespace-renderer",
   "version": "0.2.0",
   "description": "(catalog, homespace manifest) → dist/. Pure; no fs-walking knowledge.",
   "license": "MIT",
@@ -19,7 +19,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@homespace/schema": "^0.2.0",
+    "homespace-schema": "^0.2.0",
     "micromark": "^4.0.2",
     "micromark-extension-gfm": "^3.0.0"
   }

@@ -3,7 +3,7 @@ import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
 
-import type { HomespaceManifest } from "@homespace/schema";
+import type { HomespaceManifest } from "homespace-schema";
 import { watch, type FSWatcher } from "chokidar";
 
 import type { Context, IO } from "../io.js";

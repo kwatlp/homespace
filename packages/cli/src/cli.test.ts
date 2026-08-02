@@ -5,8 +5,8 @@ import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import type { HomespaceManifest } from "@homespace/schema";
-import { findBudgetViolations } from "@homespace/renderer";
+import type { HomespaceManifest } from "homespace-schema";
+import { findBudgetViolations } from "homespace-renderer";
 import { afterEach, describe, expect, test } from "vitest";
 
 import {

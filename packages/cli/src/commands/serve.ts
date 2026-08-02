@@ -25,7 +25,7 @@ async function loadServeConfig(root: string, port: number | undefined, host: str
   };
 }
 
-/** Tier-2 daemon (TDD §9). Only works if the optional @homespace/serve is installed. */
+/** Tier-2 daemon (TDD §9). Only works if the optional homespace-serve is installed. */
 export async function serve(argv: string[], ctx: Context): Promise<number> {
   const { values } = parseArgs({
     args: argv,
@@ -35,10 +35,10 @@ export async function serve(argv: string[], ctx: Context): Promise<number> {
 
   let mod: ServeModule;
   try {
-    const moduleName: string = "@homespace/serve";
+    const moduleName: string = "homespace-serve";
     mod = (await import(moduleName)) as ServeModule;
   } catch {
-    ctx.io.err("homespace serve requires the optional @homespace/serve package — install it with `npm i @homespace/serve`\n");
+    ctx.io.err("homespace serve requires the optional homespace-serve package — install it with `npm i homespace-serve`\n");
     return 1;
   }
 

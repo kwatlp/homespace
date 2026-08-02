@@ -1,7 +1,7 @@
 /**
- * `@homespace/cli` — the `homespace` command: `init | new | validate | build | dev`.
- * Thin orchestration over `@homespace/schema`, `@homespace/scanner`, and
- * `@homespace/renderer`. See `internal-docs/HomespaceTDD.md` §7.
+ * `homespace-cli` — the `homespace` command: `init | new | validate | build | dev`.
+ * Thin orchestration over `homespace-schema`, `homespace-scanner`, and
+ * `homespace-renderer`. See `internal-docs/HomespaceTDD.md` §7.
  */
 
 export { run, type RunOptions } from "./cli.js";

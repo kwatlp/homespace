@@ -1,5 +1,5 @@
 /**
- * `@homespace/serve` — the optional **Tier 2** daemon: serve dist/ with range
+ * `homespace-serve` — the optional **Tier 2** daemon: serve dist/ with range
  * requests, an operator write API (`PUT /api/packs/:id`, zip-slip-safe), and
  * scoped keys for linked systems. Additive by design; nothing else imports it.
  *

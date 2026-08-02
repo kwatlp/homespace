@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import type { Catalog, HomespaceManifest } from "@homespace/schema";
+import type { Catalog, HomespaceManifest } from "homespace-schema";
 import { beforeAll, describe, expect, test } from "vitest";
 
 import {

@@ -1,4 +1,4 @@
-import type { Catalog, CatalogPack, HomespaceManifest, Section } from "@homespace/schema";
+import type { Catalog, CatalogPack, HomespaceManifest, Section } from "homespace-schema";
 
 import { escapeAttr, escapeHtml } from "./escape.js";
 import { packAssetUrl, packPageUrl, thumbAssetUrl } from "./html.js";

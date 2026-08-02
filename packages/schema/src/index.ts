@@ -1,5 +1,5 @@
 /**
- * `@homespace/schema` — the two contracts (pack manifest §3, homespace manifest §4) and
+ * `homespace-schema` — the two contracts (pack manifest §3, homespace manifest §4) and
  * the emitted catalog, as JSON Schemas (the source of truth), the TypeScript
  * types generated from them, and `validate*()` entry points backed by ajv.
  *

@@ -1,7 +1,7 @@
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
-import { validateHomespace, type HomespaceManifest } from "@homespace/schema";
+import { validateHomespace, type HomespaceManifest } from "homespace-schema";
 
 import { parseJsonc } from "./jsonc.js";
 

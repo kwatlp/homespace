@@ -11,6 +11,6 @@
     "dist"
   ],
   "dependencies": {
-    "@homespace/cli": "^0.2.0"
+    "homespace-cli": "^0.2.0"
   }
 }

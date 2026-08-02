@@ -21,7 +21,7 @@ const banner = [
   "/**",
   " * AUTO-GENERATED — do not edit by hand.",
   " * Source: packages/schema/schemas/*.json",
-  " * Regenerate with: npm run codegen  (in @homespace/schema)",
+  " * Regenerate with: npm run codegen  (in homespace-schema)",
   " */",
   "",
 ].join("\n");

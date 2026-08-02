@@ -1,4 +1,4 @@
-import type { HomespaceManifest } from "@homespace/schema";
+import type { HomespaceManifest } from "homespace-schema";
 
 import { escapeAttr, escapeHtml } from "./escape.js";
 

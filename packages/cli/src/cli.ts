@@ -23,7 +23,7 @@ Commands:
   validate [--verify]                        Validate the homespace manifest and all packs
   build [--out DIR] [--verify] [--stamp] [--base-url URL]   Build to dist/
   dev [--port N] [--host H] [--coi] [--hosts-hint]         Serve dist/ with live rebuild
-  serve [--port N] [--host H]                              Tier-2 daemon (needs @homespace/serve)
+  serve [--port N] [--host H]                              Tier-2 daemon (needs homespace-serve)
 `;
 
 /** Route a CLI invocation to a command. Returns a process exit code. */
