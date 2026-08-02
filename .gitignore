@@ -41,3 +41,6 @@ Thumbs.db
 packages/cli/templates/*
 !packages/cli/templates/blank
 !packages/cli/templates/blank/**
+
+# Scratch homespace scaffolded by `homespace init` while testing
+/my-homespace/
