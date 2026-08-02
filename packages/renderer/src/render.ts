@@ -7,9 +7,10 @@ import { BASE_CSS } from "./assets.js";
 import { DETAIL_PREFIX, renderPackDetail, renderPostDetail } from "./detail.js";
 import { escapeAttr, escapeHtml } from "./escape.js";
 import { renderFeed, renderSitemap } from "./feed.js";
-import { page, type NavItem } from "./html.js";
+import { packAssetUrl, page, type NavItem } from "./html.js";
 import { stableStringify } from "./json.js";
 import { renderMarkdown } from "./markdown.js";
+import { isRasterImage, THUMB_WIDTH } from "./thumbnails.js";
 import { renderTokensCss } from "./tokens.js";
 import {
   renderSection,
@@ -26,6 +27,8 @@ export interface RenderInput {
   root: string;
   /** Absolute base URL for feed/sitemap; relative when omitted. */
   site?: string;
+  /** Reference (and emit) .thumbs/ images — set when a thumbnailer is available. */
+  thumbnails?: boolean;
 }
 
 export interface RenderIssue {
@@ -45,9 +48,17 @@ export interface CopyOp {
   to: string;
 }
 
+/** A thumbnail to generate: downscale `from` to `width` and write to `to`. */
+export interface ThumbOp {
+  from: string;
+  to: string;
+  width: number;
+}
+
 export interface RenderResult {
   files: OutputFile[];
   assets: CopyOp[];
+  thumbnails: ThumbOp[];
   errors: RenderIssue[];
   warnings: RenderIssue[];
 }
@@ -101,6 +112,7 @@ export async function render(input: RenderInput): Promise<RenderResult> {
   const warnings: RenderIssue[] = [];
   const files: OutputFile[] = [];
   const assets: CopyOp[] = [];
+  const thumbnails: ThumbOp[] = [];
 
   // 1. tokens.css (+ font assets) and base.css.
   const tokens = renderTokensCss(node.theme?.tokens);
@@ -162,8 +174,9 @@ export async function render(input: RenderInput): Promise<RenderResult> {
   const layout = node.layout === "pages" || node.layout === "grid" ? node.layout : "scroll";
   const sitemapPaths = ["/"];
 
+  const useThumbs = input.thumbnails === true;
   const renderInto = (section: Section, basePrefix: string): string =>
-    renderSection(section, { node, catalog, basePrefix, htmlFiles }) ?? "";
+    renderSection(section, { node, catalog, basePrefix, htmlFiles, thumbnails: useThumbs }) ?? "";
 
   if (layout === "scroll") {
     const main = supported.map((s) => renderInto(s, "")).join("\n");
@@ -229,6 +242,18 @@ export async function render(input: RenderInput): Promise<RenderResult> {
       }
     }
 
+    // Emit thumbnails for the raster images shown in cards/gallery.
+    if (useThumbs) {
+      const images = [pack.media?.cover, ...(Array.isArray(pack.media?.gallery) ? pack.media.gallery : [])];
+      for (const rel of images) {
+        if (typeof rel !== "string" || !isRasterImage(rel)) continue;
+        const from = path.join(packDir, rel);
+        if (await exists(from)) {
+          thumbnails.push({ from, to: `.thumbs/${packAssetUrl("", pack, rel)}`, width: THUMB_WIDTH });
+        }
+      }
+    }
+
     if (pack.type === "post") {
       const src = pack.entrypoint?.post;
       if (typeof src !== "string") {
@@ -265,5 +290,6 @@ export async function render(input: RenderInput): Promise<RenderResult> {
   files.push({ path: "sitemap.txt", contents: renderSitemap(sitemapPaths, site) });
 
   assets.sort((a, b) => (a.to < b.to ? -1 : a.to > b.to ? 1 : 0));
-  return { files, assets, errors, warnings };
+  thumbnails.sort((a, b) => (a.to < b.to ? -1 : a.to > b.to ? 1 : 0));
+  return { files, assets, thumbnails, errors, warnings };
 }

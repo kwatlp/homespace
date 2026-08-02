@@ -1,8 +1,9 @@
 import type { Catalog, CatalogPack, NodeManifest, Section } from "@kwatlp/schema";
 
 import { escapeAttr, escapeHtml } from "./escape.js";
-import { packAssetUrl, packPageUrl } from "./html.js";
+import { packAssetUrl, packPageUrl, thumbAssetUrl } from "./html.js";
 import { selectPacks } from "./select.js";
+import { isRasterImage } from "./thumbnails.js";
 
 export interface RenderContext {
   node: NodeManifest;
@@ -11,6 +12,15 @@ export interface RenderContext {
   basePrefix: string;
   /** Verbatim contents of `html` section files, keyed by manifest path. */
   htmlFiles?: ReadonlyMap<string, string>;
+  /** When true, cards/gallery reference generated .thumbs/ images. */
+  thumbnails?: boolean;
+}
+
+/** Pick the thumbnail URL when enabled and the image is a raster; else full. */
+function imageUrl(pack: CatalogPack, rel: string, ctx: RenderContext): string {
+  return ctx.thumbnails === true && isRasterImage(rel)
+    ? thumbAssetUrl(ctx.basePrefix, pack, rel)
+    : packAssetUrl(ctx.basePrefix, pack, rel);
 }
 
 /** The full v0 section registry (TDD §4). */
@@ -85,7 +95,7 @@ function coverImg(pack: CatalogPack, ctx: RenderContext, className: string): str
   const cover = pack.media?.cover;
   if (typeof cover !== "string") return "";
   const alt = pack.media?.alt?.[cover] ?? pack.title;
-  const src = packAssetUrl(ctx.basePrefix, pack, cover);
+  const src = imageUrl(pack, cover, ctx);
   return `<img class="${className}" src="${escapeAttr(src)}" alt="${escapeAttr(alt)}" loading="lazy">`;
 }
 
@@ -161,7 +171,7 @@ function gallery(section: Section, ctx: RenderContext): string {
     const href = packPageUrl(ctx.basePrefix, pack);
     for (const img of images) {
       const alt = pack.media?.alt?.[img] ?? pack.title;
-      const src = packAssetUrl(ctx.basePrefix, pack, img);
+      const src = imageUrl(pack, img, ctx);
       figures.push(
         `<a href="${escapeAttr(href)}"><img src="${escapeAttr(src)}" alt="${escapeAttr(alt)}" loading="lazy"></a>`,
       );
