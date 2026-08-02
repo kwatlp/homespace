@@ -1,0 +1,123 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kwatlp.dev/schema/pack.schema.json",
+  "title": "PackManifest",
+  "description": "Contract #1 — a publishable pack: a directory plus this manifest.json. See TDD §3.",
+  "type": "object",
+  "required": ["id", "type", "title"],
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Slug; also the pack folder name under content/packs/.",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["game", "app", "art", "post", "link", "bundle"]
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "summary": { "type": "string", "description": "One short sentence." },
+    "version": { "type": "string" },
+    "entrypoint": { "$ref": "#/$defs/PackEntrypoint" },
+    "media": { "$ref": "#/$defs/PackMedia" },
+    "checksums": { "$ref": "#/$defs/Checksums" },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "license": { "type": "string" },
+    "created": { "type": "string", "description": "ISO-8601 timestamp." },
+    "updated": { "type": "string", "description": "ISO-8601 timestamp." },
+    "discussion_url": { "type": "string" },
+    "sandbox": {
+      "type": "string",
+      "enum": ["standard", "strict"],
+      "default": "standard",
+      "description": "Player isolation level for embedded web builds. See TDD §6.4."
+    },
+    "extra": {
+      "type": "object",
+      "description": "Freeform escape hatch, passed through to templates untouched.",
+      "additionalProperties": true
+    }
+  },
+  "allOf": [
+    {
+      "description": "game/app must ship a playable or downloadable entrypoint.",
+      "if": {
+        "required": ["type"],
+        "properties": { "type": { "enum": ["game", "app"] } }
+      },
+      "then": {
+        "required": ["entrypoint"],
+        "properties": {
+          "entrypoint": {
+            "anyOf": [{ "required": ["web"] }, { "required": ["download"] }]
+          }
+        }
+      }
+    },
+    {
+      "description": "post must point at a markdown file.",
+      "if": {
+        "required": ["type"],
+        "properties": { "type": { "const": "post" } }
+      },
+      "then": {
+        "required": ["entrypoint"],
+        "properties": { "entrypoint": { "required": ["post"] } }
+      }
+    },
+    {
+      "description": "link must point at an outbound destination.",
+      "if": {
+        "required": ["type"],
+        "properties": { "type": { "const": "link" } }
+      },
+      "then": {
+        "required": ["entrypoint"],
+        "properties": { "entrypoint": { "required": ["link"] } }
+      }
+    },
+    {
+      "description": "Every download entry requires a checksum (scanner verifies with --verify).",
+      "if": {
+        "required": ["entrypoint"],
+        "properties": { "entrypoint": { "required": ["download"] } }
+      },
+      "then": { "required": ["checksums"] }
+    }
+  ],
+  "$defs": {
+    "PackEntrypoint": {
+      "type": "object",
+      "description": "Only the keys relevant to the pack type are required.",
+      "additionalProperties": false,
+      "properties": {
+        "web": { "type": "string", "description": "Relative path to an HTML entry (game/app)." },
+        "download": { "type": "string", "description": "Relative path to a downloadable file." },
+        "post": { "type": "string", "description": "Relative path to a markdown file." },
+        "link": { "type": "string", "description": "Outbound URL." }
+      }
+    },
+    "PackMedia": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "cover": { "type": "string" },
+        "gallery": { "type": "array", "items": { "type": "string" } },
+        "alt": {
+          "type": "object",
+          "description": "Map of media path → alt text (accessibility; TDD §5.3).",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "Checksums": {
+      "type": "object",
+      "description": "Map of relative file path → 'sha256:<64 hex>'.",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^sha256:[a-f0-9]{64}$"
+      }
+    }
+  }
+}

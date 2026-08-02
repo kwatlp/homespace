@@ -1,11 +1,35 @@
 /**
- * `@kwatlp/schema` — JSON Schemas for the two contracts (pack manifest, node
- * manifest) plus the derived `catalog.json`, the generated TypeScript types,
- * and a `validate()` entry point.
+ * `@kwatlp/schema` — the two contracts (pack manifest §3, node manifest §4) and
+ * the emitted catalog, as JSON Schemas (the source of truth), the TypeScript
+ * types generated from them, and `validate*()` entry points backed by ajv.
  *
- * Scaffold only (TDD §11, WO-0). The schemas, types, and validator land in
- * WO-1. See `internal-docs/KwatlpTDD.md` §3, §4.
+ * See `internal-docs/KwatlpTDD.md` §3, §4, §5.
  */
 
-/** Package identifier — placeholder until WO-1 lands the real surface. */
-export const PACKAGE_NAME = "@kwatlp/schema";
+export type {
+  Catalog,
+  CatalogPack,
+  Checksums,
+  Footer,
+  LocalAddress,
+  NavLink,
+  NodeManifest,
+  PackEntrypoint,
+  PackManifest,
+  PackMedia,
+  Section,
+  Source,
+  Theme,
+  ThemeTokens,
+} from "./types.generated.js";
+
+export {
+  catalogSchema,
+  nodeSchema,
+  packSchema,
+  validateCatalog,
+  validateNode,
+  validatePack,
+  type ValidationIssue,
+  type ValidationResult,
+} from "./validate.js";
