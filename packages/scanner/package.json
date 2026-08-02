@@ -1,5 +1,5 @@
 {
-  "name": "@homespace/scanner",
+  "name": "homespace-scanner",
   "version": "0.2.0",
   "description": "content/ → catalog.json. Pure; no rendering knowledge.",
   "license": "MIT",
@@ -19,6 +19,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@homespace/schema": "^0.2.0"
+    "homespace-schema": "^0.2.0"
   }
 }

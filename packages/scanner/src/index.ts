@@ -1,6 +1,6 @@
 /**
- * `@homespace/scanner` — walks a homespace's `content/` tree, validates each pack
- * manifest against `@homespace/schema`, confines every pack-relative path, and
+ * `homespace-scanner` — walks a homespace's `content/` tree, validates each pack
+ * manifest against `homespace-schema`, confines every pack-relative path, and
  * emits a deterministic `catalog.json`. Pure with respect to rendering: it
  * produces data, never HTML.
  *

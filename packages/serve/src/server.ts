@@ -4,8 +4,8 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 
-import { contentType } from "@homespace/cli";
-import { validatePack } from "@homespace/schema";
+import { contentType } from "homespace-cli";
+import { validatePack } from "homespace-schema";
 import { watch } from "chokidar";
 
 import type { ServeConfig } from "./config.js";

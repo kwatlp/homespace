@@ -1,7 +1,7 @@
 import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 
-import type { Catalog, CatalogPack, HomespaceManifest, Section } from "@homespace/schema";
+import type { Catalog, CatalogPack, HomespaceManifest, Section } from "homespace-schema";
 
 import { BASE_CSS } from "./assets.js";
 import { DETAIL_PREFIX, renderPackDetail, renderPostDetail } from "./detail.js";

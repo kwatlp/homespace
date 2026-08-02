@@ -1,4 +1,4 @@
-import type { ThemeTokens } from "@homespace/schema";
+import type { ThemeTokens } from "homespace-schema";
 
 import { isExternalUrl } from "./url.js";
 

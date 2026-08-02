@@ -1,4 +1,4 @@
-import type { PackManifest } from "@homespace/schema";
+import type { PackManifest } from "homespace-schema";
 
 export const PACK_TYPES = ["game", "app", "art", "post", "link", "bundle"] as const;
 export type PackType = (typeof PACK_TYPES)[number];

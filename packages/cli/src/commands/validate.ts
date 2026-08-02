@@ -1,6 +1,6 @@
 import { parseArgs } from "node:util";
 
-import { scan, type ScanOptions } from "@homespace/scanner";
+import { scan, type ScanOptions } from "homespace-scanner";
 
 import type { Context } from "../io.js";
 import { loadHomespace } from "../load.js";

@@ -7,7 +7,7 @@ import {
   type CatalogPack,
   type PackManifest,
   validatePack,
-} from "@homespace/schema";
+} from "homespace-schema";
 
 import { confineToBase, toPosix } from "./paths.js";
 

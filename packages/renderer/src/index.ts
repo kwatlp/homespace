@@ -1,5 +1,5 @@
 /**
- * `@homespace/renderer` — turns a `(catalog, homespace manifest)` pair plus a homespace's
+ * `homespace-renderer` — turns a `(catalog, homespace manifest)` pair plus a homespace's
  * theme/static/pack files into a `dist/` of static HTML + CSS with no external
  * requests. Deterministic; never walks the filesystem outside its inputs.
  *

@@ -200,6 +200,11 @@ homespace/
 ### 5.1 Runtime & language
 TypeScript (strict), Node ≥ 20, npm workspaces. CLI bundled with esbuild; runnable via `npx homespace`.
 
+> **WO-11 amendment (naming):** the `@homespace` npm scope was not claimed, so
+> packages publish **unscoped** — `homespace-schema`, `homespace-scanner`,
+> `homespace-renderer`, `homespace-cli`, `homespace-serve` — with a thin public
+> launcher package named `homespace` exposing the `homespace` bin.
+
 ### 5.2 Output constraints (hard)
 - Output is static HTML + CSS + minimal vanilla JS (lightbox, player shell). **No framework, no bundle, no external request** in `dist/`.
 - Core browsing/reading must work with JavaScript disabled. JS enhances (lightbox, player chrome); it never gates content.
@@ -265,7 +270,7 @@ micromark, GFM, raw HTML disabled by default. Homespace-level opt-in `"markdown"
 | `homespace validate` | Validate homespace manifest + all packs; `--verify` also checks checksums. Exit ≠ 0 on error; warnings listed. |
 | `homespace build` | validate → scan → render → `dist/`. `--out`, `--verify`, `--stamp`. |
 | `homespace dev` | build, serve `dist/` on localhost, watch & rebuild. Correct MIME + COOP/COEP headers toggle (`--coi`) for threaded WASM builds. |
-| `homespace serve` | Tier 2 (§9); only if `@homespace/serve` is installed. |
+| `homespace serve` | Tier 2 (§9); only if `homespace-serve` is installed. |
 
 Error voice: plain language, path + fix suggestion. The audience is designers, not sysadmins.
 
@@ -293,7 +298,7 @@ Each ships: annotated `homespace.manifest.jsonc`, `theme/` (OFL-licensed fonts o
 
 ---
 
-## 9. Tier 2 — daemon (`@homespace/serve`) — build LAST
+## 9. Tier 2 — daemon (`homespace-serve`) — build LAST
 
 Optional package for operators who want remote publish or app integrations. Static tiers must never require it.
 
@@ -336,9 +341,9 @@ Accounts, sessions, comments, federation endpoints, analytics.
 - **WO-6 — Player & downloads.** iframe player, standard/strict sandbox, load-on-click, checksum display; fixture web-build plays under `homespace dev`. *Exit:* manual checklist + dom tests.
 - **WO-7 — Archetypes ×4.** Presets, THEME.md each, sample packs, OFL fonts vendored. *Exit:* `init X && build` clean for all four; a11y smoke green.
 - **WO-8 — Media pipeline.** Optional sharp thumbnails; graceful absence. *Exit:* builds pass with and without sharp installed.
-- **WO-9 — Daemon.** `@homespace/serve` per §9. *Exit:* integration tests incl. zip-slip, scope enforcement.
+- **WO-9 — Daemon.** `homespace-serve` per §9. *Exit:* integration tests incl. zip-slip, scope enforcement.
 - **WO-10 — Release.** docs/ rebuilt as a homespace (dogfood), THIRD_PARTY.md, `npx` path verified, v0.1.0. *Exit:* Definition of Done (§14) demonstrated end-to-end on a clean machine.
-- **WO-11 — Rename to `homespace` & republish.** Sweep the codebase to match this document: packages `@homespace/*` (claim the npm scope at publish; if unavailable, fall back to `homespace-schema` etc. and amend §5), CLI/bin `homespace`, repo `homespace`, manifest filename `homespace.manifest.jsonc` (loader accepts legacy `node.manifest.jsonc` with a deprecation warning for one minor version), scaffold dirs `my-homespace/`, all docs/THEME.md/error strings; no instance branding in samples or scaffolds. Publish `homespace` v0.2.0 to npm. Golden-diff guard: `dist/` output identical to v0.1.0 except renamed strings. *Exit:* §14 stranger-test passes against the **published** package on a clean machine; `grep -ri kwatlp` returns nothing; `grep -riE '\bnode\b'` returns only Node-runtime references.
+- **WO-11 — Rename to `homespace` & republish.** Sweep the codebase to match this document: packages `homespace-*` (claim the npm scope at publish; if unavailable, fall back to `homespace-schema` etc. and amend §5), CLI/bin `homespace`, repo `homespace`, manifest filename `homespace.manifest.jsonc` (loader accepts legacy `node.manifest.jsonc` with a deprecation warning for one minor version), scaffold dirs `my-homespace/`, all docs/THEME.md/error strings; no instance branding in samples or scaffolds. Publish `homespace` v0.2.0 to npm. Golden-diff guard: `dist/` output identical to v0.1.0 except renamed strings. *Exit:* §14 stranger-test passes against the **published** package on a clean machine; `grep -ri kwatlp` returns nothing; `grep -riE '\bnode\b'` returns only Node-runtime references.
 
 ---
 

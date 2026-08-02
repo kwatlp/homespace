@@ -80,7 +80,7 @@ dependency budget (§5.4) are binding; changing one means amending the TDD
 - `packages/cli/` — `homespace init|new|validate|build|dev` (thin orchestration;
   the library that `run()`s commands)
 - `packages/launcher/` — the public `homespace` package/bin; a thin delegator to
-  `@homespace/cli` so `npx homespace` works
+  `homespace-cli` so `npx homespace` works
 - `packages/serve/` — **Tier 2 only**, optional daemon; nothing else imports it
 - `archetypes/` — presets: `link-hub`, `author`, `illustrator`, `game-designer`
 - `examples/` — fixture homespaces used by tests

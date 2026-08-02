@@ -1,4 +1,4 @@
-import type { CatalogPack, HomespaceManifest } from "@homespace/schema";
+import type { CatalogPack, HomespaceManifest } from "homespace-schema";
 
 import { escapeXml } from "./escape.js";
 
