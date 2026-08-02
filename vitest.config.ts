@@ -16,6 +16,7 @@ export default defineConfig({
       "@kwatlp/schema": pkgSrc("schema"),
       "@kwatlp/scanner": pkgSrc("scanner"),
       "@kwatlp/renderer": pkgSrc("renderer"),
+      "@kwatlp/cli": pkgSrc("cli"),
     },
   },
 });

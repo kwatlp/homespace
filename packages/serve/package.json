@@ -22,6 +22,7 @@
     "@kwatlp/cli": "*",
     "@kwatlp/renderer": "*",
     "@kwatlp/scanner": "*",
-    "@kwatlp/schema": "*"
+    "@kwatlp/schema": "*",
+    "chokidar": "^4.0.3"
   }
 }
