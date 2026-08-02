@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kwatlp.dev/schema/catalog.schema.json",
+  "title": "Catalog",
+  "description": "Deterministic scanner output: content/ → catalog.json. Consumed by the renderer. See TDD §2, §6. Refined in WO-2.",
+  "type": "object",
+  "required": ["version", "packs"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1,
+      "description": "Catalog format version."
+    },
+    "generated": {
+      "type": "string",
+      "description": "Optional build stamp (ISO-8601); omitted unless the build ran with --stamp (determinism)."
+    },
+    "packs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/CatalogPack" }
+    }
+  },
+  "$defs": {
+    "CatalogPack": {
+      "type": "object",
+      "description": "A validated pack manifest plus scanner-derived fields.",
+      "required": ["id", "type", "title", "slug", "dir"],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["game", "app", "art", "post", "link", "bundle"]
+        },
+        "title": { "type": "string" },
+        "summary": { "type": "string" },
+        "version": { "type": "string" },
+        "slug": {
+          "type": "string",
+          "description": "URL-safe identifier for detail-page routing (derived from id)."
+        },
+        "dir": {
+          "type": "string",
+          "description": "Pack folder path relative to the node root, e.g. content/packs/<id>."
+        },
+        "entrypoint": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "web": { "type": "string" },
+            "download": { "type": "string" },
+            "post": { "type": "string" },
+            "link": { "type": "string" }
+          }
+        },
+        "media": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "cover": { "type": "string" },
+            "gallery": { "type": "array", "items": { "type": "string" } },
+            "alt": { "type": "object", "additionalProperties": { "type": "string" } }
+          }
+        },
+        "checksums": { "type": "object", "additionalProperties": { "type": "string" } },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "license": { "type": "string" },
+        "created": { "type": "string" },
+        "updated": { "type": "string" },
+        "discussion_url": { "type": "string" },
+        "sandbox": { "type": "string", "enum": ["standard", "strict"] },
+        "extra": { "type": "object", "additionalProperties": true }
+      }
+    }
+  }
+}

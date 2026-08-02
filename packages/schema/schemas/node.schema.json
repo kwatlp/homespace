@@ -1,0 +1,163 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kwatlp.dev/schema/node.schema.json",
+  "title": "NodeManifest",
+  "description": "Contract #2 — the composition layer for a node. See TDD §4.",
+  "type": "object",
+  "required": ["name"],
+  "additionalProperties": true,
+  "properties": {
+    "$schema": { "type": "string" },
+    "name": {
+      "type": "string",
+      "description": "Machine slug.",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "title": { "type": "string", "description": "Display name." },
+    "tagline": { "type": "string" },
+    "lang": { "type": "string", "default": "en" },
+    "local": { "$ref": "#/$defs/LocalAddress" },
+    "layout": {
+      "type": "string",
+      "enum": ["scroll", "pages", "grid"],
+      "default": "scroll"
+    },
+    "theme": { "$ref": "#/$defs/Theme" },
+    "nav": { "type": "array", "items": { "$ref": "#/$defs/NavLink" } },
+    "markdown": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "allowHtml": {
+          "type": "boolean",
+          "default": false,
+          "description": "Node-level opt-in for raw HTML in post markdown (TDD §6.3)."
+        }
+      }
+    },
+    "sections": { "type": "array", "items": { "$ref": "#/$defs/Section" } },
+    "footer": { "$ref": "#/$defs/Footer" }
+  },
+  "$defs": {
+    "LocalAddress": {
+      "type": "object",
+      "description": "Local dev/serve address (TDD §7.1).",
+      "additionalProperties": false,
+      "properties": {
+        "host": { "type": "string" },
+        "port": { "type": "integer", "minimum": 1, "maximum": 65535, "default": 4321 },
+        "mdns": { "type": "boolean", "default": false }
+      }
+    },
+    "NavLink": {
+      "type": "object",
+      "required": ["label", "href"],
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string" },
+        "href": { "type": "string" }
+      }
+    },
+    "Theme": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tokens": { "$ref": "#/$defs/ThemeTokens" },
+        "css": { "type": "string", "description": "Optional custom stylesheet, loaded last." }
+      }
+    },
+    "ThemeTokens": {
+      "type": "object",
+      "description": "Designer-facing variables; additional tokens are allowed.",
+      "additionalProperties": true,
+      "properties": {
+        "color": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "properties": {
+            "bg": { "type": "string" },
+            "surface": { "type": "string" },
+            "text": { "type": "string" },
+            "accent": { "type": "string" }
+          }
+        },
+        "font": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "body": { "type": "string" },
+            "display": { "type": "string" },
+            "scale": { "type": "number" }
+          }
+        },
+        "space": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": { "unit": { "type": "number" } }
+        },
+        "radius": { "type": "number" },
+        "maxWidth": { "type": "number" }
+      }
+    },
+    "Footer": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "text": { "type": "string" },
+        "links": { "type": "array", "items": { "$ref": "#/$defs/NavLink" } }
+      }
+    },
+    "Source": {
+      "type": "object",
+      "description": "Filter resolved against catalog.json (TDD §4).",
+      "additionalProperties": false,
+      "properties": {
+        "types": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["game", "app", "art", "post", "link", "bundle"]
+          }
+        },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "ids": { "type": "array", "items": { "type": "string" } },
+        "sort": { "type": "string", "enum": ["created", "updated", "title"] },
+        "limit": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "Section": {
+      "type": "object",
+      "description": "One ordered composition block. type selects the renderer module (v0 registry).",
+      "required": ["type"],
+      "additionalProperties": true,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["hero", "links", "packs", "posts", "gallery", "embed", "html"]
+        },
+        "title": { "type": "string" },
+        "heading": { "type": "string" },
+        "sub": { "type": "string" },
+        "media": { "type": "string" },
+        "style": { "type": "string" },
+        "rss": { "type": "boolean" },
+        "src": { "type": "string" },
+        "height": { "type": "number" },
+        "file": { "type": "string" },
+        "source": { "$ref": "#/$defs/Source" }
+      },
+      "allOf": [
+        {
+          "description": "embed sections require a src.",
+          "if": { "properties": { "type": { "const": "embed" } } },
+          "then": { "required": ["src"] }
+        },
+        {
+          "description": "html sections require a file.",
+          "if": { "properties": { "type": { "const": "html" } } },
+          "then": { "required": ["file"] }
+        }
+      ]
+    }
+  }
+}

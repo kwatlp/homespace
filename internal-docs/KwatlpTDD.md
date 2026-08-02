@@ -218,8 +218,15 @@ Semantic HTML landmarks; every media entry supports `alt` (manifest `media.alt` 
 | `bonjour-service` | *optional* mDNS advertising for `local.host` (§7.1) | MIT |
 | `esbuild` | (dev-time) CLI bundling | MIT |
 | `vitest` | (dev-time) tests | MIT |
+| `typescript` | (dev-time) type-checking / build | Apache-2.0 |
+| `json-schema-to-typescript` | (dev-time) generate `types.generated.ts` from the JSON Schemas (§5, WO-1) | MIT |
 
 No postinstall scripts. Lockfile committed. Anything else needs a TDD amendment.
+
+> **Amendment log**
+> - WO-1: added dev-time `json-schema-to-typescript` (schemas are the source of
+>   truth; TS types are generated from them) and recorded the already-implicit
+>   dev-time `typescript`. No new *runtime* dependency beyond the budgeted `ajv`.
 
 ---
 
