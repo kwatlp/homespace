@@ -13,7 +13,7 @@ export async function newCommand(argv: string[], ctx: Context): Promise<number> 
   const [subject, type, id] = positionals;
 
   if (subject !== "pack") {
-    ctx.io.err(`usage: kwatlp new pack <type> <id>\n`);
+    ctx.io.err(`usage: homespace new pack <type> <id>\n`);
     return 1;
   }
   if (type === undefined || !isPackType(type)) {
@@ -41,6 +41,6 @@ export async function newCommand(argv: string[], ctx: Context): Promise<number> 
     await writeFile(dest, file.contents, "utf8");
   }
 
-  ctx.io.out(`Created ${type} pack → content/packs/${id}\nNext: edit it, then kwatlp build\n`);
+  ctx.io.out(`Created ${type} pack → content/packs/${id}\nNext: edit it, then homespace build\n`);
   return 0;
 }

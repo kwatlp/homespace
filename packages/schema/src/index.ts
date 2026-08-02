@@ -1,9 +1,9 @@
 /**
- * `@kwatlp/schema` — the two contracts (pack manifest §3, node manifest §4) and
+ * `@homespace/schema` — the two contracts (pack manifest §3, homespace manifest §4) and
  * the emitted catalog, as JSON Schemas (the source of truth), the TypeScript
  * types generated from them, and `validate*()` entry points backed by ajv.
  *
- * See `internal-docs/KwatlpTDD.md` §3, §4, §5.
+ * See `internal-docs/HomespaceTDD.md` §3, §4, §5.
  */
 
 export type {
@@ -13,7 +13,7 @@ export type {
   Footer,
   LocalAddress,
   NavLink,
-  NodeManifest,
+  HomespaceManifest,
   PackEntrypoint,
   PackManifest,
   PackMedia,
@@ -25,10 +25,10 @@ export type {
 
 export {
   catalogSchema,
-  nodeSchema,
+  homespaceSchema,
   packSchema,
   validateCatalog,
-  validateNode,
+  validateHomespace,
   validatePack,
   type ValidationIssue,
   type ValidationResult,

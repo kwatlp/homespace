@@ -1,6 +1,6 @@
 {
-  "name": "@kwatlp/serve",
-  "version": "0.1.0",
+  "name": "@homespace/serve",
+  "version": "0.2.0",
   "description": "Tier 2 only — optional daemon (watch-rebuild, upload API, scoped keys). Nothing else imports it.",
   "license": "MIT",
   "type": "module",
@@ -19,10 +19,10 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@kwatlp/cli": "*",
-    "@kwatlp/renderer": "*",
-    "@kwatlp/scanner": "*",
-    "@kwatlp/schema": "*",
+    "@homespace/cli": "*",
+    "@homespace/renderer": "*",
+    "@homespace/scanner": "*",
+    "@homespace/schema": "*",
     "chokidar": "^4.0.3"
   }
 }

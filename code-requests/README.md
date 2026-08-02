@@ -19,7 +19,7 @@ code-requests/
 ```
 
 - **Organized by work order.** One folder per TDD work order (`WO-1`, `WO-2`, …;
-  see `internal-docs/KwatlpTDD.md` §11). Requests that aren't tied to a work
+  see `internal-docs/HomespaceTDD.md` §11). Requests that aren't tied to a work
   order — tooling, CI, repo hygiene — go in `_meta/`.
 - **Global IDs.** Each request gets the next zero-padded number (`001`, `002`,
   …) across the whole tree, so it's uniquely referenceable regardless of folder.

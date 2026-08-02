@@ -1,11 +1,11 @@
-import type { ThemeTokens } from "@kwatlp/schema";
+import type { ThemeTokens } from "@homespace/schema";
 
 import { isExternalUrl } from "./url.js";
 
 /** A self-hosted font file to copy into dist, keyed by the CSS family it backs. */
 export interface FontAsset {
   family: string;
-  /** Path relative to the node root (and to dist). */
+  /** Path relative to the homespace root (and to dist). */
   path: string;
 }
 
@@ -81,7 +81,7 @@ export function renderTokensCss(tokens: ThemeTokens | undefined): TokensCss {
         vars.push(`  --font-${role}: ${fallbackFamily(role)};`);
         continue;
       }
-      const family = `kwatlp-${role}`;
+      const family = `homespace-${role}`;
       faces.push(fontFace(family, path));
       fontAssets.push({ family, path });
       vars.push(`  --font-${role}: "${family}", ${fallbackFamily(role)};`);

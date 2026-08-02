@@ -1,28 +1,37 @@
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
-import { validateNode, type NodeManifest } from "@kwatlp/schema";
+import { validateHomespace, type HomespaceManifest } from "@homespace/schema";
 
 import { parseJsonc } from "./jsonc.js";
 
-export interface LoadedNode {
+export interface LoadedHomespace {
   found: boolean;
   /** Path to the manifest that was read, if any. */
   manifestPath?: string;
   parseError?: string;
-  node?: NodeManifest;
+  homespace?: HomespaceManifest;
   errors: string[];
   warnings: string[];
 }
 
-const MANIFEST_NAMES = ["node.manifest.jsonc", "node.manifest.json"];
+const MANIFEST_NAMES = ["homespace.manifest.jsonc", "homespace.manifest.json"];
+// Accepted for one minor version with a deprecation warning (TDD §11 WO-11).
+const LEGACY_NAMES = ["node.manifest.jsonc", "node.manifest.json"];
 
-async function firstExisting(root: string): Promise<string | undefined> {
+async function firstExisting(root: string): Promise<{ path: string; legacy: boolean } | undefined> {
   for (const name of MANIFEST_NAMES) {
-    const p = path.join(root, name);
     try {
-      await stat(p);
-      return p;
+      await stat(path.join(root, name));
+      return { path: path.join(root, name), legacy: false };
+    } catch {
+      /* keep looking */
+    }
+  }
+  for (const name of LEGACY_NAMES) {
+    try {
+      await stat(path.join(root, name));
+      return { path: path.join(root, name), legacy: true };
     } catch {
       /* keep looking */
     }
@@ -30,16 +39,20 @@ async function firstExisting(root: string): Promise<string | undefined> {
   return undefined;
 }
 
-/** Read + parse + validate a node manifest from `root`. */
-export async function loadNode(root: string): Promise<LoadedNode> {
-  const manifestPath = await firstExisting(root);
-  if (manifestPath === undefined) {
+/** Read + parse + validate a homespace manifest from `root`. */
+export async function loadHomespace(root: string): Promise<LoadedHomespace> {
+  const found = await firstExisting(root);
+  if (found === undefined) {
     return {
       found: false,
-      errors: [`no node manifest found — expected ${MANIFEST_NAMES.join(" or ")} in ${root}`],
+      errors: [`no homespace manifest found — expected ${MANIFEST_NAMES.join(" or ")} in ${root}`],
       warnings: [],
     };
   }
+  const manifestPath = found.path;
+  const deprecation = found.legacy
+    ? [`${path.basename(manifestPath)} is deprecated — rename it to homespace.manifest.jsonc (legacy name accepted for one more minor version)`]
+    : [];
 
   let data: unknown;
   try {
@@ -50,16 +63,16 @@ export async function loadNode(root: string): Promise<LoadedNode> {
       manifestPath,
       parseError: (e as Error).message,
       errors: [`${path.basename(manifestPath)} is not valid JSONC: ${(e as Error).message}`],
-      warnings: [],
+      warnings: deprecation,
     };
   }
 
-  const result = validateNode(data);
+  const result = validateHomespace(data);
   return {
     found: true,
     manifestPath,
-    ...(result.valid ? { node: data as NodeManifest } : {}),
+    ...(result.valid ? { homespace: data as HomespaceManifest } : {}),
     errors: result.errors.map((i) => i.message),
-    warnings: result.warnings.map((i) => i.message),
+    warnings: [...deprecation, ...result.warnings.map((i) => i.message)],
   };
 }

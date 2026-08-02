@@ -35,7 +35,7 @@ One or two sentences: the outcome wanted and why it matters.
 
 ## TDD references
 
-Which parts of `internal-docs/KwatlpTDD.md` govern this work (e.g. §3 pack
+Which parts of `internal-docs/HomespaceTDD.md` govern this work (e.g. §3 pack
 manifest, §11 WO-1). Flag if the request would require **amending** the TDD
 (new dependency, section type, or manifest field) — that amendment is part of
 the same change.
@@ -65,7 +65,7 @@ Pointers to orient Claude Code (not prescriptive):
 ## Verification
 
 How Claude Code proves it's done before committing:
-- Commands to run (e.g. `npm test`, `npm run typecheck`, `npx kwatlp build`).
+- Commands to run (e.g. `npm test`, `npm run typecheck`, `npx homespace build`).
 - Expected output / behavior to confirm (incl. the offline-budget gate from
   WO-3 onward).
 

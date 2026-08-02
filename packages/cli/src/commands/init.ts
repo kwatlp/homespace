@@ -57,7 +57,7 @@ export async function init(argv: string[], ctx: Context): Promise<number> {
 
   const available = await listArchetypes();
   if (archetype === undefined) {
-    ctx.io.err(`usage: kwatlp init <archetype> [dir]\n`);
+    ctx.io.err(`usage: homespace init <archetype> [dir]\n`);
     ctx.io.err(`available archetypes: ${available.join(", ") || "(none installed)"}\n`);
     return 1;
   }
@@ -76,6 +76,6 @@ export async function init(argv: string[], ctx: Context): Promise<number> {
 
   await cp(src, dest, { recursive: true });
   const rel = path.relative(ctx.cwd, dest) || ".";
-  ctx.io.out(`Created a '${archetype}' node in ${rel}\nNext: cd ${rel} && kwatlp build\n`);
+  ctx.io.out(`Created a '${archetype}' homespace in ${rel}\nNext: cd ${rel} && homespace build\n`);
   return 0;
 }

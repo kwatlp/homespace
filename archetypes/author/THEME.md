@@ -1,6 +1,6 @@
-# Theming the author node
+# Theming the author homespace
 
-Everything visual is driven by `theme.tokens` in `node.manifest.jsonc` — edit
+Everything visual is driven by `theme.tokens` in `homespace.manifest.jsonc` — edit
 those, not CSS.
 
 | Token | What it controls |

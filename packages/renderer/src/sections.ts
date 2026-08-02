@@ -1,4 +1,4 @@
-import type { Catalog, CatalogPack, NodeManifest, Section } from "@kwatlp/schema";
+import type { Catalog, CatalogPack, HomespaceManifest, Section } from "@homespace/schema";
 
 import { escapeAttr, escapeHtml } from "./escape.js";
 import { packAssetUrl, packPageUrl, thumbAssetUrl } from "./html.js";
@@ -6,7 +6,7 @@ import { selectPacks } from "./select.js";
 import { isRasterImage } from "./thumbnails.js";
 
 export interface RenderContext {
-  node: NodeManifest;
+  homespace: HomespaceManifest;
   catalog: Catalog;
   /** Prefix to reach dist root from the page being rendered. */
   basePrefix: string;

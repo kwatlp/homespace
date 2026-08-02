@@ -11,11 +11,11 @@ interface ServeModule {
 async function loadServeConfig(root: string, port: number | undefined, host: string | undefined): Promise<Record<string, unknown>> {
   let base: Record<string, unknown> = {};
   try {
-    base = JSON.parse(await readFile(path.join(root, "kwatlp.serve.json"), "utf8")) as Record<string, unknown>;
+    base = JSON.parse(await readFile(path.join(root, "homespace.serve.json"), "utf8")) as Record<string, unknown>;
   } catch {
     /* optional */
   }
-  const operatorKey = process.env["KWATLP_OPERATOR_KEY"] ?? base["operatorKey"];
+  const operatorKey = process.env["HOMESPACE_OPERATOR_KEY"] ?? base["operatorKey"];
   return {
     ...base,
     root,
@@ -25,7 +25,7 @@ async function loadServeConfig(root: string, port: number | undefined, host: str
   };
 }
 
-/** Tier-2 daemon (TDD §9). Only works if the optional @kwatlp/serve is installed. */
+/** Tier-2 daemon (TDD §9). Only works if the optional @homespace/serve is installed. */
 export async function serve(argv: string[], ctx: Context): Promise<number> {
   const { values } = parseArgs({
     args: argv,
@@ -35,10 +35,10 @@ export async function serve(argv: string[], ctx: Context): Promise<number> {
 
   let mod: ServeModule;
   try {
-    const moduleName: string = "@kwatlp/serve";
+    const moduleName: string = "@homespace/serve";
     mod = (await import(moduleName)) as ServeModule;
   } catch {
-    ctx.io.err("kwatlp serve requires the optional @kwatlp/serve package — install it with `npm i @kwatlp/serve`\n");
+    ctx.io.err("homespace serve requires the optional @homespace/serve package — install it with `npm i @homespace/serve`\n");
     return 1;
   }
 
@@ -48,7 +48,7 @@ export async function serve(argv: string[], ctx: Context): Promise<number> {
     values.host,
   );
   if (config["operatorKey"] === undefined) {
-    ctx.io.err("warning: no operator key set — the write API is disabled. Set KWATLP_OPERATOR_KEY or kwatlp.serve.json.\n");
+    ctx.io.err("warning: no operator key set — the write API is disabled. Set HOMESPACE_OPERATOR_KEY or homespace.serve.json.\n");
   }
 
   const handle = await mod.startServe(config);

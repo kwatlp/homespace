@@ -1,4 +1,4 @@
-import type { CatalogPack, NodeManifest } from "@kwatlp/schema";
+import type { CatalogPack, HomespaceManifest } from "@homespace/schema";
 
 import { escapeXml } from "./escape.js";
 
@@ -18,8 +18,8 @@ function rfc822(iso: string): string | null {
  * base URL; when empty, links are site-relative (distribution is the link —
  * TDD §1.1.3). Pure and deterministic.
  */
-export function renderFeed(node: NodeManifest, postsList: CatalogPack[], site = ""): string {
-  const channelTitle = node.title ?? node.name;
+export function renderFeed(homespace: HomespaceManifest, postsList: CatalogPack[], site = ""): string {
+  const channelTitle = homespace.title ?? homespace.name;
   const items = postsList
     .map((pack) => {
       const link = url(site, `/posts/${pack.slug}/`);
@@ -44,7 +44,7 @@ export function renderFeed(node: NodeManifest, postsList: CatalogPack[], site = 
   <channel>
     <title>${escapeXml(channelTitle)}</title>
     <link>${escapeXml(url(site, "/"))}</link>
-    <description>${escapeXml(typeof node.tagline === "string" ? node.tagline : channelTitle)}</description>
+    <description>${escapeXml(typeof homespace.tagline === "string" ? homespace.tagline : channelTitle)}</description>
 ${items}
   </channel>
 </rss>

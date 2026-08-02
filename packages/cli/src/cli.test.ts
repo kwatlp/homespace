@@ -5,8 +5,8 @@ import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import type { NodeManifest } from "@kwatlp/schema";
-import { findBudgetViolations } from "@kwatlp/renderer";
+import type { HomespaceManifest } from "@homespace/schema";
+import { findBudgetViolations } from "@homespace/renderer";
 import { afterEach, describe, expect, test } from "vitest";
 
 import {
@@ -32,7 +32,7 @@ function capture() {
 
 const tmpDirs: string[] = [];
 async function tmp(): Promise<string> {
-  const d = await mkdtemp(path.join(tmpdir(), "kwatlp-cli-"));
+  const d = await mkdtemp(path.join(tmpdir(), "homespace-cli-"));
   tmpDirs.push(d);
   return d;
 }
@@ -57,7 +57,7 @@ describe("init → new → build (e2e)", () => {
     const initIo = capture();
     expect(await run(["init", "blank", "site"], { cwd: root, io: initIo.io })).toBe(0);
     const site = path.join(root, "site");
-    expect(await fileExists(path.join(site, "node.manifest.jsonc"))).toBe(true);
+    expect(await fileExists(path.join(site, "homespace.manifest.jsonc"))).toBe(true);
     expect(await fileExists(path.join(site, "content/packs/welcome/index.md"))).toBe(true);
 
     // init into a non-empty dir fails
@@ -76,7 +76,7 @@ describe("init → new → build (e2e)", () => {
 
     const dist = path.join(site, "dist");
     const index = await readFile(path.join(dist, "index.html"), "utf8");
-    expect(index).toContain("My Node");
+    expect(index).toContain("My Homespace");
     expect(await fileExists(path.join(dist, "feed.xml"))).toBe(true); // posts rss
     expect(await fileExists(path.join(dist, "packs/my-game/index.html"))).toBe(true);
 
@@ -107,7 +107,7 @@ describe("Definition of Done (WO-10, §14)", () => {
 
     // Restyle by editing a token only.
     const before = await readFile(path.join(dist, "tokens.css"), "utf8");
-    const manifestPath = path.join(root, "node.manifest.jsonc");
+    const manifestPath = path.join(root, "homespace.manifest.jsonc");
     const manifest = await readFile(manifestPath, "utf8");
     await writeFile(manifestPath, manifest.replace(/"accent":\s*"#[0-9a-fA-F]+"/, '"accent": "#00ffcc"'));
     expect(await run(["build"], { cwd: root, io: capture().io })).toBe(0);
@@ -116,14 +116,14 @@ describe("Definition of Done (WO-10, §14)", () => {
     expect(after).toContain("#00ffcc");
   });
 
-  test("the docs/ folder builds as a node (dogfood)", async () => {
+  test("the docs/ folder builds as a homespace (dogfood)", async () => {
     const docsSrc = fileURLToPath(new URL("../../../docs", import.meta.url));
     const work = await tmp();
     const dst = path.join(work, "docs");
     await cp(docsSrc, dst, { recursive: true, filter: (src) => !src.includes(`${path.sep}dist`) });
     expect(await run(["build"], { cwd: dst, io: capture().io })).toBe(0);
     const index = await readFile(path.join(dst, "dist", "index.html"), "utf8");
-    expect(index).toContain("kwatlp");
+    expect(index).toContain("homespace");
     expect(await fileExists(path.join(dst, "dist", "feed.xml"))).toBe(true);
   });
 });
@@ -186,23 +186,37 @@ describe("validate — exit codes and error voice", () => {
     const root = await tmp();
     const io = capture();
     expect(await run(["validate"], { cwd: root, io: io.io })).toBe(1);
-    expect(io.errText()).toMatch(/no node manifest/);
+    expect(io.errText()).toMatch(/no homespace manifest/);
   });
 
-  test("invalid node manifest fails and names the problem", async () => {
+  test("invalid homespace manifest fails and names the problem", async () => {
     const root = await tmp();
-    await writeFile(path.join(root, "node.manifest.jsonc"), '{ "title": "no name here" }', "utf8");
+    await writeFile(path.join(root, "homespace.manifest.jsonc"), '{ "title": "no name here" }', "utf8");
     const io = capture();
     expect(await run(["validate"], { cwd: root, io: io.io })).toBe(1);
     expect(io.errText()).toMatch(/name/);
   });
 
-  test("a valid node validates clean", async () => {
+  test("a valid homespace validates clean", async () => {
     const root = await tmp();
     expect(await run(["init", "blank", "."], { cwd: root, io: capture().io })).toBe(0);
     const io = capture();
     expect(await run(["validate"], { cwd: root, io: io.io })).toBe(0);
     expect(io.outText()).toMatch(/Valid/);
+  });
+
+  test("legacy node.manifest.jsonc still loads, with a deprecation warning", async () => {
+    const root = await tmp();
+    // Scaffold, then rename the manifest back to the legacy name.
+    await run(["init", "blank", "."], { cwd: root, io: capture().io });
+    const current = await readFile(path.join(root, "homespace.manifest.jsonc"), "utf8");
+    await rm(path.join(root, "homespace.manifest.jsonc"));
+    await writeFile(path.join(root, "node.manifest.jsonc"), current);
+
+    const io = capture();
+    expect(await run(["build"], { cwd: root, io: io.io })).toBe(0);
+    expect(io.errText()).toMatch(/deprecated/);
+    expect((await stat(path.join(root, "dist", "index.html"))).isFile()).toBe(true);
   });
 });
 
@@ -232,7 +246,7 @@ describe("jsonc", () => {
 });
 
 describe("resolveAddress (§7.1)", () => {
-  const base: NodeManifest = { name: "cedar" };
+  const base: HomespaceManifest = { name: "cedar" };
 
   test("defaults: port 4321, host = name, loopback bind, no mdns", () => {
     const a = resolveAddress(base, {});
@@ -240,8 +254,8 @@ describe("resolveAddress (§7.1)", () => {
   });
 
   test("local.port/host honored; mdns binds LAN and yields a .local URL", () => {
-    const node: NodeManifest = { name: "cedar", local: { host: "grove", port: 8080, mdns: true } };
-    const a = resolveAddress(node, {});
+    const homespace: HomespaceManifest = { name: "cedar", local: { host: "grove", port: 8080, mdns: true } };
+    const a = resolveAddress(homespace, {});
     expect(a).toMatchObject({ host: "grove", port: 8080, mdns: true, bindHost: "0.0.0.0", customUrl: "http://grove.local:8080" });
   });
 
@@ -322,7 +336,7 @@ describe("startDev — mDNS is advertised via the injected factory", () => {
       address: { host: "cedar", port: 0, mdns: true, bindHost: "127.0.0.1", localUrl: "http://localhost:0", customUrl: "http://cedar.local:0" },
       io: capture().io,
       rebuild: async () => {},
-      nodeName: "cedar",
+      homespaceName: "cedar",
       mdns,
     });
 

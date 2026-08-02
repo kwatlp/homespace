@@ -7,7 +7,7 @@ import { compile } from "json-schema-to-typescript";
 
 const here = (p) => fileURLToPath(new URL(p, import.meta.url));
 
-const SCHEMAS = ["pack.schema.json", "node.schema.json", "catalog.schema.json"];
+const SCHEMAS = ["pack.schema.json", "homespace.schema.json", "catalog.schema.json"];
 
 const options = {
   bannerComment: "",
@@ -21,7 +21,7 @@ const banner = [
   "/**",
   " * AUTO-GENERATED — do not edit by hand.",
   " * Source: packages/schema/schemas/*.json",
-  " * Regenerate with: npm run codegen  (in @kwatlp/schema)",
+  " * Regenerate with: npm run codegen  (in @homespace/schema)",
   " */",
   "",
 ].join("\n");

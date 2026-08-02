@@ -1,4 +1,4 @@
-// Copy the repo archetypes into the CLI package so a published @kwatlp/cli can
+// Copy the repo archetypes into the CLI package so a published @homespace/cli can
 // `init` them off-monorepo. Source of truth stays /archetypes; the copies under
 // packages/cli/templates/ are gitignored and regenerated at pack time.
 import { cp, rm } from "node:fs/promises";

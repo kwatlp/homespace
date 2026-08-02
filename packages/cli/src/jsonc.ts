@@ -1,6 +1,6 @@
 /**
  * Strip `//` line and block comments from JSONC, preserving string contents
- * (TDD §4: node.manifest.jsonc is "JSON + comments"). Comment bytes are
+ * (TDD §4: homespace.manifest.jsonc is "JSON + comments"). Comment bytes are
  * replaced by nothing; strings are left untouched.
  */
 export function stripJsonComments(input: string): string {

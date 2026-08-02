@@ -1,11 +1,11 @@
 # internal-docs/
 
-**Private** planning and design. Never published; not part of any public node or
+**Private** planning and design. Never published; not part of any public homespace or
 release. Public-facing docs live in `docs/`.
 
 Contents:
 
-- [`KwatlpTDD.md`](KwatlpTDD.md) — **the Technical Design Document.** Source of
+- [`HomespaceTDD.md`](HomespaceTDD.md) — **the Technical Design Document.** Source of
   truth for product definition, the two contracts, module boundaries, the
   dependency budget, and the work-order build sequence (§11). Read it first.
 - [`CODE_REQUEST_TEMPLATE.md`](CODE_REQUEST_TEMPLATE.md) — template Cowork copies

@@ -1,9 +1,9 @@
 /**
- * `@kwatlp/renderer` — turns a `(catalog, node manifest)` pair plus a node's
+ * `@homespace/renderer` — turns a `(catalog, homespace manifest)` pair plus a homespace's
  * theme/static/pack files into a `dist/` of static HTML + CSS with no external
  * requests. Deterministic; never walks the filesystem outside its inputs.
  *
- * See `internal-docs/KwatlpTDD.md` §6, §10.2.
+ * See `internal-docs/HomespaceTDD.md` §6, §10.2.
  */
 
 export {

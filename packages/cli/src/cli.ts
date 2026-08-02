@@ -13,17 +13,17 @@ export interface RunOptions {
   mdns?: MdnsFactory;
 }
 
-const HELP = `kwatlp — a kit for composing self-hosted nodes
+const HELP = `homespace — a kit for composing self-hosted homespaces
 
-Usage: kwatlp <command> [options]
+Usage: homespace <command> [options]
 
 Commands:
-  init <archetype> [dir]                     Scaffold a new node from an archetype
+  init <archetype> [dir]                     Scaffold a new homespace from an archetype
   new pack <type> <id>                       Add a content pack
-  validate [--verify]                        Validate the node manifest and all packs
+  validate [--verify]                        Validate the homespace manifest and all packs
   build [--out DIR] [--verify] [--stamp] [--base-url URL]   Build to dist/
   dev [--port N] [--host H] [--coi] [--hosts-hint]         Serve dist/ with live rebuild
-  serve [--port N] [--host H]                              Tier-2 daemon (needs @kwatlp/serve)
+  serve [--port N] [--host H]                              Tier-2 daemon (needs @homespace/serve)
 `;
 
 /** Route a CLI invocation to a command. Returns a process exit code. */

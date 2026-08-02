@@ -1,9 +1,9 @@
 {
-  // The kwatlp docs are themselves a kwatlp node — built with `kwatlp build`
+  // The homespace docs are themselves a homespace — built with `homespace build`
   // from this folder (dogfooding, TDD §11 WO-10).
-  "name": "kwatlp-docs",
-  "title": "kwatlp",
-  "tagline": "a kit for composing self-hosted nodes",
+  "name": "homespace-docs",
+  "title": "homespace",
+  "tagline": "a kit for composing self-hosted homespaces",
   "lang": "en",
   "layout": "scroll",
 
@@ -20,10 +20,10 @@
   ],
 
   "sections": [
-    { "type": "hero", "heading": "kwatlp", "sub": "Compose a self-hosted node: apps, games, art, writing, links — plain static files, zero external requests." },
+    { "type": "hero", "heading": "homespace", "sub": "Compose a self-hosted homespace: apps, games, art, writing, links — plain static files, zero external requests." },
     { "type": "posts", "title": "Documentation", "source": { "types": ["post"], "sort": "created" }, "rss": true },
     { "type": "links", "title": "Project", "source": { "types": ["link"] } }
   ],
 
-  "footer": { "text": "© kwatlp — MIT" }
+  "footer": { "text": "© homespace — MIT" }
 }

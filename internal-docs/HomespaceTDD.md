@@ -1,9 +1,9 @@
-# Creative Node Stack — Technical Design Document
+# Homespace — Technical Design Document
 
-**Working name:** `kwatlp` (CLI + packages). Final naming is the operator's (Brennen's) call and follows the studio's Nlaka'pamux sourcing practice — do not invent names.
-**Status:** v1 — approved direction, actionable
+**Name:** `homespace` — npm package, CLI bin, and unit noun (a creator runs "a homespace"). The kit ships fully generic; operator instances carry their own names — the author's instance is **kʷátɬp**.
+**Status:** v1.1 — amended for the homespace rename (WO-11); actionable
 **Supersedes:** `docs/CREATIVE_NODE_STACK.md` (retained as "the rough idea")
-**Recommended home:** a new repo (e.g. `kwatlp-node`) — this is an independent platform, not a tmíxʷ feature. tmíxʷ participates as a *pack*.
+**Repo:** `homespace` (renamed from `kwatlp-node` in WO-11) — an independent platform, not a tmíxʷ feature. tmíxʷ participates as a *pack*.
 **License:** MIT. All dependencies OSI-approved only.
 
 ---
@@ -20,26 +20,26 @@
 
 ## 1. Product definition
 
-A **node** is one independently operated, self-hosted public website that holds whatever its creator brings: apps, games, art, writing, links-with-depth, or arbitrary HTML. The platform is a **kit** for composing such nodes, not a fixed site.
+A **homespace** is one independently operated, self-hosted public website that holds whatever its creator brings: apps, games, art, writing, links-with-depth, or arbitrary HTML. The platform is a **kit** for composing such homespaces, not a fixed site.
 
 ### 1.1 Locked principles (decisions, not aspirations)
 
-1. **Operator-write only.** Only the hosting system (the operator) writes to a node — or *linked systems explicitly granted permission* (scoped keys, §9.3). There are no visitor accounts, no signup, no validation flows, anywhere.
+1. **Operator-write only.** Only the hosting system (the operator) writes to a homespace — or *linked systems explicitly granted permission* (scoped keys, §9.3). There are no visitor accounts, no signup, no validation flows, anywhere.
 2. **Visitors need nothing.** Browse, play, read, download — zero accounts, zero gatekeeping.
-3. **Distribution is the link.** Peer-to-peer means sharing your node's URL — in a bio, a message, a QR code. No federation protocol, no directory, no ActivityPub. The web is the network.
-4. **Minimum resources floor = static files.** A complete node must build to plain files deployable on any static host or cheapest VPS. Docker, databases, and daemons are strictly optional tiers.
-5. **Zero external dependency to use a node.** No CDN fonts, scripts, styles, or emulator cores. Every resource a page loads ships in `dist/`. (Outbound *navigation* links are of course allowed — that's the point.)
+3. **Distribution is the link.** Peer-to-peer means sharing your homespace's URL — in a bio, a message, a QR code. No federation protocol, no directory, no ActivityPub. The web is the network.
+4. **Minimum resources floor = static files.** A complete homespace must build to plain files deployable on any static host or cheapest VPS. Docker, databases, and daemons are strictly optional tiers.
+5. **Zero external dependency to use a homespace.** No CDN fonts, scripts, styles, or emulator cores. Every resource a page loads ships in `dist/`. (Outbound *navigation* links are of course allowed — that's the point.)
 6. **Fully customizable composition.** Layout, sections, and theme are creator-chosen via exposed, designer-friendly variables. Archetypes are presets, not products.
-7. **Escape hatches are a feature.** Raw HTML sections and freeform manifest fields exist so the node can hold what we didn't anticipate.
+7. **Escape hatches are a feature.** Raw HTML sections and freeform manifest fields exist so the homespace can hold what we didn't anticipate.
 8. **Quality over schedule.** No time constraint. Modular, tested, documented; shareable when ready.
 
 ### 1.2 Tier model
 
 | Tier | What runs | Who it's for |
 |---|---|---|
-| **0 — Static** | `kwatlp build` → `dist/` of plain files | Everyone; the default; author/link-hub/illustrator nodes live here entirely |
-| **1 — Dev** | `kwatlp dev` local preview server + watch | The operator, locally |
-| **2 — Daemon** (§9) | `kwatlp serve` on operator hardware: watch-rebuild, upload API, linked-system keys | Operators who want remote publish or app integrations (e.g. tmíxʷ) |
+| **0 — Static** | `homespace build` → `dist/` of plain files | Everyone; the default; author/link-hub/illustrator homespaces live here entirely |
+| **1 — Dev** | `homespace dev` local preview server + watch | The operator, locally |
+| **2 — Daemon** (§9) | `homespace serve` on operator hardware: watch-rebuild, upload API, linked-system keys | Operators who want remote publish or app integrations (e.g. tmíxʷ) |
 
 Tier 2 is additive. Nothing in tiers 0–1 depends on it.
 
@@ -48,8 +48,8 @@ Tier 2 is additive. Nothing in tiers 0–1 depends on it.
 ## 2. System overview
 
 ```
-creator's folder (my-node/)
-├── node.manifest.jsonc      ← Contract #2: composition/theme
+creator's folder (my-homespace/)
+├── homespace.manifest.jsonc      ← Contract #2: composition/theme
 ├── theme/                   ← custom.css (optional), fonts/ (self-hosted)
 ├── static/                  ← copied verbatim to dist/ (favicon, CNAME, anything)
 ├── content/
@@ -58,11 +58,11 @@ creator's folder (my-node/)
 │       └── …files (builds, images, index.md, …)
 └── dist/                    ← build output; deploy this anywhere
 
-pipeline:  scanner(content/) → catalog.json → renderer(catalog + node.manifest) → dist/
+pipeline:  scanner(content/) → catalog.json → renderer(catalog + homespace.manifest) → dist/
 ```
 
 - **scanner**: walks packs, validates manifests, verifies checksums (flagged), emits deterministic `catalog.json`.
-- **renderer**: pure function of `(catalog, node manifest, theme files)` → static HTML/CSS + minimal inline/self-hosted vanilla JS. No framework in output.
+- **renderer**: pure function of `(catalog, homespace manifest, theme files)` → static HTML/CSS + minimal inline/self-hosted vanilla JS. No framework in output.
 - **cli**: `init | new | validate | build | dev | serve*` (*tier 2, separate optional package).
 
 ---
@@ -115,20 +115,20 @@ Everything publishable is a pack: a directory plus `manifest.json`. Evolves the 
 
 ---
 
-## 4. Contract #2 — Node manifest (`node.manifest.jsonc`)
+## 4. Contract #2 — Homespace manifest (`homespace.manifest.jsonc`)
 
 The composition layer. JSONC (JSON + comments) so archetype presets can be annotated inline for designers; parser strips comments before schema validation.
 
 ```jsonc
 {
-  "$schema": "https://…/node.manifest.schema.json",
-  "name": "kwatlp",                 // machine slug
-  "title": "kʷátɬp",                // display
+  "$schema": "https://…/homespace.manifest.schema.json",
+  "name": "cedar",                 // machine slug
+  "title": "Cedar Grove",                // display
   "tagline": "cedar, roots, worlds",
   "lang": "en",
 
   // ── Local address (dev/serve) ────────────────
-  // The node's local URL is part of its identity: http://<host>.local:<port>
+  // The homespace's local URL is part of its identity: http://<host>.local:<port>
   "local": { "host": "cedar", "port": 4321, "mdns": false },
 
   // ── Layout mode ──────────────────────────────
@@ -162,7 +162,7 @@ The composition layer. JSONC (JSON + comments) so archetype presets can be annot
     { "type": "html",    "file": "sections/anything.html" }   // escape hatch: raw, verbatim
   ],
 
-  "footer": { "text": "© kʷátɬp", "links": [] }
+  "footer": { "text": "© Cedar Grove", "links": [] }
 }
 ```
 
@@ -170,7 +170,7 @@ The composition layer. JSONC (JSON + comments) so archetype presets can be annot
 
 **`source` filters:** `{ "types": [...], "tags": [...], "ids": [...], "sort": "created|updated|title", "limit": n }` — resolved against `catalog.json`.
 
-**Archetype = preset.** An archetype is exactly: one annotated `node.manifest.jsonc` + `theme/` defaults + sample packs + a `THEME.md` explaining every exposed variable in designer language. Nothing else. `kwatlp init <archetype>` copies it.
+**Archetype = preset.** An archetype is exactly: one annotated `homespace.manifest.jsonc` + `theme/` defaults + sample packs + a `THEME.md` explaining every exposed variable in designer language. Nothing else. `homespace init <archetype>` copies it.
 
 **Detail pages** are generated regardless of layout: `dist/packs/<id>/` for game/app/art/bundle, `dist/posts/<slug>/` for posts. `link` packs render as cards only (their destination *is* the page).
 
@@ -179,26 +179,26 @@ The composition layer. JSONC (JSON + comments) so archetype presets can be annot
 ## 5. Repository structure & module boundaries
 
 ```
-kwatlp-node/
+homespace/
 ├── packages/
-│   ├── schema/       # JSON Schemas (pack, node, catalog) + generated TS types + validate()
+│   ├── schema/       # JSON Schemas (pack, homespace, catalog) + generated TS types + validate()
 │   ├── scanner/      # content/ → catalog.json  (pure; no rendering knowledge)
-│   ├── renderer/     # (catalog, node manifest) → dist/  (pure; no fs-walking knowledge)
-│   ├── cli/          # kwatlp init|new|validate|build|dev  (thin orchestration)
+│   ├── renderer/     # (catalog, homespace manifest) → dist/  (pure; no fs-walking knowledge)
+│   ├── cli/          # homespace init|new|validate|build|dev  (thin orchestration)
 │   └── serve/        # TIER 2 ONLY — optional daemon; nothing else imports it
 ├── archetypes/
 │   ├── link-hub/     # linktree-with-depth
 │   ├── author/
 │   ├── illustrator/
 │   └── game-designer/
-├── examples/         # fixture nodes used by tests
-├── docs/             # docs site is itself a node (dogfooding, WO-10)
+├── examples/         # fixture homespaces used by tests
+├── docs/             # docs site is itself a homespace (dogfooding, WO-10)
 ├── LICENSE           # MIT
 └── THIRD_PARTY.md
 ```
 
 ### 5.1 Runtime & language
-TypeScript (strict), Node ≥ 20, npm workspaces. CLI bundled with esbuild; runnable via `npx kwatlp`.
+TypeScript (strict), Node ≥ 20, npm workspaces. CLI bundled with esbuild; runnable via `npx homespace`.
 
 ### 5.2 Output constraints (hard)
 - Output is static HTML + CSS + minimal vanilla JS (lightbox, player shell). **No framework, no bundle, no external request** in `dist/`.
@@ -218,22 +218,15 @@ Semantic HTML landmarks; every media entry supports `alt` (manifest `media.alt` 
 | `bonjour-service` | *optional* mDNS advertising for `local.host` (§7.1) | MIT |
 | `esbuild` | (dev-time) CLI bundling | MIT |
 | `vitest` | (dev-time) tests | MIT |
-| `typescript` | (dev-time) type-checking / build | Apache-2.0 |
-| `json-schema-to-typescript` | (dev-time) generate `types.generated.ts` from the JSON Schemas (§5, WO-1) | MIT |
 
 No postinstall scripts. Lockfile committed. Anything else needs a TDD amendment.
-
-> **Amendment log**
-> - WO-1: added dev-time `json-schema-to-typescript` (schemas are the source of
->   truth; TS types are generated from them) and recorded the already-implicit
->   dev-time `typescript`. No new *runtime* dependency beyond the budgeted `ajv`.
 
 ---
 
 ## 6. Renderer specification
 
 ### 6.1 Pipeline
-`render(catalog, nodeManifest, themeDir, staticDir) → dist/` — pure, testable, no network.
+`render(catalog, homespaceManifest, themeDir, staticDir) → dist/` — pure, testable, no network.
 
 1. Compile `theme.tokens` → CSS custom properties (`tokens.css`), embed fonts via `@font-face` (self-hosted files only; error on http(s) font paths).
 2. Base stylesheet (`base.css`) consumes tokens exclusively — restyling = editing tokens, matching "designer-friendly variables exposed".
@@ -248,7 +241,7 @@ No postinstall scripts. Lockfile committed. Anything else needs a TDD amendment.
 Same section modules everywhere; layout only changes placement/chrome.
 
 ### 6.3 Markdown (posts)
-micromark, GFM, raw HTML disabled by default. Node-level opt-in `"markdown": { "allowHtml": true }` for operators who want it (operator-authored content; documented risk). Relative links/images resolve within the pack folder.
+micromark, GFM, raw HTML disabled by default. Homespace-level opt-in `"markdown": { "allowHtml": true }` for operators who want it (operator-authored content; documented risk). Relative links/images resolve within the pack folder.
 
 ### 6.4 Player & downloads (game/app packs)
 - Detail page embeds `entrypoint.web` in an `<iframe>`:
@@ -267,22 +260,22 @@ micromark, GFM, raw HTML disabled by default. Node-level opt-in `"markdown": { "
 
 | Command | Behavior |
 |---|---|
-| `kwatlp init <archetype> [dir]` | Copy archetype preset; print next steps. Errors if dir non-empty. |
-| `kwatlp new pack <type> <id>` | Scaffold `content/packs/<id>/` with a commented manifest for that type. |
-| `kwatlp validate` | Validate node manifest + all packs; `--verify` also checks checksums. Exit ≠ 0 on error; warnings listed. |
-| `kwatlp build` | validate → scan → render → `dist/`. `--out`, `--verify`, `--stamp`. |
-| `kwatlp dev` | build, serve `dist/` on localhost, watch & rebuild. Correct MIME + COOP/COEP headers toggle (`--coi`) for threaded WASM builds. |
-| `kwatlp serve` | Tier 2 (§9); only if `@kwatlp/serve` is installed. |
+| `homespace init <archetype> [dir]` | Copy archetype preset; print next steps. Errors if dir non-empty. |
+| `homespace new pack <type> <id>` | Scaffold `content/packs/<id>/` with a commented manifest for that type. |
+| `homespace validate` | Validate homespace manifest + all packs; `--verify` also checks checksums. Exit ≠ 0 on error; warnings listed. |
+| `homespace build` | validate → scan → render → `dist/`. `--out`, `--verify`, `--stamp`. |
+| `homespace dev` | build, serve `dist/` on localhost, watch & rebuild. Correct MIME + COOP/COEP headers toggle (`--coi`) for threaded WASM builds. |
+| `homespace serve` | Tier 2 (§9); only if `@homespace/serve` is installed. |
 
 Error voice: plain language, path + fix suggestion. The audience is designers, not sysadmins.
 
 ### 7.1 Local address customization
 
-`localhost` is an OS convention, not a brand. The node's local address is creator-configurable via `node.manifest.local` — the address is part of the identity:
+`localhost` is an OS convention, not a brand. The homespace's local address is creator-configurable via `homespace.manifest.local` — the address is part of the identity:
 
 - **Port** — `local.port` (default 4321); `--port` overrides.
-- **Hostname** — `local.host` (defaults to `name`). With `local.mdns: true`, `dev`/`serve` advertise `<host>.local` via mDNS/Bonjour: the node becomes `http://cedar.local:4321` for every device on the network — zero-infrastructure LAN sharing. Enabling mDNS also binds to the LAN interface; the default (`mdns: false`) binds 127.0.0.1 only, so LAN visibility is always an explicit operator choice.
-- **Naming rules** — `.local` is the mDNS standard; `.test` is safe for hosts-file use. Never suggest `.dev` or other real TLDs (`.dev` is HSTS-preloaded — browsers force HTTPS and break plain-HTTP local serving). `kwatlp dev --hosts-hint` prints the `/etc/hosts` line for a machine-only custom name without mDNS.
+- **Hostname** — `local.host` (defaults to `name`). With `local.mdns: true`, `dev`/`serve` advertise `<host>.local` via mDNS/Bonjour: the homespace becomes `http://cedar.local:4321` for every device on the network — zero-infrastructure LAN sharing. Enabling mDNS also binds to the LAN interface; the default (`mdns: false`) binds 127.0.0.1 only, so LAN visibility is always an explicit operator choice.
+- **Naming rules** — `.local` is the mDNS standard; `.test` is safe for hosts-file use. Never suggest `.dev` or other real TLDs (`.dev` is HSTS-preloaded — browsers force HTTPS and break plain-HTTP local serving). `homespace dev --hosts-hint` prints the `/etc/hosts` line for a machine-only custom name without mDNS.
 - **Caveat** — `localhost` is a secure context; `<host>.local` over plain HTTP is not. Packs relying on secure-context APIs (WebGPU, service workers) may need the localhost URL or a future local-TLS option. Startup output prints both URLs.
 
 ---
@@ -294,13 +287,13 @@ Error voice: plain language, path + fix suggestion. The audience is designers, n
 | **link-hub** | scroll | hero, links, posts(limit 3) | The linktree-with-depth; adoption entry point; tier-0 only; smallest promise |
 | **author** | pages | hero, posts(rss), links | Writing-first; RSS on |
 | **illustrator** | grid | hero, gallery, links | Image-first; thumbnails matter; lightbox |
-| **game-designer** | scroll | hero, packs(cards), posts(rss), links | The kʷátɬp-shaped one; tmíxʷ lives here as a `type: app` pack |
+| **game-designer** | scroll | hero, packs(cards), posts(rss), links | The game-studio shape (the author's kʷátɬp instance); tmíxʷ lives here as a `type: app` pack |
 
-Each ships: annotated `node.manifest.jsonc`, `theme/` (OFL-licensed fonts only, licenses vendored), 2–4 sample packs, `THEME.md` documenting every variable in designer language.
+Each ships: annotated `homespace.manifest.jsonc`, `theme/` (OFL-licensed fonts only, licenses vendored), 2–4 sample packs, `THEME.md` documenting every variable in designer language.
 
 ---
 
-## 9. Tier 2 — daemon (`@kwatlp/serve`) — build LAST
+## 9. Tier 2 — daemon (`@homespace/serve`) — build LAST
 
 Optional package for operators who want remote publish or app integrations. Static tiers must never require it.
 
@@ -311,7 +304,7 @@ Watch `content/` + manifests → rebuild; serve `dist/` with range requests; str
 `PUT /api/packs/:id` (zip) → zip-slip-safe unpack to temp → validate → move into `content/packs/` → rebuild. Auth: single operator bearer key from env/config. No user system.
 
 ### 9.3 Linked systems ("linked systems with permissions")
-Scoped keys: `{ key, scopes: ["packs:write"], allowedTypes?, allowedIdPrefix? }`. Example: tmíxʷ holds a key scoped to `allowedIdPrefix: "tmixw-"` and publishes world-template packs to the operator's node. Keys are config entries the operator writes; there is no key-issuance UI in v0.
+Scoped keys: `{ key, scopes: ["packs:write"], allowedTypes?, allowedIdPrefix? }`. Example: tmíxʷ holds a key scoped to `allowedIdPrefix: "tmixw-"` and publishes world-template packs to the operator's homespace. Keys are config entries the operator writes; there is no key-issuance UI in v0.
 
 ### 9.4 Explicitly absent
 Accounts, sessions, comments, federation endpoints, analytics.
@@ -335,16 +328,17 @@ Accounts, sessions, comments, federation endpoints, analytics.
 > Each WO = branch + tests + docs touched. Exit criteria are the acceptance tests.
 
 - **WO-0 — Scaffold.** npm workspaces, TS strict, vitest wired, LICENSE, empty packages compile. *Exit:* `npm test` green.
-- **WO-1 — Schemas.** `packages/schema`: pack/node/catalog schemas, TS types, `validate()`. *Exit:* fixture suites pass; unknown-field policy proven.
+- **WO-1 — Schemas.** `packages/schema`: pack/homespace/catalog schemas, TS types, `validate()`. *Exit:* fixture suites pass; unknown-field policy proven.
 - **WO-2 — Scanner.** content → `catalog.json`; deterministic; `--verify` checksums; traversal-safe. *Exit:* snapshots + security fixtures green.
 - **WO-3 — Renderer core.** tokens→CSS, scroll layout, sections `hero/links/packs/posts`, post markdown, detail pages. *Exit:* golden tests + **offline-budget gate live**.
 - **WO-4 — CLI.** `init/new/validate/build/dev` (dev: serve+watch+`--coi`+local address per §7.1). *Exit:* e2e green, incl. port/host config paths (mDNS advertise mocked).
 - **WO-5 — Layouts & sections complete.** `pages`, `grid`; `gallery/embed/html`; RSS; sitemap. *Exit:* goldens per layout; feed validates.
-- **WO-6 — Player & downloads.** iframe player, standard/strict sandbox, load-on-click, checksum display; fixture web-build plays under `kwatlp dev`. *Exit:* manual checklist + dom tests.
+- **WO-6 — Player & downloads.** iframe player, standard/strict sandbox, load-on-click, checksum display; fixture web-build plays under `homespace dev`. *Exit:* manual checklist + dom tests.
 - **WO-7 — Archetypes ×4.** Presets, THEME.md each, sample packs, OFL fonts vendored. *Exit:* `init X && build` clean for all four; a11y smoke green.
 - **WO-8 — Media pipeline.** Optional sharp thumbnails; graceful absence. *Exit:* builds pass with and without sharp installed.
-- **WO-9 — Daemon.** `@kwatlp/serve` per §9. *Exit:* integration tests incl. zip-slip, scope enforcement.
-- **WO-10 — Release.** docs/ rebuilt as a node (dogfood), THIRD_PARTY.md, `npx` path verified, v0.1.0. *Exit:* Definition of Done (§14) demonstrated end-to-end on a clean machine.
+- **WO-9 — Daemon.** `@homespace/serve` per §9. *Exit:* integration tests incl. zip-slip, scope enforcement.
+- **WO-10 — Release.** docs/ rebuilt as a homespace (dogfood), THIRD_PARTY.md, `npx` path verified, v0.1.0. *Exit:* Definition of Done (§14) demonstrated end-to-end on a clean machine.
+- **WO-11 — Rename to `homespace` & republish.** Sweep the codebase to match this document: packages `@homespace/*` (claim the npm scope at publish; if unavailable, fall back to `homespace-schema` etc. and amend §5), CLI/bin `homespace`, repo `homespace`, manifest filename `homespace.manifest.jsonc` (loader accepts legacy `node.manifest.jsonc` with a deprecation warning for one minor version), scaffold dirs `my-homespace/`, all docs/THEME.md/error strings; no instance branding in samples or scaffolds. Publish `homespace` v0.2.0 to npm. Golden-diff guard: `dist/` output identical to v0.1.0 except renamed strings. *Exit:* §14 stranger-test passes against the **published** package on a clean machine; `grep -ri kwatlp` returns nothing; `grep -riE '\bnode\b'` returns only Node-runtime references.
 
 ---
 
@@ -356,10 +350,10 @@ Content is operator-authored or operator-installed; there is no hostile-user wri
 |---|---|
 | Supply chain | Dependency budget (§5.4), lockfile, no postinstall |
 | Malicious third-party pack the operator installs | `strict` sandbox recommendation; checksums; docs |
-| XSS via markdown | raw HTML off by default; opt-in is node-level and documented |
+| XSS via markdown | raw HTML off by default; opt-in is homespace-level and documented |
 | Path traversal / zip-slip | scanner + serve normalize & confine; fixture tests |
 | Daemon key leakage | keys in env/config only; scoped keys for linked systems; never rendered into `dist/` |
-| Legal exposure of operators | Docs state plainly: the operator owns and answers for what their node serves, under their jurisdiction. The kit ships no content. |
+| Legal exposure of operators | Docs state plainly: the operator owns and answers for what their homespace serves, under their jurisdiction. The kit ships no content. |
 
 ---
 
@@ -372,13 +366,13 @@ Visitor accounts or identity of any kind; comments/forum in core (a future *link
 ## 14. Definition of done (v0.1.0)
 
 A stranger with Node 20 can:
-1. `npx kwatlp init author my-node && cd my-node && npx kwatlp build`
-2. Upload `dist/` to any static host (or run `kwatlp dev`) → a complete, branded node
+1. `npx homespace init author my-homespace && cd my-homespace && npx homespace build`
+2. Upload `dist/` to any static host (or run `homespace dev`) → a complete, branded homespace
 3. Load it with **zero external resource requests** and JS disabled → still readable
 4. Drop a folder + manifest into `content/packs/`, rebuild → it appears; a web game plays in-browser; a post renders with RSS
-5. Restyle the entire node by editing `theme.tokens` only
+5. Restyle the entire homespace by editing `theme.tokens` only
 6. Share the URL — that *is* distribution
-7. (Tier 2, optional) run `kwatlp serve`, publish a pack remotely with the operator key; a scoped key lets tmíxʷ publish a world-template pack
+7. (Tier 2, optional) run `homespace serve`, publish a pack remotely with the operator key; a scoped key lets tmíxʷ publish a world-template pack
 
 No cloud API keys, no accounts, no external services for any of the above.
 
@@ -392,4 +386,4 @@ No cloud API keys, no accounts, no external services for any of the above.
 - Determinism: stable sorts, no wall-clock in output (except `--stamp`).
 - Error messages: path, problem, fix — in designer-readable language.
 - Do not add dependencies, section types, or manifest fields without amending this TDD in the same PR.
-- Naming: `kwatlp` is a working name; any product naming beyond it is reserved for the operator.
+- Naming: `homespace` is the product name — package, bin, and unit noun. Instance names belong to operators (the author's is kʷátɬp); never bake an instance name into the kit, samples, or scaffolds.

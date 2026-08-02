@@ -1,4 +1,4 @@
-import type { NodeManifest } from "@kwatlp/schema";
+import type { HomespaceManifest } from "@homespace/schema";
 
 import { escapeAttr, escapeHtml } from "./escape.js";
 
@@ -8,14 +8,14 @@ export interface NavItem {
 }
 
 export interface PageOptions {
-  node: NodeManifest;
+  homespace: HomespaceManifest;
   /** Text for <title>. */
   title: string;
   /** Prefix to reach dist root from this page ("" at root, "../../" in detail). */
   basePrefix: string;
   /** Rendered contents of <main>. */
   main: string;
-  /** Nav override (already-resolved hrefs); falls back to node.nav when absent. */
+  /** Nav override (already-resolved hrefs); falls back to homespace.nav when absent. */
   nav?: NavItem[];
   /** Emit an RSS <link rel="alternate"> pointing at feed.xml. */
   feed?: boolean;
@@ -28,14 +28,14 @@ function navHref(href: string, basePrefix: string): string {
 
 /** Render a complete, self-contained HTML document. */
 export function page(options: PageOptions): string {
-  const { node, basePrefix } = options;
-  const lang = typeof node.lang === "string" && node.lang ? node.lang : "en";
-  const siteTitle = node.title ?? node.name;
+  const { homespace, basePrefix } = options;
+  const lang = typeof homespace.lang === "string" && homespace.lang ? homespace.lang : "en";
+  const siteTitle = homespace.title ?? homespace.name;
 
   const navItems: NavItem[] = options.nav
     ? options.nav
-    : Array.isArray(node.nav)
-      ? node.nav.map((item) => ({ label: item.label, href: navHref(item.href, basePrefix) }))
+    : Array.isArray(homespace.nav)
+      ? homespace.nav.map((item) => ({ label: item.label, href: navHref(item.href, basePrefix) }))
       : [];
   const nav = navItems.length > 0
     ? `<nav class="site-nav" aria-label="Primary"><ul>${navItems
@@ -47,8 +47,8 @@ export function page(options: PageOptions): string {
     ? `\n<link rel="alternate" type="application/rss+xml" href="${escapeAttr(basePrefix)}feed.xml" title="${escapeAttr(siteTitle)}">`
     : "";
 
-  const footer = node.footer
-    ? `<footer class="site-footer"><div class="wrap">${footerContent(node)}</div></footer>`
+  const footer = homespace.footer
+    ? `<footer class="site-footer"><div class="wrap">${footerContent(homespace)}</div></footer>`
     : "";
 
   return `<!doctype html>
@@ -59,7 +59,7 @@ export function page(options: PageOptions): string {
 <title>${escapeHtml(options.title)}</title>
 <link rel="stylesheet" href="${escapeAttr(basePrefix)}tokens.css">
 <link rel="stylesheet" href="${escapeAttr(basePrefix)}base.css">${
-  typeof node.theme?.css === "string"
+  typeof homespace.theme?.css === "string"
     ? `\n<link rel="stylesheet" href="${escapeAttr(basePrefix)}custom.css">`
     : ""
 }${feedLink}
@@ -79,8 +79,8 @@ ${footer}
 `;
 }
 
-function footerContent(node: NodeManifest): string {
-  const footer = node.footer ?? {};
+function footerContent(homespace: HomespaceManifest): string {
+  const footer = homespace.footer ?? {};
   const text = typeof footer.text === "string" ? `<p>${escapeHtml(footer.text)}</p>` : "";
   const links = Array.isArray(footer.links) && footer.links.length > 0
     ? `<ul class="links">${footer.links

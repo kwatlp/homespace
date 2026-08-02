@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 
 import { Ajv, type ErrorObject } from "ajv";
 
-import type { Catalog, NodeManifest, PackManifest } from "./types.generated.js";
+import type { Catalog, HomespaceManifest, PackManifest } from "./types.generated.js";
 
 /** A single validation problem, addressed by JSON Pointer path. */
 export interface ValidationIssue {
@@ -35,13 +35,13 @@ function loadSchema(file: string): Record<string, unknown> {
 
 /** The raw JSON Schemas, exported for tooling that wants the source of truth. */
 export const packSchema = loadSchema("pack.schema.json");
-export const nodeSchema = loadSchema("node.schema.json");
+export const homespaceSchema = loadSchema("homespace.schema.json");
 export const catalogSchema = loadSchema("catalog.schema.json");
 
 const ajv = new Ajv({ allErrors: true, strict: false });
 
 const validatePackFn = ajv.compile<PackManifest>(packSchema);
-const validateNodeFn = ajv.compile<NodeManifest>(nodeSchema);
+const validateHomespaceFn = ajv.compile<HomespaceManifest>(homespaceSchema);
 const validateCatalogFn = ajv.compile<Catalog>(catalogSchema);
 
 /** Known top-level keys per contract; anything else is warned-and-kept. */
@@ -120,12 +120,12 @@ export function validatePack(data: unknown): ValidationResult {
   };
 }
 
-/** Validate a node manifest (Contract #2). */
-export function validateNode(data: unknown): ValidationResult {
-  const valid = validateNodeFn(data);
+/** Validate a homespace manifest (Contract #2). */
+export function validateHomespace(data: unknown): ValidationResult {
+  const valid = validateHomespaceFn(data);
   return {
     valid,
-    errors: valid ? [] : issues(validateNodeFn.errors),
+    errors: valid ? [] : issues(validateHomespaceFn.errors),
     warnings: unknownKeyWarnings(data, NODE_KNOWN_KEYS),
   };
 }

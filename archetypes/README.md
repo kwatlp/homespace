@@ -1,7 +1,7 @@
 # archetypes/
 
-Presets a creator copies with `kwatlp init <archetype>`. An archetype is
-exactly one annotated `node.manifest.jsonc` + theme tokens + sample packs + a
+Presets a creator copies with `homespace init <archetype>`. An archetype is
+exactly one annotated `homespace.manifest.jsonc` + theme tokens + sample packs + a
 `THEME.md` documenting every exposed variable in designer language.
 
 v0 ships four (TDD §8):
@@ -13,7 +13,7 @@ v0 ships four (TDD §8):
 | `illustrator` | grid | image-first; gallery + lightbox |
 | `game-designer` | scroll | playable games/apps + dev log |
 
-Each builds to a complete, offline node with `kwatlp build`. Sample images are
+Each builds to a complete, offline homespace with `homespace build`. Sample images are
 SVGs so the presets ship zero external resources; fonts are left to the visitor's
 system by default (self-host a `.woff2` in `theme/fonts/` to override — see each
-archetype's `THEME.md`). See `internal-docs/KwatlpTDD.md` §8.
+archetype's `THEME.md`). See `internal-docs/HomespaceTDD.md` §8.

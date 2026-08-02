@@ -1,11 +1,11 @@
 {
-  "name": "@kwatlp/cli",
-  "version": "0.1.0",
-  "description": "kwatlp init|new|validate|build|dev. Thin orchestration over schema, scanner, renderer.",
+  "name": "@homespace/cli",
+  "version": "0.2.0",
+  "description": "homespace init|new|validate|build|dev. Thin orchestration over schema, scanner, renderer.",
   "license": "MIT",
   "type": "module",
   "bin": {
-    "kwatlp": "./dist/bin/kwatlp.js"
+    "homespace": "./dist/bin/homespace.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -24,9 +24,9 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@kwatlp/renderer": "*",
-    "@kwatlp/scanner": "*",
-    "@kwatlp/schema": "*",
+    "@homespace/renderer": "*",
+    "@homespace/scanner": "*",
+    "@homespace/schema": "*",
     "bonjour-service": "^1.4.4",
     "chokidar": "^4.0.3"
   }

@@ -2,10 +2,10 @@ import { describe, expect, test } from "vitest";
 
 import {
   type PackManifest,
-  type NodeManifest,
+  type HomespaceManifest,
   type Catalog,
   validateCatalog,
-  validateNode,
+  validateHomespace,
   validatePack,
 } from "./index";
 
@@ -127,16 +127,16 @@ describe("unknown-field policy — warn, keep, pass through (TDD §3)", () => {
     expect(manifest.experimental_flag).toBe(true);
   });
 
-  test("unknown top-level node field is valid with a warning", () => {
-    const result = validateNode({ name: "cedar", surprise: 1 });
+  test("unknown top-level homespace field is valid with a warning", () => {
+    const result = validateHomespace({ name: "cedar", surprise: 1 });
     expect(result.valid).toBe(true);
     expect(result.warnings.map((w) => w.path)).toContain("/surprise");
   });
 });
 
-describe("validateNode", () => {
-  const fullNode: NodeManifest = {
-    name: "kwatlp",
+describe("validateHomespace", () => {
+  const fullNode: HomespaceManifest = {
+    name: "homespace",
     title: "kʷátɬp",
     tagline: "cedar, roots, worlds",
     lang: "en",
@@ -163,14 +163,14 @@ describe("validateNode", () => {
     footer: { text: "© kʷátɬp", links: [] },
   };
 
-  test("minimal node ({ name }) is valid", () => {
-    const result = validateNode({ name: "cedar" });
+  test("minimal homespace ({ name }) is valid", () => {
+    const result = validateHomespace({ name: "cedar" });
     expect(result.errors).toEqual([]);
     expect(result.valid).toBe(true);
   });
 
-  test("full node example is valid", () => {
-    const result = validateNode(fullNode);
+  test("full homespace example is valid", () => {
+    const result = validateHomespace(fullNode);
     expect(result.errors).toEqual([]);
     expect(result.valid).toBe(true);
   });
@@ -185,7 +185,7 @@ describe("validateNode", () => {
 
   for (const [name, manifest] of Object.entries(invalid)) {
     test(`invalid: ${name}`, () => {
-      const result = validateNode(manifest);
+      const result = validateHomespace(manifest);
       expect(result.valid).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
     });

@@ -16,7 +16,7 @@ export const consoleIO: IO = {
 
 /** Shared command context. */
 export interface Context {
-  /** Working directory (the node root for most commands). */
+  /** Working directory (the homespace root for most commands). */
   cwd: string;
   io: IO;
 }

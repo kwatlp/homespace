@@ -1,4 +1,4 @@
-import type { CatalogPack } from "@kwatlp/schema";
+import type { CatalogPack } from "@homespace/schema";
 
 import { escapeAttr, escapeHtml } from "./escape.js";
 import { packAssetUrl } from "./html.js";

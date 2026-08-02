@@ -1,13 +1,13 @@
-# Contributing to kwatlp
+# Contributing to homespace
 
 Thanks for building with us. This project has a **locked, detailed design** and a
 **strict build order** — reading a little before you code saves everyone time.
 
 ## Read first
 
-1. [`internal-docs/KwatlpTDD.md`](internal-docs/KwatlpTDD.md) — the Technical
+1. [`internal-docs/HomespaceTDD.md`](internal-docs/HomespaceTDD.md) — the Technical
    Design Document. It is the source of truth. In particular:
-   - **§3 / §4** — the two contracts (pack manifest, node manifest). Binding.
+   - **§3 / §4** — the two contracts (pack manifest, homespace manifest). Binding.
    - **§5.4** — the runtime dependency budget. Binding.
    - **§11** — the work-order sequence (WO-0 … WO-10).
    - **Appendix A** — coding conventions.

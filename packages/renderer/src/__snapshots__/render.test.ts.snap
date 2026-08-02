@@ -6,16 +6,16 @@ exports[`grid layout > index is a tile grid; every section gets its own page 1`]
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Demo Node</title>
+<title>Demo Homespace</title>
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="base.css">
 <link rel="stylesheet" href="custom.css">
-<link rel="alternate" type="application/rss+xml" href="feed.xml" title="Demo Node">
+<link rel="alternate" type="application/rss+xml" href="feed.xml" title="Demo Homespace">
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header"><div class="wrap">
-<p class="site-title">Demo Node</p>
+<p class="site-title">Demo Homespace</p>
 <nav class="site-nav" aria-label="Primary"><ul><li><a href="hero/">Hero</a></li><li><a href="games/">Games</a></li><li><a href="writing/">Writing</a></li><li><a href="elsewhere/">Elsewhere</a></li><li><a href="art/">Art</a></li></ul></nav>
 </div></header>
 <main id="main">
@@ -42,22 +42,22 @@ exports[`pages layout > landing + one page per section, with generated section n
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Demo Node</title>
+<title>Demo Homespace</title>
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="base.css">
 <link rel="stylesheet" href="custom.css">
-<link rel="alternate" type="application/rss+xml" href="feed.xml" title="Demo Node">
+<link rel="alternate" type="application/rss+xml" href="feed.xml" title="Demo Homespace">
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header"><div class="wrap">
-<p class="site-title">Demo Node</p>
+<p class="site-title">Demo Homespace</p>
 <nav class="site-nav" aria-label="Primary"><ul><li><a href="./">Hero</a></li><li><a href="games/">Games</a></li><li><a href="writing/">Writing</a></li><li><a href="elsewhere/">Elsewhere</a></li><li><a href="art/">Art</a></li></ul></nav>
 </div></header>
 <main id="main">
 <section class="section hero" id="hero"><div class="wrap">
-<h1>Demo Node</h1>
-<p>a test node</p>
+<h1>Demo Homespace</h1>
+<p>a test homespace</p>
 <img src="static/hero.webp" alt="">
 </div></section>
 
@@ -68,13 +68,13 @@ exports[`pages layout > landing + one page per section, with generated section n
 "
 `;
 
-exports[`render — demo node > golden: feed.xml 1`] = `
+exports[`render — demo homespace > golden: feed.xml 1`] = `
 "<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
-    <title>Demo Node</title>
+    <title>Demo Homespace</title>
     <link>/</link>
-    <description>a test node</description>
+    <description>a test homespace</description>
     <item>
       <title>Hello World</title>
       <link>/posts/hello-world/</link>
@@ -87,22 +87,22 @@ exports[`render — demo node > golden: feed.xml 1`] = `
 "
 `;
 
-exports[`render — demo node > golden: game detail 1`] = `
+exports[`render — demo homespace > golden: game detail 1`] = `
 "<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Solterra — Demo Node</title>
+<title>Solterra — Demo Homespace</title>
 <link rel="stylesheet" href="../../tokens.css">
 <link rel="stylesheet" href="../../base.css">
 <link rel="stylesheet" href="../../custom.css">
-<link rel="alternate" type="application/rss+xml" href="../../feed.xml" title="Demo Node">
+<link rel="alternate" type="application/rss+xml" href="../../feed.xml" title="Demo Homespace">
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header"><div class="wrap">
-<p class="site-title">Demo Node</p>
+<p class="site-title">Demo Homespace</p>
 <nav class="site-nav" aria-label="Primary"><ul><li><a href="../../#packs">Play</a></li><li><a href="../../#posts">Read</a></li></ul></nav>
 </div></header>
 <main id="main">
@@ -149,28 +149,28 @@ exports[`render — demo node > golden: game detail 1`] = `
 "
 `;
 
-exports[`render — demo node > golden: index.html 1`] = `
+exports[`render — demo homespace > golden: index.html 1`] = `
 "<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Demo Node</title>
+<title>Demo Homespace</title>
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="base.css">
 <link rel="stylesheet" href="custom.css">
-<link rel="alternate" type="application/rss+xml" href="feed.xml" title="Demo Node">
+<link rel="alternate" type="application/rss+xml" href="feed.xml" title="Demo Homespace">
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header"><div class="wrap">
-<p class="site-title">Demo Node</p>
+<p class="site-title">Demo Homespace</p>
 <nav class="site-nav" aria-label="Primary"><ul><li><a href="#packs">Play</a></li><li><a href="#posts">Read</a></li></ul></nav>
 </div></header>
 <main id="main">
 <section class="section hero" id="hero"><div class="wrap">
-<h1>Demo Node</h1>
-<p>a test node</p>
+<h1>Demo Homespace</h1>
+<p>a test homespace</p>
 <img src="static/hero.webp" alt="">
 </div></section>
 
@@ -210,22 +210,22 @@ exports[`render — demo node > golden: index.html 1`] = `
 "
 `;
 
-exports[`render — demo node > golden: post detail 1`] = `
+exports[`render — demo homespace > golden: post detail 1`] = `
 "<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hello World — Demo Node</title>
+<title>Hello World — Demo Homespace</title>
 <link rel="stylesheet" href="../../tokens.css">
 <link rel="stylesheet" href="../../base.css">
 <link rel="stylesheet" href="../../custom.css">
-<link rel="alternate" type="application/rss+xml" href="../../feed.xml" title="Demo Node">
+<link rel="alternate" type="application/rss+xml" href="../../feed.xml" title="Demo Homespace">
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header"><div class="wrap">
-<p class="site-title">Demo Node</p>
+<p class="site-title">Demo Homespace</p>
 <nav class="site-nav" aria-label="Primary"><ul><li><a href="../../#packs">Play</a></li><li><a href="../../#posts">Read</a></li></ul></nav>
 </div></header>
 <main id="main">
@@ -234,7 +234,7 @@ exports[`render — demo node > golden: post detail 1`] = `
 <p class="tag"><time datetime="2026-01-05T00:00:00Z">2026-01-05</time></p>
 <div class="prose">
 <h1>Hello World</h1>
-<p>Welcome to the <strong>demo</strong> node. It renders with GFM.</p>
+<p>Welcome to the <strong>demo</strong> homespace. It renders with GFM.</p>
 <ul>
 <li>one</li>
 <li>two</li>
@@ -266,7 +266,7 @@ exports[`render — demo node > golden: post detail 1`] = `
 "
 `;
 
-exports[`render — demo node > golden: sitemap.txt 1`] = `
+exports[`render — demo homespace > golden: sitemap.txt 1`] = `
 "/
 /packs/portfolio/
 /packs/solterra/
@@ -274,7 +274,7 @@ exports[`render — demo node > golden: sitemap.txt 1`] = `
 "
 `;
 
-exports[`render — demo node > golden: tokens.css 1`] = `
+exports[`render — demo homespace > golden: tokens.css 1`] = `
 ":root {
   --color-accent: #c0ffee;
   --color-bg: #14100c;

@@ -3,11 +3,11 @@ import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
 
-import type { NodeManifest } from "@kwatlp/schema";
+import type { HomespaceManifest } from "@homespace/schema";
 import { watch, type FSWatcher } from "chokidar";
 
 import type { Context, IO } from "../io.js";
-import { loadNode } from "../load.js";
+import { loadHomespace } from "../load.js";
 import { fail } from "../report.js";
 import { build } from "./build.js";
 
@@ -21,17 +21,17 @@ export interface DevAddress {
   host: string;
   port: number;
   mdns: boolean;
-  /** Interface to bind: loopback unless mDNS makes the node LAN-visible (§7.1). */
+  /** Interface to bind: loopback unless mDNS makes the homespace LAN-visible (§7.1). */
   bindHost: string;
   localUrl: string;
   customUrl: string;
 }
 
 /** Resolve the dev/serve address from the manifest + CLI flags (TDD §7.1). */
-export function resolveAddress(node: NodeManifest, flags: DevFlags): DevAddress {
-  const local = node.local ?? {};
+export function resolveAddress(homespace: HomespaceManifest, flags: DevFlags): DevAddress {
+  const local = homespace.local ?? {};
   const port = flags.port ?? (typeof local.port === "number" ? local.port : 4321);
-  const host = flags.host ?? (typeof local.host === "string" && local.host ? local.host : node.name);
+  const host = flags.host ?? (typeof local.host === "string" && local.host ? local.host : homespace.name);
   const mdns = local.mdns === true;
   return {
     host,
@@ -43,9 +43,9 @@ export function resolveAddress(node: NodeManifest, flags: DevFlags): DevAddress 
   };
 }
 
-/** The /etc/hosts line for a machine-only custom name (kwatlp dev --hosts-hint). */
+/** The /etc/hosts line for a machine-only custom name (homespace dev --hosts-hint). */
 export function hostsHint(host: string, port: number): string {
-  return `127.0.0.1\t${host}\t# kwatlp — then open http://${host}:${port}\n`;
+  return `127.0.0.1\t${host}\t# homespace — then open http://${host}:${port}\n`;
 }
 
 const MIME: Record<string, string> = {
@@ -171,7 +171,7 @@ export interface StartDevOptions {
   io: IO;
   rebuild: () => Promise<void>;
   mdns?: MdnsFactory;
-  nodeName: string;
+  homespaceName: string;
 }
 
 function listen(server: Server, port: number, host: string): Promise<void> {
@@ -192,9 +192,15 @@ export async function startDev(options: StartDevOptions): Promise<DevHandle> {
   const server = createServer(createHandler(distDir, {}));
   await listen(server, address.port, address.bindHost);
 
-  const watchPaths = ["content", "theme", "static", "node.manifest.jsonc", "node.manifest.json"].map(
-    (p) => path.join(root, p),
-  );
+  const watchPaths = [
+    "content",
+    "theme",
+    "static",
+    "homespace.manifest.jsonc",
+    "homespace.manifest.json",
+    "node.manifest.jsonc",
+    "node.manifest.json",
+  ].map((p) => path.join(root, p));
   let timer: NodeJS.Timeout | undefined;
   const watcher: FSWatcher = watch(watchPaths, { ignoreInitial: true });
   watcher.on("all", () => {
@@ -207,7 +213,7 @@ export async function startDev(options: StartDevOptions): Promise<DevHandle> {
   let advertiser: MdnsAdvertiser | undefined;
   if (address.mdns) {
     const factory = options.mdns ?? defaultMdns;
-    advertiser = await factory({ name: options.nodeName, host: address.host, port: address.port });
+    advertiser = await factory({ name: options.homespaceName, host: address.host, port: address.port });
   }
 
   return {
@@ -235,8 +241,8 @@ export async function dev(argv: string[], ctx: Context, mdns?: MdnsFactory): Pro
     allowPositionals: false,
   });
 
-  const loaded = await loadNode(ctx.cwd);
-  if (!loaded.node) {
+  const loaded = await loadHomespace(ctx.cwd);
+  if (!loaded.homespace) {
     fail(ctx.io, loaded.errors);
     return 1;
   }
@@ -246,7 +252,7 @@ export async function dev(argv: string[], ctx: Context, mdns?: MdnsFactory): Pro
     ...(values.host !== undefined ? { host: values.host } : {}),
     coi: values.coi === true,
   };
-  const address = resolveAddress(loaded.node, flags);
+  const address = resolveAddress(loaded.homespace, flags);
 
   if (values["hosts-hint"] === true) {
     ctx.io.out(hostsHint(address.host, address.port));
@@ -263,7 +269,7 @@ export async function dev(argv: string[], ctx: Context, mdns?: MdnsFactory): Pro
     address,
     io: ctx.io,
     rebuild,
-    nodeName: loaded.node.name,
+    homespaceName: loaded.homespace.name,
     ...(mdns ? { mdns } : {}),
   };
   const handle = await startDev(startOpts);
