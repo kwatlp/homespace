@@ -1,0 +1,28 @@
+{
+  // Your node's identity.
+  "name": "my-node",
+  "title": "My Node",
+  "tagline": "cedar, roots, worlds",
+  "lang": "en",
+
+  // "scroll" = one long page. "pages" and "grid" arrive in a later release.
+  "layout": "scroll",
+
+  // Restyle the entire node by editing these tokens — nothing else.
+  "theme": {
+    "tokens": {
+      "color": { "accent": "#d97b4a" },
+      "maxWidth": 760
+    }
+  },
+
+  "nav": [{ "label": "Writing", "href": "#posts" }],
+
+  // Ordered composition. Add sections; each reads from your content/packs.
+  "sections": [
+    { "type": "hero", "heading": "My Node", "sub": "A fresh kwatlp node." },
+    { "type": "posts", "title": "Writing", "source": { "types": ["post"] }, "rss": true }
+  ],
+
+  "footer": { "text": "© My Node" }
+}

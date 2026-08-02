@@ -1,12 +1,26 @@
 /**
- * `@kwatlp/cli` — the `kwatlp` command: `init | new | validate | build | dev`
- * (plus `serve` when the optional Tier-2 package is installed). Thin
- * orchestration over `@kwatlp/schema`, `@kwatlp/scanner`, and
- * `@kwatlp/renderer`; the heavy lifting lives in those.
- *
- * Scaffold only (TDD §11, WO-0). The commands land in WO-4.
- * See `internal-docs/KwatlpTDD.md` §7.
+ * `@kwatlp/cli` — the `kwatlp` command: `init | new | validate | build | dev`.
+ * Thin orchestration over `@kwatlp/schema`, `@kwatlp/scanner`, and
+ * `@kwatlp/renderer`. See `internal-docs/KwatlpTDD.md` §7.
  */
 
-/** Package identifier — placeholder until WO-4 lands the real surface. */
-export const PACKAGE_NAME = "@kwatlp/cli";
+export { run, type RunOptions } from "./cli.js";
+
+export {
+  contentType,
+  createHandler,
+  hostsHint,
+  resolveAddress,
+  startDev,
+  type DevAddress,
+  type DevFlags,
+  type DevHandle,
+  type HandlerOptions,
+  type MdnsAdvertiser,
+  type MdnsFactory,
+} from "./commands/dev.js";
+
+export { isPackType, packScaffold, PACK_TYPES, type PackType } from "./templates.js";
+export { parseJsonc, stripJsonComments } from "./jsonc.js";
+export { loadNode, type LoadedNode } from "./load.js";
+export type { Context, IO } from "./io.js";
