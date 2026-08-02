@@ -1,0 +1,27 @@
+{
+  "name": "@kwatlp/serve",
+  "version": "0.0.0",
+  "description": "Tier 2 only — optional daemon (watch-rebuild, upload API, scoped keys). Nothing else imports it.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@kwatlp/cli": "*",
+    "@kwatlp/renderer": "*",
+    "@kwatlp/scanner": "*",
+    "@kwatlp/schema": "*"
+  }
+}

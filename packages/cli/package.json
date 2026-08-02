@@ -1,0 +1,29 @@
+{
+  "name": "@kwatlp/cli",
+  "version": "0.0.0",
+  "description": "kwatlp init|new|validate|build|dev. Thin orchestration over schema, scanner, renderer.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "kwatlp": "./dist/bin/kwatlp.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@kwatlp/renderer": "*",
+    "@kwatlp/scanner": "*",
+    "@kwatlp/schema": "*"
+  }
+}

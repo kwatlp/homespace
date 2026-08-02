@@ -1,0 +1,21 @@
+{
+  "name": "@kwatlp/schema",
+  "version": "0.0.0",
+  "description": "JSON Schemas (pack, node, catalog) + generated TS types + validate().",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "vitest run"
+  }
+}
