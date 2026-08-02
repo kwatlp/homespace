@@ -2,6 +2,7 @@ import type { CatalogPack } from "@kwatlp/schema";
 
 import { escapeAttr, escapeHtml } from "./escape.js";
 import { packAssetUrl } from "./html.js";
+import { PLAYER_SCRIPT, renderDownload, renderPlayer } from "./player.js";
 import type { RenderContext } from "./sections.js";
 
 /** Detail-page basePrefix: detail pages live two levels below dist root. */
@@ -36,18 +37,14 @@ export function renderPackDetail(pack: CatalogPack, ctx: RenderContext): string 
   }
 
   const web = pack.entrypoint?.web;
+  const hasPlayer = typeof web === "string";
   if (typeof web === "string") {
-    // The in-page iframe player lands in WO-6; for now, a direct link to open it.
-    parts.push(`<p><a class="open" href="${escapeAttr(packAssetUrl(ctx.basePrefix, pack, web))}">Open</a></p>`);
+    parts.push(renderPlayer(packAssetUrl(ctx.basePrefix, pack, web), pack.sandbox));
   }
 
   const download = pack.entrypoint?.download;
   if (typeof download === "string") {
-    const sum = pack.checksums?.[download];
-    const checksum = typeof sum === "string" ? `<br><span class="tag">${escapeHtml(sum)}</span>` : "";
-    parts.push(
-      `<p><a class="download" href="${escapeAttr(packAssetUrl(ctx.basePrefix, pack, download))}" download>Download</a>${checksum}</p>`,
-    );
+    parts.push(renderDownload(packAssetUrl(ctx.basePrefix, pack, download), pack.checksums?.[download]));
   }
 
   parts.push(galleryFigures(pack, ctx));
@@ -61,7 +58,8 @@ export function renderPackDetail(pack: CatalogPack, ctx: RenderContext): string 
     parts.push(`<p><a href="${escapeAttr(discussion)}">Discussion</a></p>`);
   }
 
-  return main(parts.filter((p) => p !== "").join("\n"));
+  const body = main(parts.filter((p) => p !== "").join("\n"));
+  return hasPlayer ? `${body}${PLAYER_SCRIPT}\n` : body;
 }
 
 /** Detail page body for a post, given its already-rendered markdown HTML. */
