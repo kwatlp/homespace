@@ -1,0 +1,8 @@
+{
+  "id": "github",
+  "type": "link",
+  "title": "GitHub",
+  "summary": "Code and open-source projects.",
+  "entrypoint": { "link": "https://github.com/" },
+  "tags": ["code"]
+}

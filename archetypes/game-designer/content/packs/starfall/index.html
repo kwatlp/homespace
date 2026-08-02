@@ -1,0 +1,10 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Starfall</title>
+<style>body{margin:0;background:#14100c;color:#f3e9dd;font-family:sans-serif;display:grid;place-items:center;height:100vh}</style>
+<canvas id="c" width="320" height="180" aria-label="Starfall"></canvas>
+<script>
+  var x = document.getElementById("c").getContext("2d");
+  x.fillStyle = "#d97b4a";
+  for (var i = 0; i < 40; i++) x.fillRect(Math.random() * 320, Math.random() * 180, 2, 2);
+</script>

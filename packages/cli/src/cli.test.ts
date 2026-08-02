@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -84,6 +84,46 @@ describe("init → new → build (e2e)", () => {
     const css = await readFile(path.join(dist, "base.css"), "utf8");
     expect(findBudgetViolations([{ path: "index.html", contents: html }, { path: "base.css", contents: css }])).toEqual([]);
   });
+});
+
+describe("archetypes (WO-7)", () => {
+  async function crawlable(dist: string): Promise<{ path: string; contents: string }[]> {
+    const rels = await readdir(dist, { recursive: true });
+    const out: { path: string; contents: string }[] = [];
+    for (const rel of rels) {
+      const relStr = String(rel).replace(/\\/g, "/");
+      if (!/\.(html?|css)$/i.test(relStr)) continue;
+      out.push({ path: relStr, contents: await readFile(path.join(dist, relStr), "utf8") });
+    }
+    return out;
+  }
+
+  for (const archetype of ["link-hub", "author", "illustrator", "game-designer"]) {
+    test(`${archetype}: init → build is clean, offline, and accessible`, async () => {
+      const root = await tmp();
+      expect(await run(["init", archetype, "site"], { cwd: root, io: capture().io })).toBe(0);
+      const site = path.join(root, "site");
+
+      const buildIo = capture();
+      expect(await run(["build"], { cwd: site, io: buildIo.io })).toBe(0);
+
+      const dist = path.join(site, "dist");
+      const index = await readFile(path.join(dist, "index.html"), "utf8");
+      // landmarks present (a11y smoke)
+      expect(index).toContain('<main id="main">');
+      expect(index).toContain("<header");
+      expect(index).toContain("<footer");
+
+      const files = await crawlable(dist);
+      // no external resource loads anywhere in the build
+      expect(findBudgetViolations(files)).toEqual([]);
+      // every <img> has an alt attribute
+      for (const f of files) {
+        const imgWithoutAlt = /<img (?![^>]*\balt=)[^>]*>/i.test(f.contents);
+        expect(imgWithoutAlt, `${f.path} has an <img> without alt`).toBe(false);
+      }
+    });
+  }
 });
 
 describe("new pack — guards", () => {

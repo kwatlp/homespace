@@ -1,0 +1,7 @@
+{
+  "id": "shop",
+  "type": "link",
+  "title": "Prints",
+  "summary": "Buy a print.",
+  "entrypoint": { "link": "https://example.com/shop" }
+}

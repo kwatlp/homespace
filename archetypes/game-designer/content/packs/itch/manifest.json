@@ -1,0 +1,7 @@
+{
+  "id": "itch",
+  "type": "link",
+  "title": "itch.io",
+  "summary": "More games and downloads.",
+  "entrypoint": { "link": "https://itch.io/" }
+}

@@ -1,0 +1,30 @@
+{
+  // game-designer — the kʷátɬp-shaped node. Playable games/apps as cards, a dev
+  // log with RSS, and links. (A tmíxʷ-style app would live here as an app pack.)
+  "name": "game-designer",
+  "title": "Workshop",
+  "tagline": "games & experiments",
+  "lang": "en",
+  "layout": "scroll",
+
+  "theme": {
+    "tokens": {
+      "color": { "bg": "#14100c", "surface": "#1f1813", "text": "#f3e9dd", "muted": "#b9a893", "accent": "#d97b4a" },
+      "maxWidth": 820
+    }
+  },
+
+  "nav": [
+    { "label": "Play", "href": "#packs" },
+    { "label": "Dev log", "href": "#posts" }
+  ],
+
+  "sections": [
+    { "type": "hero", "heading": "Workshop", "sub": "Games and experiments you can play in the browser." },
+    { "type": "packs", "title": "Games & Apps", "source": { "types": ["game", "app"] }, "style": "cards" },
+    { "type": "posts", "title": "Dev Log", "source": { "types": ["post"], "sort": "created" }, "rss": true },
+    { "type": "links", "title": "Elsewhere", "source": { "types": ["link"] } }
+  ],
+
+  "footer": { "text": "© Workshop" }
+}

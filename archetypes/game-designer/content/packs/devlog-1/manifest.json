@@ -1,0 +1,8 @@
+{
+  "id": "devlog-1",
+  "type": "post",
+  "title": "Devlog 1: getting started",
+  "summary": "How Starfall began.",
+  "created": "2026-03-01T00:00:00Z",
+  "entrypoint": { "post": "index.md" }
+}

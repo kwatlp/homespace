@@ -5,16 +5,39 @@ import { parseArgs } from "node:util";
 
 import type { Context } from "../io.js";
 
-/** Bundled archetype/template presets live at the package root under templates/. */
-const templatesDir = fileURLToPath(new URL("../../templates", import.meta.url));
+/**
+ * Preset sources, in priority order: the CLI's bundled templates (ships with
+ * the package — currently `blank`), then the repo-level `archetypes/` dir (the
+ * four v0 archetypes) when running inside the monorepo.
+ */
+const PRESET_ROOTS = [
+  fileURLToPath(new URL("../../templates", import.meta.url)),
+  fileURLToPath(new URL("../../../../archetypes", import.meta.url)),
+];
 
 async function listArchetypes(): Promise<string[]> {
-  try {
-    const entries = await readdir(templatesDir, { withFileTypes: true });
-    return entries.filter((e) => e.isDirectory()).map((e) => e.name).sort();
-  } catch {
-    return [];
+  const names = new Set<string>();
+  for (const root of PRESET_ROOTS) {
+    try {
+      const entries = await readdir(root, { withFileTypes: true });
+      for (const e of entries) if (e.isDirectory()) names.add(e.name);
+    } catch {
+      /* root may not exist (e.g. published package without archetypes) */
+    }
   }
+  return [...names].sort();
+}
+
+async function findPreset(archetype: string): Promise<string | undefined> {
+  for (const root of PRESET_ROOTS) {
+    const candidate = path.join(root, archetype);
+    try {
+      if ((await stat(candidate)).isDirectory()) return candidate;
+    } catch {
+      /* keep looking */
+    }
+  }
+  return undefined;
 }
 
 async function isNonEmptyDir(p: string): Promise<boolean> {
@@ -39,10 +62,8 @@ export async function init(argv: string[], ctx: Context): Promise<number> {
     return 1;
   }
 
-  const src = path.join(templatesDir, archetype);
-  try {
-    if (!(await stat(src)).isDirectory()) throw new Error("not a directory");
-  } catch {
+  const src = await findPreset(archetype);
+  if (src === undefined) {
     ctx.io.err(`error: unknown archetype '${archetype}' — available: ${available.join(", ") || "(none)"}\n`);
     return 1;
   }
