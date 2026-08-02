@@ -1,6 +1,6 @@
 {
   "name": "@kwatlp/serve",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Tier 2 only — optional daemon (watch-rebuild, upload API, scoped keys). Nothing else imports it.",
   "license": "MIT",
   "type": "module",

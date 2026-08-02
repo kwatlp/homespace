@@ -1,0 +1,8 @@
+{
+  "id": "theming",
+  "type": "post",
+  "title": "Theming",
+  "summary": "Restyle a whole node by editing tokens.",
+  "created": "2026-08-02T00:00:00Z",
+  "entrypoint": { "post": "index.md" }
+}

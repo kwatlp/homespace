@@ -35,3 +35,9 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+
+# Archetypes are copied into the CLI at pack time (source of truth is /archetypes);
+# the bundled 'blank' template stays tracked.
+packages/cli/templates/*
+!packages/cli/templates/blank
+!packages/cli/templates/blank/**

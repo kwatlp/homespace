@@ -1,6 +1,6 @@
 {
   "name": "@kwatlp/cli",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "kwatlp init|new|validate|build|dev. Thin orchestration over schema, scanner, renderer.",
   "license": "MIT",
   "type": "module",
@@ -20,6 +20,7 @@
     "templates"
   ],
   "scripts": {
+    "prepack": "node ../../scripts/bundle-cli-archetypes.mjs",
     "test": "vitest run"
   },
   "dependencies": {

@@ -1,0 +1,8 @@
+{
+  "id": "getting-started",
+  "type": "post",
+  "title": "Getting started",
+  "summary": "Scaffold, build, and deploy your first node.",
+  "created": "2026-08-01T00:00:00Z",
+  "entrypoint": { "post": "index.md" }
+}

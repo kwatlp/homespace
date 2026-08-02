@@ -1,6 +1,6 @@
 {
   "name": "@kwatlp/renderer",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "(catalog, node manifest) → dist/. Pure; no fs-walking knowledge.",
   "license": "MIT",
   "type": "module",

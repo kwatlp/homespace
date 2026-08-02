@@ -1,6 +1,6 @@
 {
   "name": "@kwatlp/scanner",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "content/ → catalog.json. Pure; no rendering knowledge.",
   "license": "MIT",
   "type": "module",

@@ -11,10 +11,12 @@ A [Kwatlp](internal-docs/KwatlpTDD.md) studio project. MIT licensed. Node ≥ 20
 > `kwatlp` is a working name; final naming is the operator's call and follows
 > the studio's Nlaka'pamux sourcing practice.
 
-> **Status:** pre-release. The design is locked and detailed in the
-> [Technical Design Document](internal-docs/KwatlpTDD.md); implementation
-> proceeds in work-order sequence (TDD §11). Building the code? See
-> [CONTRIBUTING.md](CONTRIBUTING.md) and [CLAUDE.md](CLAUDE.md).
+> **Status: v0.1.0.** All ten work orders (TDD §11) are complete — schema,
+> scanner, renderer (three layouts, seven section types, player, thumbnails),
+> the `kwatlp` CLI, the four archetypes, and the optional Tier-2 daemon. The
+> design is detailed in the [Technical Design Document](internal-docs/KwatlpTDD.md).
+> Building the code? See [CONTRIBUTING.md](CONTRIBUTING.md) and
+> [CLAUDE.md](CLAUDE.md).
 
 ## Locked principles
 
