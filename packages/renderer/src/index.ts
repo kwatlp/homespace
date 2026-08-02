@@ -13,9 +13,11 @@ export {
   type RenderIssue,
   type OutputFile,
   type CopyOp,
+  type ThumbOp,
 } from "./render.js";
 
-export { writeDist } from "./write.js";
+export { writeDist, type WriteOptions } from "./write.js";
+export { loadSharpThumbnailer, isRasterImage, THUMB_WIDTH, type Thumbnailer } from "./thumbnails.js";
 
 export {
   assertOfflineBudget,

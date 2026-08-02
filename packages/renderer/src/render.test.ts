@@ -9,6 +9,7 @@ import { beforeAll, describe, expect, test } from "vitest";
 import {
   assertOfflineBudget,
   findBudgetViolations,
+  isRasterImage,
   render,
   renderMarkdown,
   renderTokensCss,
@@ -16,6 +17,7 @@ import {
   writeDist,
   type OutputFile,
   type RenderResult,
+  type Thumbnailer,
 } from "./index";
 
 const demoRoot = fileURLToPath(new URL("../test/fixtures/demo-node", import.meta.url));
@@ -299,6 +301,55 @@ describe("player & downloads (WO-6)", () => {
   test("player pages keep the offline budget (inline script, local iframe src)", async () => {
     const result = await render({ catalog: players, node: playerNode, root: demoRoot });
     expect(findBudgetViolations(result.files)).toEqual([]);
+  });
+});
+
+describe("thumbnails (WO-8)", () => {
+  test("isRasterImage: raster yes, svg no", () => {
+    expect(isRasterImage("a.webp")).toBe(true);
+    expect(isRasterImage("a.PNG")).toBe(true);
+    expect(isRasterImage("a.svg")).toBe(false);
+  });
+
+  test("thumbnails on: cards/gallery reference .thumbs/ and thumb ops are emitted", async () => {
+    const result = await render({ catalog, node, root: demoRoot, thumbnails: true });
+    expect(result.thumbnails.map((t) => t.to)).toContain(".thumbs/packs/portfolio/files/cover.webp");
+    expect(file(result, "index.html").contents).toContain(".thumbs/packs/portfolio/files/cover.webp");
+    expect(findBudgetViolations(result.files)).toEqual([]);
+  });
+
+  test("thumbnails off (default): full images, no thumb ops", async () => {
+    const result = await render({ catalog, node, root: demoRoot });
+    expect(result.thumbnails).toEqual([]);
+    const index = file(result, "index.html").contents;
+    expect(index).toContain("packs/portfolio/files/cover.webp");
+    expect(index).not.toContain(".thumbs/");
+  });
+
+  test("writeDist uses the thumbnailer when present, and copies as fallback when absent", async () => {
+    const result = await render({ catalog, node, root: demoRoot, thumbnails: true });
+
+    const withOut = await mkdtemp(path.join(tmpdir(), "kwatlp-thumb-"));
+    const withoutOut = await mkdtemp(path.join(tmpdir(), "kwatlp-nothumb-"));
+    try {
+      let calls = 0;
+      const thumbnailer: Thumbnailer = async () => {
+        calls += 1;
+        return new Uint8Array([1, 2, 3]);
+      };
+      await writeDist(result, withOut, { thumbnailer });
+      expect(calls).toBeGreaterThan(0);
+      const generated = await readFile(path.join(withOut, ".thumbs/packs/portfolio/files/cover.webp"));
+      expect(generated.length).toBe(3); // downscaled bytes from the fake thumbnailer
+
+      // No thumbnailer → the reference still resolves via a copy of the original.
+      await writeDist(result, withoutOut);
+      const copied = await readFile(path.join(withoutOut, ".thumbs/packs/portfolio/files/cover.webp"), "utf8");
+      expect(copied).toContain("fake-webp-portfolio-cover");
+    } finally {
+      await rm(withOut, { recursive: true, force: true });
+      await rm(withoutOut, { recursive: true, force: true });
+    }
   });
 });
 

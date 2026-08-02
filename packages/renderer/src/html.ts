@@ -106,3 +106,8 @@ export function packPageUrl(basePrefix: string, pack: { type: string; slug: stri
   const base = pack.type === "post" ? `posts/${pack.slug}` : `packs/${pack.slug}`;
   return `${basePrefix}${base}/`;
 }
+
+/** URL to a generated thumbnail (mirrors the asset path under .thumbs/). */
+export function thumbAssetUrl(basePrefix: string, pack: { type: string; slug: string }, rel: string): string {
+  return `${basePrefix}.thumbs/${packAssetUrl("", pack, rel)}`;
+}

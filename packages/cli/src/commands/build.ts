@@ -1,7 +1,14 @@
 import path from "node:path";
 import { parseArgs } from "node:util";
 
-import { findBudgetViolations, render, writeDist, type RenderInput } from "@kwatlp/renderer";
+import {
+  findBudgetViolations,
+  loadSharpThumbnailer,
+  render,
+  writeDist,
+  type RenderInput,
+  type WriteOptions,
+} from "@kwatlp/renderer";
 import { scan, type ScanOptions } from "@kwatlp/scanner";
 
 import type { Context } from "../io.js";
@@ -40,10 +47,12 @@ export async function build(argv: string[], ctx: Context): Promise<number> {
     return 1;
   }
 
+  const thumbnailer = await loadSharpThumbnailer();
   const renderInput: RenderInput = {
     catalog: scanResult.catalog,
     node: loaded.node,
     root: ctx.cwd,
+    thumbnails: thumbnailer !== null,
     ...(typeof values["base-url"] === "string" ? { site: values["base-url"] } : {}),
   };
   const renderResult = await render(renderInput);
@@ -60,7 +69,8 @@ export async function build(argv: string[], ctx: Context): Promise<number> {
   }
 
   const outDir = path.resolve(ctx.cwd, values.out ?? "dist");
-  await writeDist(renderResult, outDir);
+  const writeOpts: WriteOptions = thumbnailer ? { thumbnailer } : {};
+  await writeDist(renderResult, outDir, writeOpts);
   ctx.io.out(`Built ${scanResult.catalog.packs.length} pack(s) → ${path.relative(ctx.cwd, outDir) || "."}\n`);
   return 0;
 }
