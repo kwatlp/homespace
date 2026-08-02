@@ -1,0 +1,185 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`render — demo node > golden: feed.xml 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Demo Node</title>
+    <link>/</link>
+    <description>a test node</description>
+    <item>
+      <title>Hello World</title>
+      <link>/posts/hello-world/</link>
+      <guid isPermaLink="false">hello-world</guid>
+      <description>The first post.</description>
+      <pubDate>Mon, 05 Jan 2026 00:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>
+"
+`;
+
+exports[`render — demo node > golden: game detail 1`] = `
+"<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solterra — Demo Node</title>
+<link rel="stylesheet" href="../../tokens.css">
+<link rel="stylesheet" href="../../base.css">
+<link rel="stylesheet" href="../../custom.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><div class="wrap">
+<p class="site-title">Demo Node</p>
+<nav class="site-nav" aria-label="Primary"><ul><li><a href="../../#packs">Play</a></li><li><a href="../../#posts">Read</a></li></ul></nav>
+</div></header>
+<main id="main">
+<article class="section"><div class="wrap">
+<h1>Solterra</h1>
+<p>A tiny game.</p>
+<img src="../../packs/solterra/files/cover.webp" alt="Solterra">
+<p><a class="open" href="../../packs/solterra/files/index.html">Open</a></p>
+<p class="tag">rpg</p>
+</div></article>
+
+</main>
+<footer class="site-footer"><div class="wrap"><p>© demo</p></div></footer>
+</body>
+</html>
+"
+`;
+
+exports[`render — demo node > golden: index.html 1`] = `
+"<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo Node</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="custom.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><div class="wrap">
+<p class="site-title">Demo Node</p>
+<nav class="site-nav" aria-label="Primary"><ul><li><a href="#packs">Play</a></li><li><a href="#posts">Read</a></li></ul></nav>
+</div></header>
+<main id="main">
+<section class="section hero" id="hero"><div class="wrap">
+<h1>Demo Node</h1>
+<p>a test node</p>
+<img src="static/hero.webp" alt="">
+</div></section>
+
+<section class="section" id="packs"><div class="wrap">
+<h2>Games</h2>
+<div class="cards">
+<article class="card"><img class="" src="packs/solterra/files/cover.webp" alt="Solterra" loading="lazy"><div class="card-body"><h3><a class="card-link" href="packs/solterra/">Solterra</a></h3><p>A tiny game.</p><p class="tag">rpg</p></div></article>
+</div>
+</div></section>
+
+<section class="section" id="posts"><div class="wrap">
+<h2>Writing</h2>
+<ul class="feed">
+<li><h3><a href="posts/hello-world/">Hello World</a></h3><time datetime="2026-01-05T00:00:00Z">2026-01-05</time><p>The first post.</p></li>
+</ul>
+</div></section>
+
+<section class="section" id="links"><div class="wrap">
+<h2>Elsewhere</h2>
+<ul class="links">
+<li><h3><a href="https://example.com/friends">Friends</a></h3><p>Good people</p></li>
+</ul>
+</div></section>
+
+</main>
+<footer class="site-footer"><div class="wrap"><p>© demo</p></div></footer>
+</body>
+</html>
+"
+`;
+
+exports[`render — demo node > golden: post detail 1`] = `
+"<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hello World — Demo Node</title>
+<link rel="stylesheet" href="../../tokens.css">
+<link rel="stylesheet" href="../../base.css">
+<link rel="stylesheet" href="../../custom.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><div class="wrap">
+<p class="site-title">Demo Node</p>
+<nav class="site-nav" aria-label="Primary"><ul><li><a href="../../#packs">Play</a></li><li><a href="../../#posts">Read</a></li></ul></nav>
+</div></header>
+<main id="main">
+<article class="section"><div class="wrap">
+<h1>Hello World</h1>
+<p class="tag"><time datetime="2026-01-05T00:00:00Z">2026-01-05</time></p>
+<div class="prose">
+<h1>Hello World</h1>
+<p>Welcome to the <strong>demo</strong> node. It renders with GFM.</p>
+<ul>
+<li>one</li>
+<li>two</li>
+</ul>
+<p>A <a href="https://example.com">link to a site</a> — navigation is allowed.</p>
+<table>
+<thead>
+<tr>
+<th>a</th>
+<th>b</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+&lt;script&gt;alert('xss')&lt;/script&gt;
+
+</div>
+</div></article>
+
+</main>
+<footer class="site-footer"><div class="wrap"><p>© demo</p></div></footer>
+</body>
+</html>
+"
+`;
+
+exports[`render — demo node > golden: sitemap.txt 1`] = `
+"/
+/packs/portfolio/
+/packs/solterra/
+/posts/hello-world/
+"
+`;
+
+exports[`render — demo node > golden: tokens.css 1`] = `
+":root {
+  --color-accent: #c0ffee;
+  --color-bg: #14100c;
+  --color-muted: #b9a893;
+  --color-surface: #1f1813;
+  --color-text: #f3e9dd;
+  --space-unit: 8px;
+  --radius: 10px;
+  --max-width: 800px;
+  --font-scale: 1;
+  --font-body: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  --font-display: Georgia, 'Times New Roman', serif;
+}
+"
+`;

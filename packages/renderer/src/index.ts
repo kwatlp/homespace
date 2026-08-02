@@ -1,12 +1,31 @@
 /**
- * `@kwatlp/renderer` — a pure function of `(catalog, nodeManifest, themeDir,
- * staticDir)` that produces a `dist/` of static HTML + CSS + minimal vanilla
- * JS. No framework, no bundler, and no external request in the output; it never
- * walks the filesystem outside its declared inputs and outputs.
+ * `@kwatlp/renderer` — turns a `(catalog, node manifest)` pair plus a node's
+ * theme/static/pack files into a `dist/` of static HTML + CSS with no external
+ * requests. Deterministic; never walks the filesystem outside its inputs.
  *
- * Scaffold only (TDD §11, WO-0). The renderer core lands in WO-3, where the
- * offline-budget gate (§10.2) goes live. See `internal-docs/KwatlpTDD.md` §6.
+ * See `internal-docs/KwatlpTDD.md` §6, §10.2.
  */
 
-/** Package identifier — placeholder until WO-3 lands the real surface. */
-export const PACKAGE_NAME = "@kwatlp/renderer";
+export {
+  render,
+  type RenderInput,
+  type RenderResult,
+  type RenderIssue,
+  type OutputFile,
+  type CopyOp,
+} from "./render.js";
+
+export { writeDist } from "./write.js";
+
+export {
+  assertOfflineBudget,
+  findBudgetViolations,
+  type BudgetViolation,
+  type Crawlable,
+} from "./offline-budget.js";
+
+export { renderMarkdown, type MarkdownOptions } from "./markdown.js";
+export { renderTokensCss, DEFAULT_TOKENS, type TokensCss, type FontAsset } from "./tokens.js";
+export { selectPacks } from "./select.js";
+export { isExternalUrl } from "./url.js";
+export { BASE_CSS } from "./assets.js";
