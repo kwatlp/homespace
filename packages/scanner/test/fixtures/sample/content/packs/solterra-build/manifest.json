@@ -4,10 +4,14 @@
   "title": "Solterra Build",
   "summary": "Downloadable build with an integrity checksum.",
   "version": "1.0.0",
-  "entrypoint": { "download": "dist/game.zip" },
-  "checksums": {
-    "dist/game.zip": "sha256:2f304cab9fa3e8d324c14b23ae2b5c158db734fefec400073fe93b5c17990902"
+  "entrypoint": {
+    "download": "dist/game.zip"
   },
-  "media": { "cover": "cover.webp" },
+  "checksums": {
+    "dist/game.zip": "sha256:a9e9863d1f2c0c4f328f96abd60a9cba208d0bbda561a65423996ed55b140723"
+  },
+  "media": {
+    "cover": "cover.webp"
+  },
   "license": "MIT"
 }

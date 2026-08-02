@@ -1,5 +1,5 @@
 /**
- * True when a URL points off the node — i.e. would trigger an external network
+ * True when a URL points off the homespace — i.e. would trigger an external network
  * request if used as a resource load. Local schemes (`data:`, `blob:`) and
  * relative/rooted paths are internal. This is the core predicate behind both
  * the font-path guard (§6.1) and the offline-budget gate (§10.2).

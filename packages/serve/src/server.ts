@@ -4,8 +4,8 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 
-import { contentType } from "@kwatlp/cli";
-import { validatePack } from "@kwatlp/schema";
+import { contentType } from "@homespace/cli";
+import { validatePack } from "@homespace/schema";
 import { watch } from "chokidar";
 
 import type { ServeConfig } from "./config.js";
@@ -222,9 +222,15 @@ export async function startServe(config: ServeConfig): Promise<ServeHandle> {
 
   await rebuild(config.root);
 
-  const watchPaths = ["content", "theme", "static", "node.manifest.jsonc", "node.manifest.json"].map((p) =>
-    path.join(config.root, p),
-  );
+  const watchPaths = [
+    "content",
+    "theme",
+    "static",
+    "homespace.manifest.jsonc",
+    "homespace.manifest.json",
+    "node.manifest.jsonc",
+    "node.manifest.json",
+  ].map((p) => path.join(config.root, p));
   let timer: NodeJS.Timeout | undefined;
   const watcher = watch(watchPaths, { ignoreInitial: true });
   watcher.on("all", () => {

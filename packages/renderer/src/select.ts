@@ -1,4 +1,4 @@
-import type { Catalog, CatalogPack, Source } from "@kwatlp/schema";
+import type { Catalog, CatalogPack, Source } from "@homespace/schema";
 
 /**
  * Resolve a section's `source` filter against the catalog (TDD §4). Deterministic:

@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import type { Catalog, NodeManifest } from "@kwatlp/schema";
+import type { Catalog, HomespaceManifest } from "@homespace/schema";
 import { beforeAll, describe, expect, test } from "vitest";
 
 import {
@@ -20,12 +20,12 @@ import {
   type Thumbnailer,
 } from "./index";
 
-const demoRoot = fileURLToPath(new URL("../test/fixtures/demo-node", import.meta.url));
+const demoRoot = fileURLToPath(new URL("../test/fixtures/demo-homespace", import.meta.url));
 
-const node: NodeManifest = {
+const homespace: HomespaceManifest = {
   name: "demo",
-  title: "Demo Node",
-  tagline: "a test node",
+  title: "Demo Homespace",
+  tagline: "a test homespace",
   lang: "en",
   layout: "scroll",
   theme: {
@@ -37,7 +37,7 @@ const node: NodeManifest = {
     { label: "Read", href: "#posts" },
   ],
   sections: [
-    { type: "hero", heading: "Demo Node", sub: "a test node", media: "static/hero.webp" },
+    { type: "hero", heading: "Demo Homespace", sub: "a test homespace", media: "static/hero.webp" },
     { type: "packs", title: "Games", source: { types: ["game", "app"] }, style: "cards" },
     { type: "posts", title: "Writing", source: { types: ["post"] }, rss: true },
     { type: "links", title: "Elsewhere", source: { types: ["link"] } },
@@ -62,10 +62,10 @@ function file(result: RenderResult, p: string): OutputFile {
   return found;
 }
 
-describe("render — demo node", () => {
+describe("render — demo homespace", () => {
   let result: RenderResult;
   beforeAll(async () => {
-    result = await render({ catalog, node, root: demoRoot });
+    result = await render({ catalog, homespace, root: demoRoot });
   });
 
   test("renders with no errors and includes the gallery section", () => {
@@ -129,7 +129,7 @@ describe("render — demo node", () => {
   });
 
   test("determinism: re-rendering yields identical output", async () => {
-    const again = await render({ catalog, node, root: demoRoot });
+    const again = await render({ catalog, homespace, root: demoRoot });
     expect(again.files.map((f) => f.contents)).toEqual(result.files.map((f) => f.contents));
   });
 });
@@ -166,13 +166,13 @@ describe("tokens", () => {
   test("a self-hosted font produces an @font-face and a font asset", () => {
     const { css, fontAssets } = renderTokensCss({ font: { body: "theme/fonts/inter.woff2" } });
     expect(css).toContain("@font-face");
-    expect(fontAssets).toEqual([{ family: "kwatlp-body", path: "theme/fonts/inter.woff2" }]);
+    expect(fontAssets).toEqual([{ family: "homespace-body", path: "theme/fonts/inter.woff2" }]);
   });
 });
 
 describe("pages layout", () => {
   test("landing + one page per section, with generated section nav and sitemap", async () => {
-    const result = await render({ catalog, node: { ...node, layout: "pages" }, root: demoRoot });
+    const result = await render({ catalog, homespace: { ...homespace, layout: "pages" }, root: demoRoot });
     expect(result.errors).toEqual([]);
 
     const paths = result.files.map((f) => f.path);
@@ -202,7 +202,7 @@ describe("pages layout", () => {
 
 describe("grid layout", () => {
   test("index is a tile grid; every section gets its own page", async () => {
-    const result = await render({ catalog, node: { ...node, layout: "grid" }, root: demoRoot });
+    const result = await render({ catalog, homespace: { ...homespace, layout: "grid" }, root: demoRoot });
     expect(result.errors).toEqual([]);
 
     const index = file(result, "index.html").contents;
@@ -220,7 +220,7 @@ describe("grid layout", () => {
 });
 
 describe("embed + html sections", () => {
-  const embedNode: NodeManifest = {
+  const embedNode: HomespaceManifest = {
     name: "embed-demo",
     title: "Embed Demo",
     layout: "scroll",
@@ -232,7 +232,7 @@ describe("embed + html sections", () => {
   const emptyCatalog = { version: 1 as const, packs: [] };
 
   test("embed iframes a local file; html is inserted verbatim; budget stays clean", async () => {
-    const result = await render({ catalog: emptyCatalog, node: embedNode, root: demoRoot });
+    const result = await render({ catalog: emptyCatalog, homespace: embedNode, root: demoRoot });
     expect(result.errors).toEqual([]);
     const index = file(result, "index.html").contents;
     expect(index).toContain('<iframe class="embed" src="static/toy.html"');
@@ -242,14 +242,14 @@ describe("embed + html sections", () => {
   });
 
   test("a missing html-section file is a render error", async () => {
-    const bad: NodeManifest = { name: "x", sections: [{ type: "html", file: "sections/missing.html" }] };
-    const result = await render({ catalog: emptyCatalog, node: bad, root: demoRoot });
+    const bad: HomespaceManifest = { name: "x", sections: [{ type: "html", file: "sections/missing.html" }] };
+    const result = await render({ catalog: emptyCatalog, homespace: bad, root: demoRoot });
     expect(result.errors.map((e) => e.message).join("\n")).toMatch(/does not exist/);
   });
 
   test("an external iframe src trips the offline-budget gate", async () => {
-    const external: NodeManifest = { name: "x", sections: [{ type: "embed", src: "https://evil.example/x.html" }] };
-    const result = await render({ catalog: emptyCatalog, node: external, root: demoRoot });
+    const external: HomespaceManifest = { name: "x", sections: [{ type: "embed", src: "https://evil.example/x.html" }] };
+    const result = await render({ catalog: emptyCatalog, homespace: external, root: demoRoot });
     expect(findBudgetViolations(result.files).length).toBeGreaterThan(0);
   });
 });
@@ -263,7 +263,7 @@ describe("player & downloads (WO-6)", () => {
       { id: "dl", type: "game", title: "DL", slug: "dl", dir: "content/packs/dl", entrypoint: { download: "game.zip" }, checksums: { "game.zip": `sha256:${"a".repeat(64)}` } },
     ],
   };
-  const playerNode: NodeManifest = { name: "players", sections: [{ type: "packs", source: {} }] };
+  const playerNode: HomespaceManifest = { name: "players", sections: [{ type: "packs", source: {} }] };
 
   test("sandboxTokens: strict omits allow-same-origin; standard includes it", () => {
     expect(sandboxTokens("strict")).not.toContain("allow-same-origin");
@@ -272,7 +272,7 @@ describe("player & downloads (WO-6)", () => {
   });
 
   test("web pack detail is a load-on-click player with the right sandbox", async () => {
-    const result = await render({ catalog: players, node: playerNode, root: demoRoot });
+    const result = await render({ catalog: players, homespace: playerNode, root: demoRoot });
     expect(result.errors).toEqual([]);
 
     const std = file(result, "packs/std/index.html").contents;
@@ -291,7 +291,7 @@ describe("player & downloads (WO-6)", () => {
   });
 
   test("download pack detail shows a download link with its checksum", async () => {
-    const result = await render({ catalog: players, node: playerNode, root: demoRoot });
+    const result = await render({ catalog: players, homespace: playerNode, root: demoRoot });
     const dl = file(result, "packs/dl/index.html").contents;
     expect(dl).toContain('class="download"');
     expect(dl).toContain("download>");
@@ -299,7 +299,7 @@ describe("player & downloads (WO-6)", () => {
   });
 
   test("player pages keep the offline budget (inline script, local iframe src)", async () => {
-    const result = await render({ catalog: players, node: playerNode, root: demoRoot });
+    const result = await render({ catalog: players, homespace: playerNode, root: demoRoot });
     expect(findBudgetViolations(result.files)).toEqual([]);
   });
 });
@@ -312,14 +312,14 @@ describe("thumbnails (WO-8)", () => {
   });
 
   test("thumbnails on: cards/gallery reference .thumbs/ and thumb ops are emitted", async () => {
-    const result = await render({ catalog, node, root: demoRoot, thumbnails: true });
+    const result = await render({ catalog, homespace, root: demoRoot, thumbnails: true });
     expect(result.thumbnails.map((t) => t.to)).toContain(".thumbs/packs/portfolio/files/cover.webp");
     expect(file(result, "index.html").contents).toContain(".thumbs/packs/portfolio/files/cover.webp");
     expect(findBudgetViolations(result.files)).toEqual([]);
   });
 
   test("thumbnails off (default): full images, no thumb ops", async () => {
-    const result = await render({ catalog, node, root: demoRoot });
+    const result = await render({ catalog, homespace, root: demoRoot });
     expect(result.thumbnails).toEqual([]);
     const index = file(result, "index.html").contents;
     expect(index).toContain("packs/portfolio/files/cover.webp");
@@ -327,10 +327,10 @@ describe("thumbnails (WO-8)", () => {
   });
 
   test("writeDist uses the thumbnailer when present, and copies as fallback when absent", async () => {
-    const result = await render({ catalog, node, root: demoRoot, thumbnails: true });
+    const result = await render({ catalog, homespace, root: demoRoot, thumbnails: true });
 
-    const withOut = await mkdtemp(path.join(tmpdir(), "kwatlp-thumb-"));
-    const withoutOut = await mkdtemp(path.join(tmpdir(), "kwatlp-nothumb-"));
+    const withOut = await mkdtemp(path.join(tmpdir(), "homespace-thumb-"));
+    const withoutOut = await mkdtemp(path.join(tmpdir(), "homespace-nothumb-"));
     try {
       let calls = 0;
       const thumbnailer: Thumbnailer = async () => {
@@ -355,12 +355,12 @@ describe("thumbnails (WO-8)", () => {
 
 describe("writeDist — round trip", () => {
   test("writes generated files and asset copies to disk", async () => {
-    const result = await render({ catalog, node, root: demoRoot });
-    const out = await mkdtemp(path.join(tmpdir(), "kwatlp-dist-"));
+    const result = await render({ catalog, homespace, root: demoRoot });
+    const out = await mkdtemp(path.join(tmpdir(), "homespace-dist-"));
     try {
       await writeDist(result, out);
       const index = await readFile(path.join(out, "index.html"), "utf8");
-      expect(index).toContain("Demo Node");
+      expect(index).toContain("Demo Homespace");
       // A copied binary asset landed too.
       const cover = await readFile(path.join(out, "packs/solterra/files/cover.webp"), "utf8");
       expect(cover).toContain("fake-webp-solterra");

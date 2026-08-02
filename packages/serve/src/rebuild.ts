@@ -1,24 +1,24 @@
 import path from "node:path";
 
-import { loadNode } from "@kwatlp/cli";
+import { loadHomespace } from "@homespace/cli";
 import {
   findBudgetViolations,
   loadSharpThumbnailer,
   render,
   writeDist,
   type WriteOptions,
-} from "@kwatlp/renderer";
-import { scan } from "@kwatlp/scanner";
+} from "@homespace/renderer";
+import { scan } from "@homespace/scanner";
 
 export interface RebuildResult {
   ok: boolean;
   errors: string[];
 }
 
-/** Rebuild the node: load manifest → scan → render → dist/ (offline-gated). */
+/** Rebuild the homespace: load manifest → scan → render → dist/ (offline-gated). */
 export async function rebuild(root: string): Promise<RebuildResult> {
-  const loaded = await loadNode(root);
-  if (!loaded.node) return { ok: false, errors: loaded.errors };
+  const loaded = await loadHomespace(root);
+  if (!loaded.homespace) return { ok: false, errors: loaded.errors };
 
   const scanResult = await scan({ root, verify: false });
   if (!scanResult.ok) return { ok: false, errors: scanResult.errors.map((e) => e.message) };
@@ -26,7 +26,7 @@ export async function rebuild(root: string): Promise<RebuildResult> {
   const thumbnailer = await loadSharpThumbnailer();
   const result = await render({
     catalog: scanResult.catalog,
-    node: loaded.node,
+    homespace: loaded.homespace,
     root,
     thumbnails: thumbnailer !== null,
   });

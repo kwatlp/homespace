@@ -1,7 +1,7 @@
 # Theming
 
-Layout, sections, and theme are creator-chosen in `node.manifest.jsonc`. You
-restyle the entire node by editing `theme.tokens` — colors, fonts, spacing,
+Layout, sections, and theme are creator-chosen in `homespace.manifest.jsonc`. You
+restyle the entire homespace by editing `theme.tokens` — colors, fonts, spacing,
 radius, and column width — never by hand-writing CSS.
 
 ```jsonc
@@ -13,7 +13,7 @@ radius, and column width — never by hand-writing CSS.
 }
 ```
 
-Fonts are **self-hosted** (a node loads zero external resources): drop a
+Fonts are **self-hosted** (a homespace loads zero external resources): drop a
 `.woff2` in `theme/fonts/` and point a token at it. For anything tokens don't
 cover, add `theme/custom.css`, which loads last.
 

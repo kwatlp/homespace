@@ -1,4 +1,4 @@
-import type { PackManifest } from "@kwatlp/schema";
+import type { PackManifest } from "@homespace/schema";
 
 export const PACK_TYPES = ["game", "app", "art", "post", "link", "bundle"] as const;
 export type PackType = (typeof PACK_TYPES)[number];
@@ -22,9 +22,9 @@ function titleFromId(id: string): string {
 }
 
 /**
- * Build the files for `kwatlp new pack <type> <id>`: a valid manifest.json plus
+ * Build the files for `homespace new pack <type> <id>`: a valid manifest.json plus
  * a stub entry file where the type needs one. Manifests are plain JSON (the
- * scanner parses them as JSON; only the node manifest is JSONC).
+ * scanner parses them as JSON; only the homespace manifest is JSONC).
  */
 export function packScaffold(type: PackType, id: string): ScaffoldFile[] {
   const title = titleFromId(id);

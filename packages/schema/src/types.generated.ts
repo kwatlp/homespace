@@ -1,7 +1,7 @@
 /**
  * AUTO-GENERATED — do not edit by hand.
  * Source: packages/schema/schemas/*.json
- * Regenerate with: npm run codegen  (in @kwatlp/schema)
+ * Regenerate with: npm run codegen  (in @homespace/schema)
  */
 
 /**
@@ -107,9 +107,9 @@ export type Section = {
 };
 
 /**
- * Contract #2 — the composition layer for a node. See TDD §4.
+ * Contract #2 — the composition layer for a homespace. See TDD §4.
  */
-export interface NodeManifest {
+export interface HomespaceManifest {
   $schema?: string;
   /**
    * Machine slug.
@@ -127,7 +127,7 @@ export interface NodeManifest {
   nav?: NavLink[];
   markdown?: {
     /**
-     * Node-level opt-in for raw HTML in post markdown (TDD §6.3).
+     * Homespace-level opt-in for raw HTML in post markdown (TDD §6.3).
      */
     allowHtml?: boolean;
   };
@@ -222,7 +222,7 @@ export interface CatalogPack {
    */
   slug: string;
   /**
-   * Pack folder path relative to the node root, e.g. content/packs/<id>.
+   * Pack folder path relative to the homespace root, e.g. content/packs/<id>.
    */
   dir: string;
   entrypoint?: {

@@ -1,6 +1,6 @@
 /**
  * The base stylesheet. Consumes theme tokens exclusively (via CSS custom
- * properties from tokens.css), so restyling a node means editing tokens, never
+ * properties from tokens.css), so restyling a homespace means editing tokens, never
  * this file (TDD §6.1). No external requests; ships in dist verbatim.
  */
 export const BASE_CSS = `*, *::before, *::after { box-sizing: border-box; }

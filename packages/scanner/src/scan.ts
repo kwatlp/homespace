@@ -7,7 +7,7 @@ import {
   type CatalogPack,
   type PackManifest,
   validatePack,
-} from "@kwatlp/schema";
+} from "@homespace/schema";
 
 import { confineToBase, toPosix } from "./paths.js";
 
@@ -32,7 +32,7 @@ export interface ScanResult {
 }
 
 export interface ScanOptions {
-  /** Node root directory (the folder containing `content/`). */
+  /** Homespace root directory (the folder containing `content/`). */
   root: string;
   /** Verify that every checksummed file matches its recorded sha256. */
   verify?: boolean;
@@ -116,7 +116,7 @@ function byId(a: CatalogPack, b: CatalogPack): number {
 }
 
 /**
- * Walk a node's `content/packs/`, validate every pack manifest, confine and
+ * Walk a homespace's `content/packs/`, validate every pack manifest, confine and
  * check referenced files, and emit a deterministic catalog. Pure with respect
  * to rendering — it produces data, never HTML (TDD §2, §5).
  */
@@ -130,7 +130,7 @@ export async function scan(options: ScanOptions): Promise<ScanResult> {
     errors.push({
       severity: "error",
       location: toPosix(path.join(...CONTENT_PACKS)),
-      message: `no content/packs directory under '${options.root}' — a node needs content/packs/<id>/manifest.json`,
+      message: `no content/packs directory under '${options.root}' — a homespace needs content/packs/<id>/manifest.json`,
     });
     return { catalog: emptyCatalog(options.stamp), errors, warnings, ok: false };
   }

@@ -22,10 +22,10 @@ afterEach(async () => {
 });
 
 async function makeNode(): Promise<string> {
-  const root = await mkdtemp(path.join(tmpdir(), "kwatlp-serve-"));
+  const root = await mkdtemp(path.join(tmpdir(), "homespace-serve-"));
   cleanups.push(() => rm(root, { recursive: true, force: true }));
   await writeFile(
-    path.join(root, "node.manifest.jsonc"),
+    path.join(root, "homespace.manifest.jsonc"),
     JSON.stringify({ name: "srv", title: "Srv", layout: "scroll", sections: [{ type: "posts", title: "Writing", source: { types: ["post"] }, rss: true }] }),
   );
   const hello = path.join(root, "content", "packs", "hello");
@@ -56,7 +56,7 @@ function postZip(id: string, over: Record<string, unknown> = {}): Buffer {
 }
 
 describe("rebuild", () => {
-  test("builds the node to dist/", async () => {
+  test("builds the homespace to dist/", async () => {
     const root = await makeNode();
     const result = await rebuild(root);
     expect(result.errors).toEqual([]);
@@ -123,7 +123,7 @@ describe("upload API — security & scope", () => {
     const res = await fetch(`${url}/api/packs/newpack`, { method: "PUT", headers: { Authorization: "Bearer op-secret" }, body: evil });
     expect(res.status).toBe(400);
     expect(JSON.stringify(await res.json())).toMatch(/unsafe path/);
-    // nothing escaped the node
+    // nothing escaped the homespace
     await expect(stat(path.join(root, "..", "evil.txt"))).rejects.toBeTruthy();
   });
 

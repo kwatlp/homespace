@@ -1,6 +1,6 @@
 # Hello World
 
-Welcome to the **demo** node. It renders with GFM.
+Welcome to the **demo** homespace. It renders with GFM.
 
 - one
 - two

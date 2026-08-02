@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://kwatlp.dev/schema/node.schema.json",
-  "title": "NodeManifest",
-  "description": "Contract #2 — the composition layer for a node. See TDD §4.",
+  "$id": "https://homespace.dev/schema/homespace.schema.json",
+  "title": "HomespaceManifest",
+  "description": "Contract #2 — the composition layer for a homespace. See TDD §4.",
   "type": "object",
   "required": ["name"],
   "additionalProperties": true,
@@ -31,7 +31,7 @@
         "allowHtml": {
           "type": "boolean",
           "default": false,
-          "description": "Node-level opt-in for raw HTML in post markdown (TDD §6.3)."
+          "description": "Homespace-level opt-in for raw HTML in post markdown (TDD §6.3)."
         }
       }
     },

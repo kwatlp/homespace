@@ -1,10 +1,10 @@
 /**
- * `@kwatlp/scanner` — walks a node's `content/` tree, validates each pack
- * manifest against `@kwatlp/schema`, confines every pack-relative path, and
+ * `@homespace/scanner` — walks a homespace's `content/` tree, validates each pack
+ * manifest against `@homespace/schema`, confines every pack-relative path, and
  * emits a deterministic `catalog.json`. Pure with respect to rendering: it
  * produces data, never HTML.
  *
- * See `internal-docs/KwatlpTDD.md` §2, §5, §12.
+ * See `internal-docs/HomespaceTDD.md` §2, §5, §12.
  */
 
 export {

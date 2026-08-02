@@ -2,7 +2,7 @@ import { micromark } from "micromark";
 import { gfm, gfmHtml } from "micromark-extension-gfm";
 
 export interface MarkdownOptions {
-  /** Node-level opt-in for raw HTML in post markdown (TDD §6.3). Off by default. */
+  /** Homespace-level opt-in for raw HTML in post markdown (TDD §6.3). Off by default. */
   allowHtml?: boolean;
 }
 

@@ -1,6 +1,6 @@
 {
-  "name": "@kwatlp/scanner",
-  "version": "0.1.0",
+  "name": "@homespace/scanner",
+  "version": "0.2.0",
   "description": "content/ → catalog.json. Pure; no rendering knowledge.",
   "license": "MIT",
   "type": "module",
@@ -19,6 +19,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@kwatlp/schema": "*"
+    "@homespace/schema": "*"
   }
 }

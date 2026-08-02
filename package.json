@@ -1,8 +1,8 @@
 {
-  "name": "kwatlp-node",
-  "version": "0.1.0",
+  "name": "homespace",
+  "version": "0.2.0",
   "private": true,
-  "description": "A kit for composing self-hosted static nodes.",
+  "description": "A kit for composing self-hosted static homespaces.",
   "license": "MIT",
   "type": "module",
   "engines": {

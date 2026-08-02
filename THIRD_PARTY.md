@@ -1,7 +1,7 @@
 # Third-party notices
 
-kwatlp is MIT-licensed and depends only on OSI-approved packages, per the
-dependency budget in [`internal-docs/KwatlpTDD.md`](internal-docs/KwatlpTDD.md)
+homespace is MIT-licensed and depends only on OSI-approved packages, per the
+dependency budget in [`internal-docs/HomespaceTDD.md`](internal-docs/HomespaceTDD.md)
 §5.4. Adding a dependency means amending that budget **and** this file in the
 same PR.
 
@@ -9,17 +9,17 @@ same PR.
 
 | Package | Used by | Purpose | License |
 |---|---|---|---|
-| `ajv` | `@kwatlp/schema` | JSON Schema validation | MIT |
-| `micromark` | `@kwatlp/renderer` | post markdown (raw HTML off by default) | MIT |
-| `micromark-extension-gfm` | `@kwatlp/renderer` | GitHub-flavored markdown | MIT |
-| `chokidar` | `@kwatlp/cli`, `@kwatlp/serve` | dev/serve file watching | MIT |
-| `bonjour-service` | `@kwatlp/cli` | *optional* mDNS advertising for `local.host` | MIT |
+| `ajv` | `@homespace/schema` | JSON Schema validation | MIT |
+| `micromark` | `@homespace/renderer` | post markdown (raw HTML off by default) | MIT |
+| `micromark-extension-gfm` | `@homespace/renderer` | GitHub-flavored markdown | MIT |
+| `chokidar` | `@homespace/cli`, `@homespace/serve` | dev/serve file watching | MIT |
+| `bonjour-service` | `@homespace/cli` | *optional* mDNS advertising for `local.host` | MIT |
 
 ## Optional runtime dependency (not bundled)
 
 | Package | Used by | Purpose | License |
 |---|---|---|---|
-| `sharp` | `@kwatlp/renderer` | thumbnail downscaling — the build degrades gracefully to full-size images when it isn't installed | Apache-2.0 |
+| `sharp` | `@homespace/renderer` | thumbnail downscaling — the build degrades gracefully to full-size images when it isn't installed | Apache-2.0 |
 
 ## Dev-time dependencies
 

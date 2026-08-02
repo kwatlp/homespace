@@ -1,6 +1,6 @@
-# Theming the game-designer node
+# Theming the game-designer homespace
 
-Everything visual is driven by `theme.tokens` in `node.manifest.jsonc`.
+Everything visual is driven by `theme.tokens` in `homespace.manifest.jsonc`.
 
 | Token | What it controls |
 |---|---|

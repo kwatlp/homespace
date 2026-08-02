@@ -1,7 +1,7 @@
 {
-  "name": "@kwatlp/renderer",
-  "version": "0.1.0",
-  "description": "(catalog, node manifest) → dist/. Pure; no fs-walking knowledge.",
+  "name": "@homespace/renderer",
+  "version": "0.2.0",
+  "description": "(catalog, homespace manifest) → dist/. Pure; no fs-walking knowledge.",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
@@ -19,7 +19,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@kwatlp/schema": "*",
+    "@homespace/schema": "*",
     "micromark": "^4.0.2",
     "micromark-extension-gfm": "^3.0.0"
   }

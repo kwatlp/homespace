@@ -59,7 +59,7 @@ export function assertOfflineBudget(files: Crawlable[]): void {
     const detail = violations.map((v) => `  ${v.file} → ${v.url}`).join("\n");
     throw new Error(
       `offline-budget violation: ${violations.length} external resource load(s) in dist/.\n` +
-        `Every resource a node loads must ship in dist/ (TDD §10.2).\n${detail}`,
+        `Every resource a homespace loads must ship in dist/ (TDD §10.2).\n${detail}`,
     );
   }
 }

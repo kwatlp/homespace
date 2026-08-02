@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://kwatlp.dev/schema/catalog.schema.json",
+  "$id": "https://homespace.dev/schema/catalog.schema.json",
   "title": "Catalog",
   "description": "Deterministic scanner output: content/ → catalog.json. Consumed by the renderer. See TDD §2, §6. Refined in WO-2.",
   "type": "object",
@@ -42,7 +42,7 @@
         },
         "dir": {
           "type": "string",
-          "description": "Pack folder path relative to the node root, e.g. content/packs/<id>."
+          "description": "Pack folder path relative to the homespace root, e.g. content/packs/<id>."
         },
         "entrypoint": {
           "type": "object",

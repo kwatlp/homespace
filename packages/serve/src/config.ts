@@ -10,7 +10,7 @@ export interface ScopedKey {
 }
 
 export interface ServeConfig {
-  /** Node root (contains content/, dist/, node.manifest.*). */
+  /** Homespace root (contains content/, dist/, homespace.manifest.*). */
   root: string;
   /** Operator bearer key — full write access. */
   operatorKey?: string;

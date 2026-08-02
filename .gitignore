@@ -10,7 +10,7 @@ dist/
 **/dist/
 *.tsbuildinfo
 
-# ...but test fixture nodes may legitimately contain a dist/ folder as data
+# ...but test fixture homespaces may legitimately contain a dist/ folder as data
 # (e.g. a pack's downloadable build that the scanner checksums). Keep those.
 !**/test/fixtures/**/dist/
 !**/test/fixtures/**/dist/**
@@ -19,7 +19,7 @@ dist/
 coverage/
 .vitest/
 
-# Node build artifacts for archetype example nodes (regenerable)
+# Node build artifacts for archetype example homespaces (regenerable)
 examples/**/dist/
 archetypes/**/dist/
 

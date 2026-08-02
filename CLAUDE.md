@@ -23,7 +23,7 @@ Two agents touch this repo, and they have **different jobs**:
   `package-lock.json`, `tsconfig*.json`, `vitest.config.ts`, `.gitignore`,
   `.gitattributes`, and any `*.ts / *.tsx / *.js / *.mjs / *.json / *.css /
   *.html`;
-- run scripts that mutate the repo — installs, builds, tests, `kwatlp build`.
+- run scripts that mutate the repo — installs, builds, tests, `homespace build`.
 
 **Cowork MAY:** read anything; run **read-only** git (`status`, `log`, `diff`,
 `show`, `ls-files`); research; and create/edit **documentation and request
@@ -39,16 +39,16 @@ request with Claude Code, which does the actual work.
 
 ## What this is
 
-**kwatlp** (working name) — a **kit for composing self-hosted "nodes"**: single,
+**homespace** — a **kit for composing self-hosted homespaces**: single,
 operator-owned public websites that hold whatever their creator brings (games,
 apps, art, writing, links-with-depth, raw HTML). TypeScript (strict), Node ≥ 20,
 npm workspaces. Builds to **plain static files** with **zero external resource
-requests** — no framework, no bundle, no CDN in the output. A **Kwatlp** studio
+requests** — no framework, no bundle, no CDN in the output. A **kʷátɬp** studio
 project, MIT-licensed, OSI-approved dependencies only.
 
 The design is fixed and detailed. **The source of truth is the TDD:**
-[`internal-docs/KwatlpTDD.md`](internal-docs/KwatlpTDD.md). Read it before
-building. The two contracts (pack manifest §3, node manifest §4) and the
+[`internal-docs/HomespaceTDD.md`](internal-docs/HomespaceTDD.md). Read it before
+building. The two contracts (pack manifest §3, homespace manifest §4) and the
 dependency budget (§5.4) are binding; changing one means amending the TDD
 **first**, then coding.
 
@@ -71,17 +71,17 @@ dependency budget (§5.4) are binding; changing one means amending the TDD
 
 ## Repo map (high level)
 
-- `packages/schema/` — JSON Schemas (pack, node, catalog) + generated TS types +
+- `packages/schema/` — JSON Schemas (pack, homespace, catalog) + generated TS types +
   `validate()`
 - `packages/scanner/` — `content/` → `catalog.json` (pure; no rendering
   knowledge)
-- `packages/renderer/` — `(catalog, node manifest)` → `dist/` (pure; no
+- `packages/renderer/` — `(catalog, homespace manifest)` → `dist/` (pure; no
   fs-walking knowledge)
-- `packages/cli/` — `kwatlp init|new|validate|build|dev` (thin orchestration)
+- `packages/cli/` — `homespace init|new|validate|build|dev` (thin orchestration)
 - `packages/serve/` — **Tier 2 only**, optional daemon; nothing else imports it
 - `archetypes/` — presets: `link-hub`, `author`, `illustrator`, `game-designer`
-- `examples/` — fixture nodes used by tests
-- `docs/` — **public** docs; the docs site is itself a node (dogfooding, WO-10)
+- `examples/` — fixture homespaces used by tests
+- `docs/` — **public** docs; the docs site is itself a homespace (dogfooding, WO-10)
 - `internal-docs/` — **private** planning: the TDD, milestones, plans, design;
   never published
 - `code-requests/` — change requests from Cowork for Claude Code (internal)
@@ -92,7 +92,7 @@ dependency budget (§5.4) are binding; changing one means amending the TDD
 npm install            # install workspace deps
 npm test               # run all package test suites (vitest)
 npm run typecheck      # tsc --build (strict) across the workspace
-npx kwatlp build       # validate → scan → render → dist/ (once the CLI exists)
+npx homespace build       # validate → scan → render → dist/ (once the CLI exists)
 ```
 
 ## Important caveat

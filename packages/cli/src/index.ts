@@ -1,7 +1,7 @@
 /**
- * `@kwatlp/cli` — the `kwatlp` command: `init | new | validate | build | dev`.
- * Thin orchestration over `@kwatlp/schema`, `@kwatlp/scanner`, and
- * `@kwatlp/renderer`. See `internal-docs/KwatlpTDD.md` §7.
+ * `@homespace/cli` — the `homespace` command: `init | new | validate | build | dev`.
+ * Thin orchestration over `@homespace/schema`, `@homespace/scanner`, and
+ * `@homespace/renderer`. See `internal-docs/HomespaceTDD.md` §7.
  */
 
 export { run, type RunOptions } from "./cli.js";
@@ -22,5 +22,5 @@ export {
 
 export { isPackType, packScaffold, PACK_TYPES, type PackType } from "./templates.js";
 export { parseJsonc, stripJsonComments } from "./jsonc.js";
-export { loadNode, type LoadedNode } from "./load.js";
+export { loadHomespace, type LoadedHomespace } from "./load.js";
 export type { Context, IO } from "./io.js";

@@ -1,6 +1,6 @@
 # Theming the link-hub
 
-Everything visual is driven by `theme.tokens` in `node.manifest.jsonc`. Edit
+Everything visual is driven by `theme.tokens` in `homespace.manifest.jsonc`. Edit
 those; you never touch CSS unless you want to.
 
 | Token | What it controls |
@@ -19,10 +19,10 @@ those; you never touch CSS unless you want to.
 
 ## Fonts
 
-Fonts must be **self-hosted** (no CDN — a node loads zero external resources).
+Fonts must be **self-hosted** (no CDN — a homespace loads zero external resources).
 Drop a `.woff2` in `theme/fonts/` and point a token at it, e.g.
 `"font": { "body": "theme/fonts/inter.woff2" }`. Ship the font's license
-alongside it. With no font tokens set, the node uses the visitor's system fonts.
+alongside it. With no font tokens set, the homespace uses the visitor's system fonts.
 
 ## Custom CSS
 

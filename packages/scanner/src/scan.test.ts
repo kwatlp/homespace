@@ -9,9 +9,9 @@ const fixture = (name: string): string =>
 
 const messages = (issues: ScanIssue[]): string => issues.map((i) => i.message).join("\n");
 
-describe("scan — valid sample node", () => {
+describe("scan — valid sample homespace", () => {
   test("produces a deterministic, sorted catalog with derived fields", async () => {
-    const result = await scan({ root: fixture("sample-node") });
+    const result = await scan({ root: fixture("sample") });
 
     expect(messages(result.errors)).toBe("");
     expect(result.ok).toBe(true);
@@ -34,31 +34,31 @@ describe("scan — valid sample node", () => {
   });
 
   test("serialized catalog matches snapshot", async () => {
-    const result = await scan({ root: fixture("sample-node") });
+    const result = await scan({ root: fixture("sample") });
     expect(serializeCatalog(result.catalog)).toMatchSnapshot();
   });
 
   test("serialization is deterministic across runs", async () => {
-    const a = await scan({ root: fixture("sample-node") });
-    const b = await scan({ root: fixture("sample-node") });
+    const a = await scan({ root: fixture("sample") });
+    const b = await scan({ root: fixture("sample") });
     expect(serializeCatalog(a.catalog)).toBe(serializeCatalog(b.catalog));
   });
 
   test("--verify passes when checksums match", async () => {
-    const result = await scan({ root: fixture("sample-node"), verify: true });
+    const result = await scan({ root: fixture("sample"), verify: true });
     expect(messages(result.errors)).toBe("");
     expect(result.ok).toBe(true);
   });
 
   test("stamp populates catalog.generated (opt-in only)", async () => {
-    const result = await scan({ root: fixture("sample-node"), stamp: "2026-08-01T00:00:00Z" });
+    const result = await scan({ root: fixture("sample"), stamp: "2026-08-01T00:00:00Z" });
     expect(result.catalog.generated).toBe("2026-08-01T00:00:00Z");
   });
 });
 
 describe("scan — security: path traversal is rejected (TDD §12)", () => {
   test("escaping and absolute paths are errors, and their packs are excluded", async () => {
-    const result = await scan({ root: fixture("evil-node") });
+    const result = await scan({ root: fixture("evil") });
 
     expect(result.ok).toBe(false);
     expect(result.catalog.packs).toHaveLength(0);
@@ -69,7 +69,7 @@ describe("scan — security: path traversal is rejected (TDD §12)", () => {
 
 describe("scan — malformed and invalid packs", () => {
   test("bad JSON, schema-invalid, and checksum-key errors are reported; empty folder warns", async () => {
-    const result = await scan({ root: fixture("broken-node") });
+    const result = await scan({ root: fixture("broken") });
 
     expect(result.ok).toBe(false);
     expect(result.catalog.packs).toHaveLength(0);
@@ -84,7 +84,7 @@ describe("scan — malformed and invalid packs", () => {
 
 describe("scan — checksum verification", () => {
   test("mismatch is only caught with --verify", async () => {
-    const root = fixture("bad-checksum-node");
+    const root = fixture("bad-checksum");
 
     const lenient = await scan({ root });
     expect(lenient.ok).toBe(true);
@@ -105,7 +105,7 @@ describe("scan — missing content/packs", () => {
 });
 
 describe("confineToBase — unit", () => {
-  const base = "/nodes/demo/content/packs/x";
+  const base = "/homespaces/demo/content/packs/x";
 
   test.each([
     ["index.html", true],

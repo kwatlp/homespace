@@ -8,11 +8,11 @@ import {
   writeDist,
   type RenderInput,
   type WriteOptions,
-} from "@kwatlp/renderer";
-import { scan, type ScanOptions } from "@kwatlp/scanner";
+} from "@homespace/renderer";
+import { scan, type ScanOptions } from "@homespace/scanner";
 
 import type { Context } from "../io.js";
-import { loadNode } from "../load.js";
+import { loadHomespace } from "../load.js";
 import { fail, warn } from "../report.js";
 
 /** validate → scan → render → dist/. Enforces the offline-budget gate (§10.2). */
@@ -28,9 +28,9 @@ export async function build(argv: string[], ctx: Context): Promise<number> {
     allowPositionals: false,
   });
 
-  const loaded = await loadNode(ctx.cwd);
+  const loaded = await loadHomespace(ctx.cwd);
   warn(ctx.io, loaded.warnings);
-  if (!loaded.node) {
+  if (!loaded.homespace) {
     fail(ctx.io, loaded.errors);
     return 1;
   }
@@ -50,7 +50,7 @@ export async function build(argv: string[], ctx: Context): Promise<number> {
   const thumbnailer = await loadSharpThumbnailer();
   const renderInput: RenderInput = {
     catalog: scanResult.catalog,
-    node: loaded.node,
+    homespace: loaded.homespace,
     root: ctx.cwd,
     thumbnails: thumbnailer !== null,
     ...(typeof values["base-url"] === "string" ? { site: values["base-url"] } : {}),

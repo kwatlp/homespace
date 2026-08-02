@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://kwatlp.dev/schema/pack.schema.json",
+  "$id": "https://homespace.dev/schema/pack.schema.json",
   "title": "PackManifest",
   "description": "Contract #1 — a publishable pack: a directory plus this manifest.json. See TDD §3.",
   "type": "object",
