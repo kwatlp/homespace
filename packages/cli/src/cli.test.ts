@@ -1,5 +1,6 @@
 import { createServer } from "node:http";
-import { mkdir, mkdtemp, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -83,6 +84,47 @@ describe("init → new → build (e2e)", () => {
     const html = index;
     const css = await readFile(path.join(dist, "base.css"), "utf8");
     expect(findBudgetViolations([{ path: "index.html", contents: html }, { path: "base.css", contents: css }])).toEqual([]);
+  });
+});
+
+describe("Definition of Done (WO-10, §14)", () => {
+  test("init → build → drop a pack → restyle, all offline and JS-optional", async () => {
+    const root = await tmp();
+    expect(await run(["init", "author", "."], { cwd: root, io: capture().io })).toBe(0);
+    expect(await run(["build"], { cwd: root, io: capture().io })).toBe(0);
+
+    const dist = path.join(root, "dist");
+    const index = await readFile(path.join(dist, "index.html"), "utf8");
+    // Readable with JavaScript disabled: content is in the static HTML, and no
+    // external resource is loaded.
+    expect(index).toContain("A. Writer");
+    expect(index).not.toMatch(/<script\b[^>]*\bsrc=/i);
+
+    // Drop a new pack, rebuild → it appears.
+    expect(await run(["new", "pack", "post", "fresh-note"], { cwd: root, io: capture().io })).toBe(0);
+    expect(await run(["build"], { cwd: root, io: capture().io })).toBe(0);
+    expect((await stat(path.join(dist, "posts/fresh-note/index.html"))).isFile()).toBe(true);
+
+    // Restyle by editing a token only.
+    const before = await readFile(path.join(dist, "tokens.css"), "utf8");
+    const manifestPath = path.join(root, "node.manifest.jsonc");
+    const manifest = await readFile(manifestPath, "utf8");
+    await writeFile(manifestPath, manifest.replace(/"accent":\s*"#[0-9a-fA-F]+"/, '"accent": "#00ffcc"'));
+    expect(await run(["build"], { cwd: root, io: capture().io })).toBe(0);
+    const after = await readFile(path.join(dist, "tokens.css"), "utf8");
+    expect(after).not.toBe(before);
+    expect(after).toContain("#00ffcc");
+  });
+
+  test("the docs/ folder builds as a node (dogfood)", async () => {
+    const docsSrc = fileURLToPath(new URL("../../../docs", import.meta.url));
+    const work = await tmp();
+    const dst = path.join(work, "docs");
+    await cp(docsSrc, dst, { recursive: true, filter: (src) => !src.includes(`${path.sep}dist`) });
+    expect(await run(["build"], { cwd: dst, io: capture().io })).toBe(0);
+    const index = await readFile(path.join(dst, "dist", "index.html"), "utf8");
+    expect(index).toContain("kwatlp");
+    expect(await fileExists(path.join(dst, "dist", "feed.xml"))).toBe(true);
   });
 });
 

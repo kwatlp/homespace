@@ -1,0 +1,29 @@
+{
+  // The kwatlp docs are themselves a kwatlp node — built with `kwatlp build`
+  // from this folder (dogfooding, TDD §11 WO-10).
+  "name": "kwatlp-docs",
+  "title": "kwatlp",
+  "tagline": "a kit for composing self-hosted nodes",
+  "lang": "en",
+  "layout": "scroll",
+
+  "theme": {
+    "tokens": {
+      "color": { "bg": "#14100c", "surface": "#1f1813", "text": "#f3e9dd", "muted": "#b9a893", "accent": "#d97b4a" },
+      "maxWidth": 760
+    }
+  },
+
+  "nav": [
+    { "label": "Docs", "href": "#posts" },
+    { "label": "Links", "href": "#links" }
+  ],
+
+  "sections": [
+    { "type": "hero", "heading": "kwatlp", "sub": "Compose a self-hosted node: apps, games, art, writing, links — plain static files, zero external requests." },
+    { "type": "posts", "title": "Documentation", "source": { "types": ["post"], "sort": "created" }, "rss": true },
+    { "type": "links", "title": "Project", "source": { "types": ["link"] } }
+  ],
+
+  "footer": { "text": "© kwatlp — MIT" }
+}
