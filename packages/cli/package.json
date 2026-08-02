@@ -4,9 +4,6 @@
   "description": "homespace init|new|validate|build|dev. Thin orchestration over schema, scanner, renderer.",
   "license": "MIT",
   "type": "module",
-  "bin": {
-    "homespace": "./dist/bin/homespace.js"
-  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {

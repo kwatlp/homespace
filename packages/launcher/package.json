@@ -1,0 +1,16 @@
+{
+  "name": "homespace",
+  "version": "0.2.0",
+  "description": "The homespace CLI — a kit for composing self-hosted homespaces.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "homespace": "./dist/bin/homespace.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@homespace/cli": "*"
+  }
+}
