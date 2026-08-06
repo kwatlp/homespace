@@ -17,6 +17,8 @@ export {
 } from "./render.js";
 
 export { writeDist, pruneDist, emittedPaths, type WriteOptions, type WriteReport } from "./write.js";
+export type { DirEntry, FileAccess, PathKind } from "./files.js";
+export { nodeFiles } from "./node-files.js";
 export { loadSharpThumbnailer, isRasterImage, THUMB_WIDTH, type Thumbnailer } from "./thumbnails.js";
 
 export {

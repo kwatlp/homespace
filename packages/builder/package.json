@@ -1,0 +1,25 @@
+{
+  "name": "homespace-builder",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Browser build path for the Builder: the same scanner and renderer, reading an in-memory homespace.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "bundle": "node scripts/bundle.mjs",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "homespace-renderer": "^0.2.0",
+    "homespace-scanner": "^0.2.0",
+    "homespace-schema": "^0.2.0"
+  }
+}

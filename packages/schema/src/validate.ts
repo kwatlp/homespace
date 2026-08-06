@@ -1,8 +1,6 @@
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-
 import { Ajv, type ErrorObject } from "ajv";
 
+import { catalogSchema, homespaceSchema, packSchema } from "./schemas.generated.js";
 import type { Catalog, HomespaceManifest, PackManifest } from "./types.generated.js";
 
 /** A single validation problem, addressed by JSON Pointer path. */
@@ -24,19 +22,6 @@ export interface ValidationResult {
    */
   warnings: ValidationIssue[];
 }
-
-function loadSchema(file: string): Record<string, unknown> {
-  const url = new URL(`../schemas/${file}`, import.meta.url);
-  return JSON.parse(readFileSync(fileURLToPath(url), "utf8")) as Record<
-    string,
-    unknown
-  >;
-}
-
-/** The raw JSON Schemas, exported for tooling that wants the source of truth. */
-export const packSchema = loadSchema("pack.schema.json");
-export const homespaceSchema = loadSchema("homespace.schema.json");
-export const catalogSchema = loadSchema("catalog.schema.json");
 
 const ajv = new Ajv({ allErrors: true, strict: false });
 

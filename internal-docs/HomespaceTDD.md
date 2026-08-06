@@ -185,7 +185,8 @@ homespace/
 │   ├── scanner/      # content/ → catalog.json  (pure; no rendering knowledge)
 │   ├── renderer/     # (catalog, homespace manifest) → dist/  (pure; no fs-walking knowledge)
 │   ├── cli/          # homespace init|new|validate|build|dev  (thin orchestration)
-│   └── serve/        # TIER 2 ONLY — optional daemon; nothing else imports it
+│   ├── serve/        # TIER 2 ONLY — optional daemon; nothing else imports it
+│   └── builder/      # browser build path for the Builder (§15); no fs, no network
 ├── archetypes/
 │   ├── link-hub/     # linktree-with-depth
 │   ├── author/
@@ -229,6 +230,10 @@ Semantic HTML landmarks; every media entry supports `alt` (manifest `media.alt` 
 
 No postinstall scripts. Lockfile committed. Anything else needs a TDD amendment.
 
+> **Clarification (WO-21):** `esbuild` covers the Builder's browser bundle as
+> well as CLI bundling. Both are **dev-time**; the runtime budget above is
+> unchanged, and nothing the Builder ships to a visitor is a dependency.
+
 ---
 
 ## 6. Renderer specification
@@ -267,6 +272,13 @@ micromark, GFM, raw HTML disabled by default. Homespace-level opt-in `"markdown"
 
 ### 6.5 `html` section & `extra`
 `{ "type": "html", "file": … }` is inserted verbatim (operator-authored by definition). `pack.extra` is exposed to templates untouched. These are the "holds whatever the creator brings" guarantees.
+
+### 6.6 File-access seam (WO-21)
+`scan()` and `render()` read the filesystem through a small injected interface —
+`kind` / `list` / `read` / `readText` — defaulting to `node:fs`. The Builder
+passes an in-memory tree instead, so the identical code produces the identical
+bytes in a browser (§15). `writeDist` stays Node-only: it is the one module that
+writes, and the browser path takes the render result and zips it instead.
 
 ---
 
@@ -380,7 +392,24 @@ Sequencing after WO-13 is flexible: WO-15, 16, 18, and 20 are independent of eac
 - **WO-19 — Cross-origin pack serving (design-first).** Daemon option to serve `packs/*/files/**` from a second port so pack HTML is cross-origin to the shell; docs give the equivalent `packs.` subdomain pattern for static hosts. Resolve first: the renderer must emit absolute pack-asset URLs when configured, and §10.2 needs a "configured self-origins are not external" allowance. *Depends:* 12. *Amends:* §6, §9.1, §10.2. *Exit:* with the option on, player iframes and direct links use the pack origin while shell pages stay on the main origin; budget gate passes with the allowance.
 - **WO-20 — `homespace doctor`.** One command checking a built homespace end to end: internal link/asset 404s, image alt coverage, checksum `--verify`, and a budget scan of the *whole* `dist/` — including `static/` copies and pack HTML — reported as warnings per §10.2. *Amends:* §7. *Exit:* fixtures with a broken link / missing alt / tampered checksum each report path + problem + fix; a clean homespace exits 0.
 
-> **The Builder (WO-21 browser seam, WO-22 wizard — request `internal-docs/002`)** runs parallel to this sequence and does not block WO-13/14. Its §11 entries and TDD section land with that work.
+### The Builder (adopted 2026-08-06 — request `internal-docs/002`)
+
+Runs parallel to the v0.3 sequence; does not block WO-13/14. Full design in §15.
+
+- **WO-21 — Browser build seam.** Scanner and renderer take an injectable
+  read-only file-access interface (default `node:fs`); the schema package stops
+  reading from disk at import time; a browser bundle builds a fixture from an
+  in-memory tree. A pure refactor — a clean standalone PR, and the gate for
+  WO-22. *Amends:* §5.4 (bundler is dev-time), §6 (§6.6 seam), §15.
+  *Exit:* all existing tests pass **unchanged**; golden test proves the browser
+  bundle's output is **byte-identical** to `homespace build` on the same source.
+- **WO-22 — The Builder.** A static, offline, no-account wizard — name → space
+  types → rest of setup — with a live preview and two downloads ("your website"
+  = `dist/`, "your master copy" = source + `START-HERE.md`). Ships inside the
+  docs homespace (dogfooding). *Depends:* 21. *Amends:* §15, §8 (starter packs).
+  *Exit:* every space type renders non-empty; the master copy rebuilds the
+  website byte-identically with `homespace build`; zero network requests after
+  page load; wizard and output both pass the §5.3 phone-width + desktop check.
 
 ---
 
@@ -419,6 +448,86 @@ A stranger with Node 20 can:
 7. (Tier 2, optional) run `homespace serve`, publish a pack remotely with the operator key; a scoped key lets tmíxʷ publish a world-template pack
 
 No cloud API keys, no accounts, no external services for any of the above.
+
+---
+
+## 15. The Builder (WO-21 seam, WO-22 wizard)
+
+`init`, `new`, and `build` all assume a command line. User testing found that
+this is the adoption wall: the person we most want to reach has never opened a
+terminal, and reaches for the exit at the first mention of an account or a card.
+The Builder is the answer — **one web page** that asks three groups of
+questions, shows a live preview, and hands back a finished homespace.
+
+### 15.1 Trust properties (non-negotiable)
+
+- **Nothing leaves the browser.** No upload, no account, no telemetry, no
+  network request after page load. The Builder passes the offline-budget gate
+  itself (§10.2), and says so on the page in plain language.
+- It is a **static page inside the docs homespace** — the kit building the kit.
+- The docs homespace stays readable with JavaScript off; the Builder page states
+  plainly that it needs JavaScript, because a build engine does.
+
+### 15.2 The browser seam (WO-21)
+
+The browser runs the **same** scanner and renderer as the CLI. Only the edges
+differ:
+
+| Concern | Node (CLI) | Browser (Builder) |
+|---|---|---|
+| Reading sources | `node:fs` via the §6.6 interface | an in-memory tree from wizard state + the user's picked files |
+| Schemas | embedded in the package (no import-time disk read) | same |
+| Writing output | `writeDist` → `dist/` | render result → zip, offered as a download |
+| Hashing (`--verify`) | `node:crypto` | not used; the shim refuses loudly |
+
+The interface is declared **once per package** (scanner and renderer each own
+their copy) so the two never import each other — the §5 boundary holds, and
+structural typing means one implementation satisfies both.
+
+**Determinism is the contract:** the browser build must be byte-identical to
+`homespace build` on the same source (§5.2). That is a permanent golden test,
+run both on a fixture and on a wizard-produced homespace.
+
+### 15.3 The wizard (WO-22)
+
+Three groups, in this order — the order a person thinks in:
+
+1. **Name of Space** — display title, tagline, language; slug derived
+   automatically, shown, editable, never required.
+2. **Types of Spaces** (multi-select) — art gallery, writing, games, apps &
+   toys, links. Driven by the section registry (§4), so a new section type
+   (e.g. WO-15's `audio`) appears here automatically. Each choice contributes
+   sections, nav entries, and a starter pack.
+3. **Rest of setup** — layout mode in plain language, theme through friendly
+   controls mapped to `theme.tokens` (colors, corner roundness, page width,
+   font scale — **system font stacks only at v1**), footer text. Every change
+   re-renders the live preview.
+
+**Plug in your own assets.** Every asset-bearing field accepts a local file,
+added client-side to the in-memory tree: site icon, banner, gallery images, a
+first post, a game or app build, link icons. Skipped fields fall back to
+**neutral geometric placeholders** — never studio branding.
+
+**Ready from the beginning.** Every chosen space renders non-empty, nav is
+pre-built, and the download carries a jargon-free `START-HERE.md`.
+
+**Two downloads, deliberately:** *"Your website"* is the built `dist/` — drag it
+online as-is. *"Your master copy"* is the source folder plus `START-HERE.md` —
+keep it safe; `npx homespace build` reproduces the website from it byte for byte.
+
+**Mobile and PC from the start** (§5.3): single-column flow and touch-sized
+controls on a phone, asset plug-in through the native picker/camera roll,
+downloads that work in mobile browsers, a phone/desktop viewport toggle on the
+preview, and wizard-produced sites that pass the same checks.
+
+### 15.4 Out of scope here
+
+No hosting-vendor integration, resale, or account flow of any kind. The hosting
+guide *names* one golden-path host with click-by-click steps plus a generic
+fallback — and because the wizard is mobile-first, that host must have a publish
+path that works from a phone browser ("drag the folder" is a desktop metaphor).
+Day-2 editing — reopening an existing homespace folder to add packs or re-theme
+— is **WO-23**; the seam and zip layout must not preclude it.
 
 ---
 

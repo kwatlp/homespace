@@ -1,4 +1,3 @@
-import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 
 import type { Catalog, CatalogPack, HomespaceManifest, Section } from "homespace-schema";
@@ -7,9 +6,11 @@ import { BASE_CSS } from "./assets.js";
 import { DETAIL_PREFIX, renderPackDetail, renderPostDetail } from "./detail.js";
 import { escapeAttr, escapeHtml } from "./escape.js";
 import { renderFeed, renderSitemap } from "./feed.js";
+import type { FileAccess } from "./files.js";
 import { packAssetUrl, page, type NavItem } from "./html.js";
 import { stableStringify } from "./json.js";
 import { renderMarkdown } from "./markdown.js";
+import { nodeFiles } from "./node-files.js";
 import { isRasterImage, THUMB_WIDTH } from "./thumbnails.js";
 import { renderTokensCss } from "./tokens.js";
 import {
@@ -29,6 +30,12 @@ export interface RenderInput {
   site?: string;
   /** Reference (and emit) .thumbs/ images — set when a thumbnailer is available. */
   thumbnails?: boolean;
+  /**
+   * Where to read theme, `static/`, and pack files from. Defaults to `node:fs`;
+   * the Builder passes an in-memory tree so the identical render runs in a
+   * browser (TDD §6.6).
+   */
+  files?: FileAccess;
 }
 
 export interface RenderIssue {
@@ -63,24 +70,14 @@ export interface RenderResult {
   warnings: RenderIssue[];
 }
 
-async function exists(p: string): Promise<boolean> {
-  try {
-    await stat(p);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 /** Recursively list files under `dir`, as POSIX paths relative to `dir`, sorted. */
-async function walk(dir: string): Promise<string[]> {
+async function walk(files: FileAccess, dir: string): Promise<string[]> {
   const out: string[] = [];
   async function recurse(rel: string): Promise<void> {
-    const entries = await readdir(path.join(dir, rel), { withFileTypes: true });
-    for (const entry of entries) {
+    for (const entry of await files.list(path.join(dir, rel))) {
       const childRel = rel === "" ? entry.name : `${rel}/${entry.name}`;
-      if (entry.isDirectory()) await recurse(childRel);
-      else if (entry.isFile()) out.push(childRel);
+      if (entry.kind === "dir") await recurse(childRel);
+      else if (entry.kind === "file") out.push(childRel);
     }
   }
   await recurse("");
@@ -107,6 +104,8 @@ function confinedPath(root: string, rel: string): string | null {
  */
 export async function render(input: RenderInput): Promise<RenderResult> {
   const { homespace, catalog, root } = input;
+  const source = input.files ?? nodeFiles;
+  const exists = async (p: string): Promise<boolean> => (await source.kind(p)) !== null;
   const site = input.site ?? "";
   const errors: RenderIssue[] = [];
   const warnings: RenderIssue[] = [];
@@ -146,7 +145,7 @@ export async function render(input: RenderInput): Promise<RenderResult> {
       errors.push({ severity: "error", message: `html section file '${section.file}' does not exist` });
       continue;
     }
-    htmlFiles.set(section.file, await readFile(abs, "utf8"));
+    htmlFiles.set(section.file, await source.readText(abs));
   }
 
   // 3. Sections + layout.
@@ -236,7 +235,7 @@ export async function render(input: RenderInput): Promise<RenderResult> {
     const filesBase = pack.type === "post" ? base : `${base}/files`;
     const packDir = path.join(root, pack.dir);
     if (await exists(packDir)) {
-      for (const rel of await walk(packDir)) {
+      for (const rel of await walk(source, packDir)) {
         if (rel === "manifest.json") continue;
         assets.push({ from: path.join(packDir, rel), to: `${filesBase}/${rel}` });
       }
@@ -265,7 +264,7 @@ export async function render(input: RenderInput): Promise<RenderResult> {
         errors.push({ severity: "error", message: `post '${pack.id}' entrypoint.post '${src}' does not exist` });
         continue;
       }
-      const html = renderMarkdown(await readFile(mdPath, "utf8"), { allowHtml: homespace.markdown?.allowHtml === true });
+      const html = renderMarkdown(await source.readText(mdPath), { allowHtml: homespace.markdown?.allowHtml === true });
       const body = renderPostDetail(pack, html);
       files.push({ path: `${base}/index.html`, contents: page({ homespace, title: `${pack.title} — ${title}`, basePrefix: DETAIL_PREFIX, main: body, feed: hasFeed }) });
     } else {
@@ -277,7 +276,7 @@ export async function render(input: RenderInput): Promise<RenderResult> {
   // 4. static/ copied verbatim to dist root.
   const staticDir = path.join(root, "static");
   if (await exists(staticDir)) {
-    for (const rel of await walk(staticDir)) {
+    for (const rel of await walk(source, staticDir)) {
       assets.push({ from: path.join(staticDir, rel), to: rel });
     }
   }

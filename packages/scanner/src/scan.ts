@@ -1,5 +1,4 @@
 import { createHash } from "node:crypto";
-import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
 import {
@@ -9,6 +8,8 @@ import {
   validatePack,
 } from "homespace-schema";
 
+import type { FileAccess } from "./files.js";
+import { nodeFiles } from "./node-files.js";
 import { confineToBase, toPosix } from "./paths.js";
 
 export type IssueSeverity = "error" | "warning";
@@ -41,6 +42,11 @@ export interface ScanOptions {
    * are deterministic (TDD §5.2); pass a value only for `--stamp`.
    */
   stamp?: string;
+  /**
+   * Where to read the homespace from. Defaults to `node:fs`; the Builder passes
+   * an in-memory tree so the identical scan runs in a browser (TDD §6.6).
+   */
+  files?: FileAccess;
 }
 
 const CONTENT_PACKS = ["content", "packs"];
@@ -83,26 +89,8 @@ function referencedPaths(m: PackManifest): RefPath[] {
   return out;
 }
 
-async function exists(p: string): Promise<boolean> {
-  try {
-    await stat(p);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-async function isDir(p: string): Promise<boolean> {
-  try {
-    return (await stat(p)).isDirectory();
-  } catch {
-    return false;
-  }
-}
-
-async function sha256(file: string): Promise<string> {
-  const buf = await readFile(file);
-  return `sha256:${createHash("sha256").update(buf).digest("hex")}`;
+async function sha256(files: FileAccess, file: string): Promise<string> {
+  return `sha256:${createHash("sha256").update(await files.read(file)).digest("hex")}`;
 }
 
 /** Build a catalog pack: the validated manifest plus derived slug + dir. */
@@ -121,12 +109,14 @@ function byId(a: CatalogPack, b: CatalogPack): number {
  * to rendering — it produces data, never HTML (TDD §2, §5).
  */
 export async function scan(options: ScanOptions): Promise<ScanResult> {
+  const files = options.files ?? nodeFiles;
   const errors: ScanIssue[] = [];
   const warnings: ScanIssue[] = [];
   const packs: CatalogPack[] = [];
+  const exists = async (p: string): Promise<boolean> => (await files.kind(p)) !== null;
 
   const packsDir = path.join(options.root, ...CONTENT_PACKS);
-  if (!(await isDir(packsDir))) {
+  if ((await files.kind(packsDir)) !== "dir") {
     errors.push({
       severity: "error",
       location: toPosix(path.join(...CONTENT_PACKS)),
@@ -135,8 +125,8 @@ export async function scan(options: ScanOptions): Promise<ScanResult> {
     return { catalog: emptyCatalog(options.stamp), errors, warnings, ok: false };
   }
 
-  const entries = (await readdir(packsDir, { withFileTypes: true }))
-    .filter((e) => e.isDirectory())
+  const entries = (await files.list(packsDir))
+    .filter((e) => e.kind === "dir")
     .map((e) => e.name)
     .sort();
 
@@ -162,7 +152,7 @@ export async function scan(options: ScanOptions): Promise<ScanResult> {
 
     let data: unknown;
     try {
-      data = JSON.parse(await readFile(manifestPath, "utf8"));
+      data = JSON.parse(await files.readText(manifestPath));
     } catch (e) {
       err("manifest.json", `manifest.json is not valid JSON: ${(e as Error).message}`);
       errors.push(...packErrors);
@@ -212,7 +202,7 @@ export async function scan(options: ScanOptions): Promise<ScanResult> {
         if (!confined.ok || !(await exists(confined.abs))) {
           continue; // already reported by the confinement / existence pass
         }
-        const actual = await sha256(confined.abs);
+        const actual = await sha256(files, confined.abs);
         if (actual !== expected) {
           err(`checksums['${rel}']`, `checksum mismatch for '${rel}': expected ${expected}, got ${actual}`);
         }

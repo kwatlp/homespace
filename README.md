@@ -109,7 +109,9 @@ sample packs, and a `THEME.md` documenting every exposed variable.
 
 ## Repository map
 
-- `packages/` — `schema`, `scanner`, `renderer`, `cli`, and (Tier 2) `serve`
+- `packages/` — `schema`, `scanner`, `renderer`, `cli`, (Tier 2) `serve`, and
+  `builder` (the browser build path — the same scanner and renderer, reading an
+  in-memory homespace)
 - `archetypes/` — the four v0 presets
 - `examples/` — fixture homespaces used by tests
 - `docs/` — public docs (the docs site is itself a homespace — dogfooding)

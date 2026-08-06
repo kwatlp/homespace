@@ -6,6 +6,7 @@
     { "path": "packages/renderer" },
     { "path": "packages/cli" },
     { "path": "packages/serve" },
-    { "path": "packages/launcher" }
+    { "path": "packages/launcher" },
+    { "path": "packages/builder" }
   ]
 }

@@ -8,6 +8,8 @@ yarn-error.log*
 # Build output
 dist/
 **/dist/
+dist-browser/
+**/dist-browser/
 *.tsbuildinfo
 
 # ...but test fixture homespaces may legitimately contain a dist/ folder as data

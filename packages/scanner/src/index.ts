@@ -23,3 +23,6 @@ export {
   type ConfineOk,
   type ConfineErr,
 } from "./paths.js";
+
+export type { DirEntry, FileAccess, PathKind } from "./files.js";
+export { nodeFiles } from "./node-files.js";

@@ -23,10 +23,13 @@ export type {
   ThemeTokens,
 } from "./types.generated.js";
 
+/**
+ * The raw JSON Schemas — the source of truth — embedded at codegen time so the
+ * package imports cleanly where there is no filesystem (TDD §15.2, WO-21).
+ */
+export { catalogSchema, homespaceSchema, packSchema } from "./schemas.generated.js";
+
 export {
-  catalogSchema,
-  homespaceSchema,
-  packSchema,
   validateCatalog,
   validateHomespace,
   validatePack,
