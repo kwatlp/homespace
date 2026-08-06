@@ -217,6 +217,11 @@ Semantic HTML landmarks; every media entry supports `alt` (manifest `media.alt` 
 
 **Mobile and PC are first-class from the start** (ruled 2026-08-06). Every user-facing work order's exit criteria include a **phone-width check and a desktop check**. Layouts reflow to a single column at phone width with no horizontal scrolling; media and embeds scale to the viewport; interactive controls (player chrome, lightbox, and later the Builder wizard) are touch-sized and reachable one-handed. Responsive behavior is part of this baseline, not a polish pass.
 
+**Known gaps** (found in the WO-12 spot-check across all four archetypes; fix in the next user-facing WO, per the ruling that WO-12 records rather than fixes them):
+
+- `base.css` constrains `.hero img`, `.card img`, `.gallery img`, and `.prose img`, but a **detail page's cover image carries no class** — a cover wider than the viewport scrolls the page sideways on a phone. A single `img { max-width: 100%; height: auto }` rule closes it.
+- Markdown **tables** (GFM) have no styling and no overflow container, so a wide table in a post overflows at phone width.
+
 ### 5.4 Dependency budget (runtime deps; amend here before adding)
 | Package | Purpose | License |
 |---|---|---|
