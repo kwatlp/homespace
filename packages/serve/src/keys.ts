@@ -1,3 +1,5 @@
+import { timingSafeEqual } from "node:crypto";
+
 import type { ScopedKey, ServeConfig } from "./config.js";
 
 export type Auth = { operator: true } | { operator: false; key: ScopedKey };
@@ -9,13 +11,23 @@ export function bearerToken(header: string | undefined): string | undefined {
   return match ? match[1] : undefined;
 }
 
+/**
+ * Constant-time key comparison. Length is compared first and so still leaks —
+ * that is inherent to `timingSafeEqual`, and key length is not the secret.
+ */
+function keyMatches(candidate: string, secret: string): boolean {
+  const a = Buffer.from(candidate, "utf8");
+  const b = Buffer.from(secret, "utf8");
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
 /** Authorize a token for pack writes; null when unauthorized. */
 export function authorize(token: string | undefined, config: ServeConfig): Auth | null {
   if (token === undefined || token === "") return null;
-  if (typeof config.operatorKey === "string" && token === config.operatorKey) {
+  if (typeof config.operatorKey === "string" && keyMatches(token, config.operatorKey)) {
     return { operator: true };
   }
-  const key = config.keys?.find((k) => k.key === token);
+  const key = config.keys?.find((k) => typeof k.key === "string" && keyMatches(token, k.key));
   if (key && key.scopes.includes("packs:write")) return { operator: false, key };
   return null;
 }

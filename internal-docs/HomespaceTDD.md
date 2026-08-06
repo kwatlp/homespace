@@ -1,7 +1,7 @@
 # Homespace — Technical Design Document
 
 **Name:** `homespace` — npm package, CLI bin, and unit noun (a creator runs "a homespace"). The kit ships fully generic; operator instances carry their own names — the author's instance is **kʷátɬp**.
-**Status:** v1.1 — amended for the homespace rename (WO-11); actionable
+**Status:** v1.2 — amended for the WO-12 review remediations and the adopted v0.3 sequence (WO-12…WO-20); actionable
 **Supersedes:** `docs/CREATIVE_NODE_STACK.md` (retained as "the rough idea")
 **Repo:** `homespace` (renamed from `kwatlp-node` in WO-11) — an independent platform, not a tmíxʷ feature. tmíxʷ participates as a *pack*.
 **License:** MIT. All dependencies OSI-approved only.
@@ -209,9 +209,12 @@ TypeScript (strict), Node ≥ 20, npm workspaces. CLI bundled with esbuild; runn
 - Output is static HTML + CSS + minimal vanilla JS (lightbox, player shell). **No framework, no bundle, no external request** in `dist/`.
 - Core browsing/reading must work with JavaScript disabled. JS enhances (lightbox, player chrome); it never gates content.
 - Deterministic builds: stable ordering, no timestamps in output (build stamp behind `--stamp` flag only).
+- **`dist/` is wholly build-owned** (ruled WO-12). A build writes exactly its render result — generated files, asset copies, thumbnails — and **prunes anything else it finds there**, listing every removed path as a warning. Deleting or renaming a pack, section, or theme file therefore leaves no orphans. Hand-placed deploy files (`CNAME`, `_headers`, `_redirects`, host config) belong in **`static/`**, which is copied verbatim to the dist root and so survives pruning; that is the supported passthrough. Never hand-edit `dist/`, and never point `--out` at a directory that holds anything else.
 
-### 5.3 Accessibility baseline
+### 5.3 Accessibility & responsive baseline
 Semantic HTML landmarks; every media entry supports `alt` (manifest `media.alt` map, ★ add to schema); token defaults in archetypes pass WCAG AA contrast; keyboard-reachable player and lightbox.
+
+**Mobile and PC are first-class from the start** (ruled 2026-08-06). Every user-facing work order's exit criteria include a **phone-width check and a desktop check**. Layouts reflow to a single column at phone width with no horizontal scrolling; media and embeds scale to the viewport; interactive controls (player chrome, lightbox, and later the Builder wizard) are touch-sized and reachable one-handed. Responsive behavior is part of this baseline, not a polish pass.
 
 ### 5.4 Dependency budget (runtime deps; amend here before adding)
 | Package | Purpose | License |
@@ -255,6 +258,12 @@ micromark, GFM, raw HTML disabled by default. Homespace-level opt-in `"markdown"
 - Player chrome: fullscreen button, load-on-click (no autoload of heavy WASM), gamepad note.
 - Downloads: plain `<a>` to the file + rendered sha256. Range requests are the host's job; document nginx/Caddy one-liners for tier-2/VPS operators.
 - Tier-2 daemon supports an optional second listen address for a separate games origin; static-tier docs show the two-subdomain pattern for operators who want it.
+
+**Enforcement point (amended WO-12).** The **default stays `standard`** — a strict sandbox gives the frame an opaque origin, which breaks Godot/Unity web builds (their `.pck`/`.wasm` fetches become cross-origin) and kills save-game `localStorage`. `strict` is therefore not a global default but an *enforced* mode for content the operator didn't author:
+
+- A pack installed through a **scoped key** (§9.3) has `"sandbox": "strict"` written into its manifest **at install time**; the uploader cannot override it.
+- The renderer never offers a **same-origin top-level** path to a strict pack's HTML. The no-JS fallback for a strict pack is its **download link** (or a plain note when it has no download), not "open the build directly" — a top-level document would run with the homespace's origin and defeat the sandbox.
+- Docs state plainly: manually relaxing `strict` on a pack a linked system published means trusting that system with your origin. **WO-19** (cross-origin pack serving) is the structural fix; this is the interim control.
 
 ### 6.5 `html` section & `extra`
 `{ "type": "html", "file": … }` is inserted verbatim (operator-authored by definition). `pack.extra` is exposed to templates untouched. These are the "holds whatever the creator brings" guarantees.
@@ -308,8 +317,19 @@ Watch `content/` + manifests → rebuild; serve `dist/` with range requests; str
 ### 9.2 Operator write API
 `PUT /api/packs/:id` (zip) → zip-slip-safe unpack to temp → validate → move into `content/packs/` → rebuild. Auth: single operator bearer key from env/config. No user system.
 
+**Hardening (amended WO-12).** The write API is the one place a homespace accepts bytes it did not author, so:
+
+- **Bodies are spooled to a temp file, never buffered in RAM**, under a configurable cap — **1 GiB default**, sized for full game builds rather than short posts. Over the cap → `413`, connection destroyed.
+- **Archive expansion is capped**: per entry, in total, and by entry count; entries are inflated straight to disk. A zip bomb returns `400`, never an OOM.
+- Every entry's **CRC-32 is verified**; archives the reader cannot faithfully represent (ZIP64, encrypted entries, unsupported compression methods, the u16 entry-count ceiling) are rejected with a clear error rather than half-read.
+- **Installation is atomic**: the prior pack is renamed aside, the new one moved in, and the prior one restored if the move fails. There is no window in which a successful publish leaves the pack directory missing.
+- **Keys are compared with `crypto.timingSafeEqual`** (length-guarded), operator and scoped alike.
+- The operator key is read from **`HOMESPACE_OPERATOR_KEY` first**, `homespace.serve.json` second; that file is gitignored and never rendered into `dist/` (§12).
+
 ### 9.3 Linked systems ("linked systems with permissions")
 Scoped keys: `{ key, scopes: ["packs:write"], allowedTypes?, allowedIdPrefix? }`. Example: tmíxʷ holds a key scoped to `allowedIdPrefix: "tmixw-"` and publishes world-template packs to the operator's homespace. Keys are config entries the operator writes; there is no key-issuance UI in v0.
+
+**A scoped key buys publishing, never the origin** (amended WO-12). Packs installed through a scoped key are forced to `"sandbox": "strict"` at install time and lose the same-origin direct-open path (§6.4). A linked system can put content on the homespace; it cannot run script as the homespace.
 
 ### 9.4 Explicitly absent
 Accounts, sessions, comments, federation endpoints, analytics.
@@ -319,7 +339,8 @@ Accounts, sessions, comments, federation endpoints, analytics.
 ## 10. Testing strategy
 
 1. **Schema fixtures** — valid/invalid manifest suites per type; unknown-field warn-and-keep covered.
-2. **Offline-budget gate (permanent CI)** — crawl `dist/`: no external URL may appear as a *resource load* (script/link-stylesheet/img-src/font/iframe-src). External `<a href>` allowed — navigation is the network. Build fails otherwise.
+2. **Offline-budget gate (permanent CI)** — crawl the build's **generated** HTML/CSS: no external URL may appear as a *resource load* (`<link href>`, `<script src>`, `<img src|srcset>`, `<video|audio|embed src>`, `<object data>`, `<source src|srcset>`, `<iframe src>`, `<video poster>`, CSS `url()` and `@import`). External `<a href>` allowed — navigation is the network. Build fails otherwise.
+   - **Scope (affirmed WO-12).** The gate covers what the renderer *generates*. `static/` copies and **pack-authored HTML** — a game's own `index.html` — are deliberately **not** scanned: that is the escape hatch (principle 1.1.7), because a third-party web build is a black box the operator chose to host. Both still ship as files in `dist/`, so nothing loads from the network unless the operator put it there. `homespace doctor` (WO-20) surfaces bypassed files as **non-fatal warnings**, which is where that visibility belongs.
 3. **Golden output** — snapshot `dist/` HTML per archetype × layout; deterministic builds make this cheap.
 4. **Scanner snapshots** — fixture content trees → `catalog.json`.
 5. **E2E CLI** — `init → build` per archetype in temp dir; assert structure, exit codes, error voice.
@@ -343,7 +364,23 @@ Accounts, sessions, comments, federation endpoints, analytics.
 - **WO-8 — Media pipeline.** Optional sharp thumbnails; graceful absence. *Exit:* builds pass with and without sharp installed.
 - **WO-9 — Daemon.** `homespace-serve` per §9. *Exit:* integration tests incl. zip-slip, scope enforcement.
 - **WO-10 — Release.** docs/ rebuilt as a homespace (dogfood), THIRD_PARTY.md, `npx` path verified, v0.1.0. *Exit:* Definition of Done (§14) demonstrated end-to-end on a clean machine.
-- **WO-11 — Rename to `homespace` & republish.** Sweep the codebase to match this document: packages `homespace-*` (claim the npm scope at publish; if unavailable, fall back to `homespace-schema` etc. and amend §5), CLI/bin `homespace`, repo `homespace`, manifest filename `homespace.manifest.jsonc` (loader accepts legacy `node.manifest.jsonc` with a deprecation warning for one minor version), scaffold dirs `my-homespace/`, all docs/THEME.md/error strings; no instance branding in samples or scaffolds. Publish `homespace` v0.2.0 to npm. Golden-diff guard: `dist/` output identical to v0.1.0 except renamed strings. *Exit:* §14 stranger-test passes against the **published** package on a clean machine; `grep -ri kwatlp` returns nothing; `grep -riE '\bnode\b'` returns only Node-runtime references.
+- **WO-11 — Rename to `homespace` & republish.** *(v0.2.0 — complete)* Sweep the codebase to match this document: packages `homespace-*` (claim the npm scope at publish; if unavailable, fall back to `homespace-schema` etc. and amend §5), CLI/bin `homespace`, repo `homespace`, manifest filename `homespace.manifest.jsonc` (loader accepts legacy `node.manifest.jsonc` with a deprecation warning for one minor version), scaffold dirs `my-homespace/`, all docs/THEME.md/error strings; no instance branding in samples or scaffolds. Publish `homespace` v0.2.0 to npm. Golden-diff guard: `dist/` output identical to v0.1.0 except renamed strings. *Exit:* §14 stranger-test passes against the **published** package on a clean machine; `grep -ri kwatlp` returns nothing; `grep -riE '\bnode\b'` returns only Node-runtime references.
+
+### v0.3 sequence (adopted 2026-08-06 — request `internal-docs/001`)
+
+Sequencing after WO-13 is flexible: WO-15, 16, 18, and 20 are independent of each other. No §5.4 dependency-budget changes are anticipated anywhere in this sequence — Node's `crypto` covers ed25519, and search/audio are hand-rolled per convention. Every user-facing WO below carries the §5.3 phone-width + desktop check in its exit criteria.
+
+- **WO-12 — Review remediations.** Close the v0.2.0 full-code review: `dist/` pruning (§5.2), scoped-key packs forced `strict` with no same-origin direct-open (§6.4/§9.3), spooled 1 GiB uploads with decompression caps, timing-safe key comparison, key-file hygiene, atomic pack install, offline-budget pattern coverage, zip CRC/ZIP64 rejection, `escapeAttr` quoting, honest upload response codes, malformed-percent-encoding `400`, and the §10.2 escape-hatch documentation. *Depends:* —. *Exit:* new tests for pruning (incl. the `static/` passthrough), forced-strict installs, body cap + bomb zip, atomic install, and a regression case per small fix; archetypes and `docs/` still pass the budget gate.
+- **WO-13 — `homespace push` (write-API client).** `homespace push <pack-dir> --to <url>` zips a pack, fills in missing sha256 checksums, and PUTs it with a bearer key (`HOMESPACE_PUSH_KEY` or `--key`) — the tmíxʷ → Kwatlp publishing seam. *Depends:* 12. *Amends:* §7. *Exit:* a fixture pack pushes to an in-process daemon and appears in `dist/` after rebuild; missing `checksums[entrypoint.download]` auto-added; 401/403/413/422 surface as path + problem + fix.
+- **WO-14 — Dist manifest + incremental rebuild.** `writeDist` emits a deterministic manifest of every emitted path (+ hash); pruning diffs against it; the serve watcher maps changed sources to affected packs/pages and re-renders only those. *Depends:* 12. *Amends:* §5.2, §9.1. *Exit:* touching one pack rebuilds only that pack's pages plus shared indexes; incremental output byte-identical to a full rebuild.
+- **WO-15 — `audio` section + musician archetype.** A playlist of local audio files from selected packs via native `<audio>`; no-JS degrades to file links. **Album model:** one pack = one album/EP, its media files are the tracks, ordered by a `tracks` list in the manifest. Fifth archetype: `musician`. *Amends:* §3 (`tracks`), §4 (registry), §8. *Exit:* section plays from a fixture; no-JS fallback works; budget gate and §5.3 baseline (incl. touch) pass.
+- **WO-16 — Blog depth.** `posts` sections gain a page size; per-tag index pages and a date archive, linkable from nav. *Amends:* §4, §6. *Exit:* a 30-post fixture paginates; `/tags/<tag>/` and `/archive/` exist and are reachable; `feed.xml` unchanged; output deterministic.
+- **WO-17 — Static search.** Build-time index (titles, tags, summaries, post text) + a search page with a small inline script; no dependency, no external request; JS off degrades to browsing. *Depends:* 14 (soft). *Amends:* §4. *Exit:* fixture queries return the expected packs; budget gate passes; usable as progressive enhancement only.
+- **WO-18 — Pack signatures.** Optional detached ed25519 signature over a pack's checksums block via Node `crypto`. **Author-level:** pack authors sign, so provenance travels with the pack; operator countersigning can layer later. `--verify` checks signatures when the author's public key is configured. *Amends:* §3 (optional signature field), §7. *Exit:* signed fixture verifies; tampered file or signature fails clearly; unsigned packs unaffected.
+- **WO-19 — Cross-origin pack serving (design-first).** Daemon option to serve `packs/*/files/**` from a second port so pack HTML is cross-origin to the shell; docs give the equivalent `packs.` subdomain pattern for static hosts. Resolve first: the renderer must emit absolute pack-asset URLs when configured, and §10.2 needs a "configured self-origins are not external" allowance. *Depends:* 12. *Amends:* §6, §9.1, §10.2. *Exit:* with the option on, player iframes and direct links use the pack origin while shell pages stay on the main origin; budget gate passes with the allowance.
+- **WO-20 — `homespace doctor`.** One command checking a built homespace end to end: internal link/asset 404s, image alt coverage, checksum `--verify`, and a budget scan of the *whole* `dist/` — including `static/` copies and pack HTML — reported as warnings per §10.2. *Amends:* §7. *Exit:* fixtures with a broken link / missing alt / tampered checksum each report path + problem + fix; a clean homespace exits 0.
+
+> **The Builder (WO-21 browser seam, WO-22 wizard — request `internal-docs/002`)** runs parallel to this sequence and does not block WO-13/14. Its §11 entries and TDD section land with that work.
 
 ---
 
@@ -355,9 +392,11 @@ Content is operator-authored or operator-installed; there is no hostile-user wri
 |---|---|
 | Supply chain | Dependency budget (§5.4), lockfile, no postinstall |
 | Malicious third-party pack the operator installs | `strict` sandbox recommendation; checksums; docs |
+| Pack published by a **linked system** running script on the homespace origin | `strict` forced at install time for scoped-key uploads, not overridable by the uploader; no same-origin top-level path to a strict pack's HTML (§6.4); WO-19 is the structural fix |
 | XSS via markdown | raw HTML off by default; opt-in is homespace-level and documented |
 | Path traversal / zip-slip | scanner + serve normalize & confine; fixture tests |
-| Daemon key leakage | keys in env/config only; scoped keys for linked systems; never rendered into `dist/` |
+| Upload resource exhaustion (huge body, zip bomb) | body spooled to disk under a configurable 1 GiB cap → `413`; per-entry, total, and entry-count decompression caps → `400`; CRC-32 verified; ZIP64/encrypted archives rejected (§9.2) |
+| Daemon key leakage | keys in env/config only (`HOMESPACE_OPERATOR_KEY` preferred; `homespace.serve.json` gitignored); timing-safe comparison; scoped keys for linked systems; never rendered into `dist/` |
 | Legal exposure of operators | Docs state plainly: the operator owns and answers for what their homespace serves, under their jurisdiction. The kit ships no content. |
 
 ---

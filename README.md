@@ -72,7 +72,10 @@ pipeline:  scanner(content/) → catalog.json → renderer(catalog + homespace.m
 | **1 — Dev** | `homespace dev` local preview + watch/rebuild | The operator, locally |
 | **2 — Daemon** | `homespace serve`: watch-rebuild, upload API, linked-system keys | Operators who want remote publish or app integrations |
 
-Tier 2 is additive; nothing in tiers 0–1 depends on it.
+Tier 2 is additive; nothing in tiers 0–1 depends on it. Its operator key comes
+from `HOMESPACE_OPERATOR_KEY` (preferred) or a gitignored `homespace.serve.json`,
+and a pack published through a **scoped key** is forced into the `strict`
+sandbox — a linked system can publish to your homespace, never run script as it.
 
 ## Quick start (target UX)
 
@@ -87,6 +90,10 @@ npx homespace dev                   # local preview + live rebuild
 Restyle the entire homespace by editing `theme.tokens` in `homespace.manifest.jsonc`. Drop
 a folder + `manifest.json` into `content/packs/`, rebuild, and it appears — a web
 game plays in-browser, a post renders with RSS.
+
+`dist/` is owned by the build: every run makes it match your homespace exactly,
+listing anything it removes. Files your host needs at the site root (`CNAME`,
+`_headers`) belong in `static/`, which is copied verbatim into `dist/`.
 
 ## Archetypes (v0 ships four)
 

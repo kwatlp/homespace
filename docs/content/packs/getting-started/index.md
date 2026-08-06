@@ -29,3 +29,8 @@ a link becomes a card with depth.
 
 `dist/` is plain files: drop it on any static host, or run `homespace dev`. Sharing
 the URL *is* distribution — no accounts, no federation, no CDN.
+
+`dist/` is rebuilt to match your homespace every time, so anything you put there
+by hand is removed. Files your host needs at the root — `CNAME`, `_headers` — go
+in `static/`, which is copied verbatim into `dist/`. See
+[Operating a homespace](../operating/) for the rest.

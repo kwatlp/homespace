@@ -228,6 +228,34 @@ describe("build — flags", () => {
     const catalog = JSON.parse(await readFile(path.join(root, "dist", "catalog.json"), "utf8")) as { generated?: string };
     expect(typeof catalog.generated).toBe("string");
   });
+
+  test("dist/ mirrors the homespace: deleting a pack prunes its output (WO-12 P1-1)", async () => {
+    const root = await tmp();
+    await run(["init", "author", "."], { cwd: root, io: capture().io });
+    await run(["new", "pack", "post", "temporary"], { cwd: root, io: capture().io });
+    expect(await run(["build"], { cwd: root, io: capture().io })).toBe(0);
+    expect(await fileExists(path.join(root, "dist/posts/temporary/index.html"))).toBe(true);
+
+    await rm(path.join(root, "content/packs/temporary"), { recursive: true, force: true });
+    const io = capture();
+    expect(await run(["build"], { cwd: root, io: io.io })).toBe(0);
+
+    expect(await fileExists(path.join(root, "dist/posts/temporary"))).toBe(false);
+    expect(io.errText()).toMatch(/removed posts\/temporary\/index\.html/);
+    // The rest of the build is still there.
+    expect(await fileExists(path.join(root, "dist/index.html"))).toBe(true);
+  });
+
+  test("--out refuses to take over the homespace folder (WO-12 P1-1)", async () => {
+    const root = await tmp();
+    await run(["init", "blank", "."], { cwd: root, io: capture().io });
+
+    const io = capture();
+    expect(await run(["build", "--out", "."], { cwd: root, io: io.io })).toBe(1);
+    expect(io.errText()).toMatch(/points at your homespace folder/);
+    expect(await fileExists(path.join(root, "homespace.manifest.jsonc"))).toBe(true);
+    expect(await fileExists(path.join(root, "content"))).toBe(true);
+  });
 });
 
 describe("unknown command", () => {

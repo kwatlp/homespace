@@ -36,15 +36,17 @@ export function renderPackDetail(pack: CatalogPack, ctx: RenderContext): string 
     parts.push(`<img src="${escapeAttr(packAssetUrl(ctx.basePrefix, pack, cover))}" alt="${escapeAttr(alt)}">`);
   }
 
+  const download = pack.entrypoint?.download;
+  const downloadUrl = typeof download === "string" ? packAssetUrl(ctx.basePrefix, pack, download) : undefined;
+
   const web = pack.entrypoint?.web;
   const hasPlayer = typeof web === "string";
   if (typeof web === "string") {
-    parts.push(renderPlayer(packAssetUrl(ctx.basePrefix, pack, web), pack.sandbox));
+    parts.push(renderPlayer(packAssetUrl(ctx.basePrefix, pack, web), pack.sandbox, downloadUrl));
   }
 
-  const download = pack.entrypoint?.download;
-  if (typeof download === "string") {
-    parts.push(renderDownload(packAssetUrl(ctx.basePrefix, pack, download), pack.checksums?.[download]));
+  if (typeof download === "string" && downloadUrl !== undefined) {
+    parts.push(renderDownload(downloadUrl, pack.checksums?.[download]));
   }
 
   parts.push(galleryFigures(pack, ctx));

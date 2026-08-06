@@ -36,6 +36,15 @@ Thumbs.db
 .env.*
 !.env.example
 
+# Tier-2 daemon config — may hold the operator key or scoped keys.
+# Prefer HOMESPACE_OPERATOR_KEY in the environment (TDD §9.2, §12).
+homespace.serve.json
+**/homespace.serve.json
+
+# Daemon upload spool (inside a served homespace root)
+.uploads/
+**/.uploads/
+
 # Archetypes are copied into the CLI at pack time (source of truth is /archetypes);
 # the bundled 'blank' template stays tracked.
 packages/cli/templates/*

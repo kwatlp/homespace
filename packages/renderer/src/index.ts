@@ -16,7 +16,7 @@ export {
   type ThumbOp,
 } from "./render.js";
 
-export { writeDist, type WriteOptions } from "./write.js";
+export { writeDist, pruneDist, emittedPaths, type WriteOptions, type WriteReport } from "./write.js";
 export { loadSharpThumbnailer, isRasterImage, THUMB_WIDTH, type Thumbnailer } from "./thumbnails.js";
 
 export {

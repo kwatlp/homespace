@@ -1,0 +1,8 @@
+{
+  "id": "operating",
+  "type": "post",
+  "title": "Operating a homespace",
+  "summary": "What the build owns, where keys live, and what a linked system can and cannot do.",
+  "created": "2026-08-06T00:00:00Z",
+  "entrypoint": { "post": "index.md" }
+}

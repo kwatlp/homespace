@@ -68,9 +68,34 @@ export async function build(argv: string[], ctx: Context): Promise<number> {
     return 1;
   }
 
-  const outDir = path.resolve(ctx.cwd, values.out ?? "dist");
+  const given = values.out ?? "dist";
+  const outDir = path.resolve(ctx.cwd, given);
+  const unsafe = unsafeOutDir(ctx.cwd, outDir, given);
+  if (unsafe !== null) {
+    fail(ctx.io, [unsafe]);
+    return 1;
+  }
+
   const writeOpts: WriteOptions = thumbnailer ? { thumbnailer } : {};
-  await writeDist(renderResult, outDir, writeOpts);
+  const report = await writeDist(renderResult, outDir, writeOpts);
+  warn(ctx.io, report.pruned.map((p) => `removed ${p} — no longer part of this homespace`));
   ctx.io.out(`Built ${scanResult.catalog.packs.length} pack(s) → ${path.relative(ctx.cwd, outDir) || "."}\n`);
   return 0;
+}
+
+/**
+ * The build owns its output directory outright and deletes anything else in it
+ * (TDD §5.2), so refuse an `--out` that would swallow the homespace itself.
+ * Returns the error message, or null when the directory is safe to own.
+ */
+function unsafeOutDir(root: string, outDir: string, given: string): string | null {
+  const rootAbs = path.resolve(root);
+  if (outDir === rootAbs || rootAbs.startsWith(outDir + path.sep)) {
+    return (
+      `--out '${given}' points at your homespace folder. ` +
+      `The build owns its output directory and deletes everything it did not generate, ` +
+      `which would remove your content. Build into a subfolder instead, e.g. --out dist.`
+    );
+  }
+  return null;
 }

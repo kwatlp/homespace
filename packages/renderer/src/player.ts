@@ -13,11 +13,30 @@ export function sandboxTokens(sandbox: string | undefined): string {
 }
 
 /**
- * A load-on-click player for a game/app web entry. The iframe is not created
- * until the visitor presses Play (no autoloading heavy WASM); a plain link is
- * the JavaScript-disabled fallback.
+ * The no-JavaScript fallback under the player. A **standard** pack is
+ * operator-authored, so linking straight at its HTML is fine. A **strict** pack
+ * must never be reachable as a same-origin top-level document — that would hand
+ * it the homespace's origin and undo the sandbox (TDD §6.4) — so it falls back
+ * to its download, or to a plain explanation when it has none.
  */
-export function renderPlayer(webUrl: string, sandbox: string | undefined): string {
+function noscriptFallback(url: string, sandbox: string | undefined, downloadUrl: string | undefined): string {
+  if (sandbox !== "strict") return `<a href="${url}">Open the build directly</a>`;
+  const needsJs = "This build only runs inside the sandboxed player, which needs JavaScript.";
+  return typeof downloadUrl === "string"
+    ? `<p>${needsJs} <a href="${escapeAttr(downloadUrl)}" download>Download it</a> to run it yourself.</p>`
+    : `<p>${needsJs}</p>`;
+}
+
+/**
+ * A load-on-click player for a game/app web entry. The iframe is not created
+ * until the visitor presses Play (no autoloading heavy WASM); the noscript
+ * block is the JavaScript-disabled fallback.
+ */
+export function renderPlayer(
+  webUrl: string,
+  sandbox: string | undefined,
+  downloadUrl?: string,
+): string {
   const url = escapeAttr(webUrl);
   const tokens = escapeAttr(sandboxTokens(sandbox));
   return (
@@ -26,7 +45,7 @@ export function renderPlayer(webUrl: string, sandbox: string | undefined): strin
     `  <div class="player-controls">\n` +
     `    <button type="button" class="player-fullscreen">⛶ Fullscreen</button>\n` +
     `    <span class="tag">Gamepad supported</span>\n` +
-    `    <noscript><a href="${url}">Open the build directly</a></noscript>\n` +
+    `    <noscript>${noscriptFallback(url, sandbox, downloadUrl)}</noscript>\n` +
     `  </div>\n` +
     `</div>`
   );

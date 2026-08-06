@@ -9,5 +9,15 @@
 export { createServeServer, startServe, safeEntryName, type ServeHandle } from "./server.js";
 export { rebuild, type RebuildResult } from "./rebuild.js";
 export { authorize, bearerToken, canWrite, type Auth } from "./keys.js";
-export { readZip, writeZip, type ZipEntry } from "./zip.js";
+export {
+  openZip,
+  readZip,
+  writeZip,
+  DEFAULT_ZIP_LIMITS,
+  type ZipArchive,
+  type ZipEntry,
+  type ZipLimits,
+  type ZipMember,
+  type WriteZipOptions,
+} from "./zip.js";
 export type { ScopedKey, ServeConfig } from "./config.js";

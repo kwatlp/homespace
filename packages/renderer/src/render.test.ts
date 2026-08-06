@@ -1,13 +1,14 @@
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import type { Catalog, HomespaceManifest } from "homespace-schema";
-import { beforeAll, describe, expect, test } from "vitest";
+import { afterEach, beforeAll, describe, expect, test } from "vitest";
 
 import {
   assertOfflineBudget,
+  emittedPaths,
   findBudgetViolations,
   isRasterImage,
   render,
@@ -19,6 +20,7 @@ import {
   type RenderResult,
   type Thumbnailer,
 } from "./index";
+import { escapeAttr } from "./escape";
 
 const demoRoot = fileURLToPath(new URL("../test/fixtures/demo-homespace", import.meta.url));
 
@@ -148,6 +150,32 @@ describe("offline-budget checker — unit", () => {
     const files = [{ path: "t.css", contents: "@font-face{src:url(https://f.example/a.woff2)}" }];
     expect(findBudgetViolations(files)).toHaveLength(1);
   });
+
+  test("covers srcset, media, embed, object and bare @import (WO-12 P3-7)", () => {
+    const files = [
+      { path: "a.html", contents: '<img srcset="https://cdn.example/a.png 1x, https://cdn.example/b.png 2x" src="c.png">' },
+      { path: "b.html", contents: '<video src="https://cdn.example/v.mp4" poster="https://cdn.example/p.jpg"></video>' },
+      { path: "c.html", contents: '<audio src="https://cdn.example/a.mp3"></audio><embed src="https://cdn.example/e.svg">' },
+      { path: "d.html", contents: '<object data="https://cdn.example/o.pdf"></object>' },
+      { path: "e.css", contents: '@import "https://cdn.example/x.css";' },
+    ];
+    expect(findBudgetViolations(files).map((v) => v.url).sort()).toEqual([
+      "https://cdn.example/a.mp3",
+      "https://cdn.example/a.png",
+      "https://cdn.example/b.png",
+      "https://cdn.example/e.svg",
+      "https://cdn.example/o.pdf",
+      "https://cdn.example/p.jpg",
+      "https://cdn.example/v.mp4",
+      "https://cdn.example/x.css",
+    ]);
+  });
+});
+
+describe("escaping", () => {
+  test("escapeAttr escapes both quote characters (WO-12 P3-9)", () => {
+    expect(escapeAttr(`it's a "quote" & <tag>`)).toBe("it&#39;s a &quot;quote&quot; &amp; &lt;tag&gt;");
+  });
 });
 
 describe("markdown", () => {
@@ -261,6 +289,7 @@ describe("player & downloads (WO-6)", () => {
       { id: "std", type: "game", title: "Std", slug: "std", dir: "content/packs/std", entrypoint: { web: "index.html" } },
       { id: "strict-game", type: "game", title: "Strict", slug: "strict-game", dir: "content/packs/strict-game", entrypoint: { web: "index.html" }, sandbox: "strict" },
       { id: "dl", type: "game", title: "DL", slug: "dl", dir: "content/packs/dl", entrypoint: { download: "game.zip" }, checksums: { "game.zip": `sha256:${"a".repeat(64)}` } },
+      { id: "strict-dl", type: "game", title: "Strict DL", slug: "strict-dl", dir: "content/packs/strict-dl", entrypoint: { web: "index.html", download: "build.zip" }, sandbox: "strict" },
     ],
   };
   const playerNode: HomespaceManifest = { name: "players", sections: [{ type: "packs", source: {} }] };
@@ -288,6 +317,23 @@ describe("player & downloads (WO-6)", () => {
     const strict = file(result, "packs/strict-game/index.html").contents;
     expect(strict).toContain("data-sandbox=");
     expect(strict).not.toContain("allow-same-origin");
+  });
+
+  test("a strict pack is never linked as a same-origin document (WO-12 P1-2)", async () => {
+    const result = await render({ catalog: players, homespace: playerNode, root: demoRoot });
+
+    // Operator-authored (standard): the plain direct link stays.
+    expect(file(result, "packs/std/index.html").contents).toContain("Open the build directly");
+
+    const strict = file(result, "packs/strict-game/index.html").contents;
+    expect(strict).not.toContain("Open the build directly");
+    expect(strict).not.toContain('href="../../packs/strict-game/files/index.html"');
+    expect(strict).toContain("only runs inside the sandboxed player");
+
+    // With a download, the no-JS path is the download rather than the origin.
+    const withDownload = file(result, "packs/strict-dl/index.html").contents;
+    expect(withDownload).not.toContain("Open the build directly");
+    expect(withDownload).toContain('<a href="../../packs/strict-dl/files/build.zip" download>Download it</a>');
   });
 
   test("download pack detail shows a download link with its checksum", async () => {
@@ -350,6 +396,89 @@ describe("thumbnails (WO-8)", () => {
       await rm(withOut, { recursive: true, force: true });
       await rm(withoutOut, { recursive: true, force: true });
     }
+  });
+});
+
+describe("dist pruning — dist is build-owned (WO-12 P1-1)", () => {
+  const tempDirs: string[] = [];
+  afterEach(async () => {
+    while (tempDirs.length) await rm(tempDirs.pop()!, { recursive: true, force: true });
+  });
+
+  async function outDir(): Promise<string> {
+    const dir = await mkdtemp(path.join(tmpdir(), "homespace-prune-"));
+    tempDirs.push(dir);
+    return dir;
+  }
+
+  const gone = async (p: string): Promise<boolean> => {
+    try {
+      await stat(p);
+      return false;
+    } catch {
+      return true;
+    }
+  };
+
+  test("removing a pack leaves no detail page, files/, or .thumbs/ behind", async () => {
+    const out = await outDir();
+    const full = await render({ catalog, homespace, root: demoRoot, thumbnails: true });
+    await writeDist(full, out);
+    expect((await stat(path.join(out, "packs/solterra/index.html"))).isFile()).toBe(true);
+    expect((await stat(path.join(out, "packs/solterra/files/cover.webp"))).isFile()).toBe(true);
+    expect((await stat(path.join(out, ".thumbs/packs/solterra/files/cover.webp"))).isFile()).toBe(true);
+
+    // The operator deletes the pack; the next build must mirror that exactly.
+    const trimmed: Catalog = { ...catalog, packs: catalog.packs.filter((p) => p.id !== "solterra") };
+    const after = await render({ catalog: trimmed, homespace, root: demoRoot, thumbnails: true });
+    const report = await writeDist(after, out);
+
+    expect(report.pruned).toContain("packs/solterra/index.html");
+    expect(report.pruned).toContain("packs/solterra/files/cover.webp");
+    expect(report.pruned).toContain(".thumbs/packs/solterra/files/cover.webp");
+    expect(await gone(path.join(out, "packs/solterra"))).toBe(true);
+    expect(await gone(path.join(out, ".thumbs/packs/solterra"))).toBe(true);
+    // The packs that remain are untouched.
+    expect((await stat(path.join(out, "packs/portfolio/index.html"))).isFile()).toBe(true);
+  });
+
+  test("static/ is the supported passthrough: CNAME reaches the dist root and survives", async () => {
+    const out = await outDir();
+    const result = await render({ catalog, homespace, root: demoRoot });
+    expect(result.assets.map((a) => a.to)).toContain("CNAME");
+
+    await writeDist(result, out);
+    const second = await writeDist(await render({ catalog, homespace, root: demoRoot }), out);
+    expect(second.pruned).toEqual([]);
+    expect((await stat(path.join(out, "CNAME"))).isFile()).toBe(true);
+  });
+
+  test("a hand-placed file in dist/ is pruned and reported", async () => {
+    const out = await outDir();
+    const result = await render({ catalog, homespace, root: demoRoot });
+    await writeDist(result, out);
+    await writeFile(path.join(out, "stowaway.html"), "<p>hand-placed</p>");
+    await writeFile(path.join(out, "packs/portfolio/notes.txt"), "left over");
+
+    const report = await writeDist(result, out);
+    expect(report.pruned).toEqual(["packs/portfolio/notes.txt", "stowaway.html"]);
+    expect(await gone(path.join(out, "stowaway.html"))).toBe(true);
+    expect((await stat(path.join(out, "packs/portfolio/index.html"))).isFile()).toBe(true);
+  });
+
+  test("writing into a fresh directory prunes nothing", async () => {
+    const out = await outDir();
+    const report = await writeDist(await render({ catalog, homespace, root: demoRoot }), out);
+    expect(report.pruned).toEqual([]);
+  });
+
+  test("emittedPaths claims every generated file, copy, and thumbnail", async () => {
+    const result = await render({ catalog, homespace, root: demoRoot, thumbnails: true });
+    const paths = emittedPaths(result);
+    expect(paths).toEqual([...paths].sort());
+    expect(paths).toContain("index.html");
+    expect(paths).toContain("CNAME");
+    expect(paths).toContain(".thumbs/packs/portfolio/files/cover.webp");
   });
 });
 
