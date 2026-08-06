@@ -87,6 +87,11 @@ npx homespace build                 # → dist/, deploy anywhere
 npx homespace dev                   # local preview + live rebuild
 ```
 
+No terminal? **The Builder** (`/builder/` in the docs homespace) asks three
+groups of questions, previews the result live, and hands back the finished site
+and its master copy as two zips. It runs the same scanner and renderer in the
+browser — byte-identical output, no account, nothing uploaded.
+
 Restyle the entire homespace by editing `theme.tokens` in `homespace.manifest.jsonc`. Drop
 a folder + `manifest.json` into `content/packs/`, rebuild, and it appears — a web
 game plays in-browser, a post renders with RSS.
@@ -109,9 +114,9 @@ sample packs, and a `THEME.md` documenting every exposed variable.
 
 ## Repository map
 
-- `packages/` — `schema`, `scanner`, `renderer`, `cli`, (Tier 2) `serve`, and
-  `builder` (the browser build path — the same scanner and renderer, reading an
-  in-memory homespace)
+- `packages/` — `schema`, `scanner`, `renderer`, `cli`, `zip`, (Tier 2) `serve`,
+  and `builder` (the Builder: the same scanner and renderer running in a
+  browser over an in-memory homespace, plus the wizard page)
 - `archetypes/` — the four v0 presets
 - `examples/` — fixture homespaces used by tests
 - `docs/` — public docs (the docs site is itself a homespace — dogfooding)

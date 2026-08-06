@@ -1,0 +1,8 @@
+{
+  "id": "putting-it-online",
+  "type": "post",
+  "title": "Putting it online",
+  "summary": "From a zip on your device to a web address people can visit — on a phone or a computer.",
+  "created": "2026-08-06T00:00:01Z",
+  "entrypoint": { "post": "index.md" }
+}

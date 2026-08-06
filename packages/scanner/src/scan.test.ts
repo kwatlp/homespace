@@ -1,3 +1,6 @@
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { describe, expect, test } from "vitest";
@@ -96,11 +99,24 @@ describe("scan — checksum verification", () => {
 });
 
 describe("scan — missing content/packs", () => {
-  test("reports a helpful error and an empty catalog", async () => {
+  test("a folder that is not there at all is an error", async () => {
     const result = await scan({ root: fixture("does-not-exist") });
     expect(result.ok).toBe(false);
     expect(result.catalog.packs).toHaveLength(0);
     expect(messages(result.errors)).toMatch(/no content\/packs directory/);
+  });
+
+  test("a homespace with no packs yet warns and builds", async () => {
+    const empty = await mkdtemp(path.join(tmpdir(), "homespace-empty-"));
+    try {
+      const result = await scan({ root: empty });
+      expect(result.errors).toEqual([]);
+      expect(result.ok).toBe(true);
+      expect(result.catalog.packs).toHaveLength(0);
+      expect(messages(result.warnings)).toMatch(/no packs yet/);
+    } finally {
+      await rm(empty, { recursive: true, force: true });
+    }
   });
 });
 

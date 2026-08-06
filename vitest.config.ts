@@ -17,6 +17,8 @@ export default defineConfig({
       "homespace-scanner": pkgSrc("scanner"),
       "homespace-renderer": pkgSrc("renderer"),
       "homespace-cli": pkgSrc("cli"),
+      "homespace-zip": pkgSrc("zip"),
+      "homespace-serve": pkgSrc("serve"),
     },
   },
 });

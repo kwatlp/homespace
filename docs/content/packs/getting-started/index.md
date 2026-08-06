@@ -3,6 +3,9 @@
 A **homespace** is one self-hosted website that holds whatever you bring — apps,
 games, art, writing, links-with-depth, or raw HTML — built to plain static files.
 
+**Never used a terminal?** [Make one in your browser](../../builder/) instead —
+same result, no commands, nothing uploaded anywhere.
+
 ```sh
 npx homespace init author my-homespace
 cd my-homespace

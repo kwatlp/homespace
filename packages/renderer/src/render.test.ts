@@ -75,6 +75,15 @@ describe("render — demo homespace", () => {
     expect(file(result, "index.html").contents).toContain('id="gallery"');
   });
 
+  test("a static/ reference resolves where the file actually lands in dist", () => {
+    // The manifest names `static/hero.webp`; the build copies static/ to the
+    // dist root, so the page must point at `hero.webp` or the image 404s.
+    const index = file(result, "index.html").contents;
+    expect(index).toContain('<img src="hero.webp" alt="">');
+    expect(index).not.toContain("static/hero.webp");
+    expect(result.assets.map((a) => a.to)).toContain("hero.webp");
+  });
+
   test("emits an RSS alternate link in the head when a feed exists", () => {
     expect(file(result, "index.html").contents).toContain('rel="alternate" type="application/rss+xml"');
   });
@@ -263,7 +272,8 @@ describe("embed + html sections", () => {
     const result = await render({ catalog: emptyCatalog, homespace: embedNode, root: demoRoot });
     expect(result.errors).toEqual([]);
     const index = file(result, "index.html").contents;
-    expect(index).toContain('<iframe class="embed" src="static/toy.html"');
+    // static/ is copied to the dist root, so the URL drops the prefix.
+    expect(index).toContain('<iframe class="embed" src="toy.html"');
     expect(index).toContain("height:300px");
     expect(index).toContain("<h2>Hand-written section</h2>"); // verbatim, not escaped
     expect(findBudgetViolations(result.files)).toEqual([]);

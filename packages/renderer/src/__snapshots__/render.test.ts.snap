@@ -58,7 +58,7 @@ exports[`pages layout > landing + one page per section, with generated section n
 <section class="section hero" id="hero"><div class="wrap">
 <h1>Demo Homespace</h1>
 <p>a test homespace</p>
-<img src="static/hero.webp" alt="">
+<img src="hero.webp" alt="">
 </div></section>
 
 </main>
@@ -171,7 +171,7 @@ exports[`render — demo homespace > golden: index.html 1`] = `
 <section class="section hero" id="hero"><div class="wrap">
 <h1>Demo Homespace</h1>
 <p>a test homespace</p>
-<img src="static/hero.webp" alt="">
+<img src="hero.webp" alt="">
 </div></section>
 
 <section class="section" id="packs"><div class="wrap">

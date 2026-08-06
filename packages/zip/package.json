@@ -1,0 +1,21 @@
+{
+  "name": "homespace-zip",
+  "version": "0.2.0",
+  "description": "Dependency-free, isomorphic ZIP writer — the one shared home for packaging a homespace.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "vitest run"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "id": "builder",
+  "type": "link",
+  "title": "Make one now, in your browser",
+  "summary": "The Builder: answer a few questions, watch a live preview, download a finished website. No terminal, no account, nothing uploaded.",
+  "entrypoint": { "link": "builder/" }
+}

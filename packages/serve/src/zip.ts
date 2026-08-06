@@ -5,6 +5,14 @@ import { Transform, type TransformCallback } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import zlib from "node:zlib";
 
+import {
+  CRC32_INIT,
+  crc32,
+  crc32Finish,
+  crc32Update,
+  writeZip as writeArchive,
+} from "homespace-zip";
+
 export interface ZipEntry {
   name: string;
   data: Buffer;
@@ -49,26 +57,6 @@ const EOCD_MIN = 22;
 const EOCD_SEARCH = EOCD_MIN + 0xffff;
 const U32_MAX = 0xffffffff;
 const U16_MAX = 0xffff;
-
-const CRC_TABLE = (() => {
-  const table = new Uint32Array(256);
-  for (let n = 0; n < 256; n++) {
-    let c = n;
-    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-    table[n] = c >>> 0;
-  }
-  return table;
-})();
-
-function crcUpdate(crc: number, buf: Buffer): number {
-  let c = crc;
-  for (let i = 0; i < buf.length; i++) c = CRC_TABLE[(c ^ buf[i]!) & 0xff]! ^ (c >>> 8);
-  return c >>> 0;
-}
-
-function crc32(buf: Buffer): number {
-  return (crcUpdate(0xffffffff, buf) ^ 0xffffffff) >>> 0;
-}
 
 interface Eocd {
   count: number;
@@ -170,7 +158,7 @@ function checkIntegrity(member: ZipMember, bytes: number, crc: number): void {
 /** Count bytes and CRC them as they pass, failing fast past `limit`. */
 function guard(name: string, limit: number, done: (bytes: number, crc: number) => void): Transform {
   let bytes = 0;
-  let crc = 0xffffffff;
+  let crc = CRC32_INIT;
   return new Transform({
     transform(chunk: Buffer, _encoding, callback: TransformCallback) {
       bytes += chunk.length;
@@ -178,11 +166,11 @@ function guard(name: string, limit: number, done: (bytes: number, crc: number) =
         callback(new Error(`entry '${name}' expands beyond the ${limit}-byte limit`));
         return;
       }
-      crc = crcUpdate(crc, chunk);
+      crc = crc32Update(crc, chunk);
       callback(null, chunk);
     },
     flush(callback) {
-      done(bytes, (crc ^ 0xffffffff) >>> 0);
+      done(bytes, crc32Finish(crc));
       callback();
     },
   });
@@ -354,51 +342,15 @@ export interface WriteZipOptions {
   deflate?: boolean;
 }
 
-/** Build a ZIP from entries — used by tests and fixtures. */
+/**
+ * Build a ZIP from entries — used by tests and fixtures. Writing lives in
+ * `homespace-zip`, the one shared home (TDD §15.4); this wraps it with the
+ * daemon's Node conveniences (`Buffer`, zlib deflate).
+ */
 export function writeZip(files: ZipEntry[], options: WriteZipOptions = {}): Buffer {
-  const parts: Buffer[] = [];
-  const central: Buffer[] = [];
-  const method = options.deflate === true ? 8 : 0;
-  let offset = 0;
-
-  for (const f of files) {
-    const name = Buffer.from(f.name, "utf8");
-    const crc = crc32(f.data);
-    const size = f.data.length;
-    const body = method === 8 ? zlib.deflateRawSync(f.data) : f.data;
-
-    const local = Buffer.alloc(30);
-    local.writeUInt32LE(LOCAL_SIG, 0);
-    local.writeUInt16LE(20, 4);
-    local.writeUInt16LE(method, 8);
-    local.writeUInt32LE(crc, 14);
-    local.writeUInt32LE(body.length, 18);
-    local.writeUInt32LE(size, 22);
-    local.writeUInt16LE(name.length, 26);
-    parts.push(local, name, body);
-
-    const cdh = Buffer.alloc(46);
-    cdh.writeUInt32LE(CENTRAL_SIG, 0);
-    cdh.writeUInt16LE(20, 4);
-    cdh.writeUInt16LE(20, 6);
-    cdh.writeUInt16LE(method, 10);
-    cdh.writeUInt32LE(crc, 16);
-    cdh.writeUInt32LE(body.length, 20);
-    cdh.writeUInt32LE(size, 24);
-    cdh.writeUInt16LE(name.length, 28);
-    cdh.writeUInt32LE(offset, 42);
-    central.push(cdh, name);
-
-    offset += local.length + name.length + body.length;
-  }
-
-  const cdBuf = Buffer.concat(central);
-  const eocd = Buffer.alloc(22);
-  eocd.writeUInt32LE(EOCD_SIG, 0);
-  eocd.writeUInt16LE(files.length, 8);
-  eocd.writeUInt16LE(files.length, 10);
-  eocd.writeUInt32LE(cdBuf.length, 12);
-  eocd.writeUInt32LE(offset, 16);
-
-  return Buffer.concat([...parts, cdBuf, eocd]);
+  const archive = writeArchive(
+    files,
+    options.deflate === true ? { deflate: (data) => zlib.deflateRawSync(data) } : {},
+  );
+  return Buffer.from(archive);
 }

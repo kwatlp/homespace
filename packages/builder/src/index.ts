@@ -16,3 +16,21 @@ export {
 } from "./build.js";
 
 export { memoryFiles, MEMORY_ROOT, type MemoryTree } from "./memory-files.js";
+
+export { masterZip, websiteZip, type DownloadResult } from "./download.js";
+export { previewDocument } from "./preview.js";
+
+export {
+  composeHomespace,
+  defaultWizardState,
+  masterCopy,
+  slugify,
+  startHere,
+  SPACE_LABELS,
+  type ComposedHomespace,
+  type SpaceType,
+  type WizardAsset,
+  type WizardLink,
+  type WizardState,
+  type WizardTheme,
+} from "./wizard.js";

@@ -13,10 +13,16 @@ export const MEMORY_ROOT = "/homespace";
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
-/** Normalize a path to POSIX with no leading, trailing, or doubled slashes. */
+/**
+ * Normalize a path to POSIX with no leading, trailing, or doubled slashes. A
+ * leading drive letter is dropped: `node:path.resolve` prepends one on Windows,
+ * and an in-memory homespace has no drives. (The browser bundle's POSIX path
+ * shim never produces one — this keeps the same tree usable under Node too.)
+ */
 function key(path: string): string {
   return path
     .replace(/\\/g, "/")
+    .replace(/^[a-zA-Z]:/, "")
     .split("/")
     .filter((part) => part !== "" && part !== ".")
     .join("/");

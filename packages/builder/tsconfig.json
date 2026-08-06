@@ -3,9 +3,17 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
+    // This package ships browser code (the wizard page) alongside the
+    // Node-importable build path, so it needs both sets of ambient types.
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": ["node"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.test.ts"],
-  "references": [{ "path": "../schema" }, { "path": "../scanner" }, { "path": "../renderer" }]
+  "references": [
+    { "path": "../schema" },
+    { "path": "../scanner" },
+    { "path": "../renderer" },
+    { "path": "../zip" }
+  ]
 }

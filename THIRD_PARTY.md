@@ -28,6 +28,11 @@ same PR.
 | `typescript` | type-checking / build | Apache-2.0 |
 | `vitest` | test runner | MIT |
 | `json-schema-to-typescript` | generate `types.generated.ts` from the JSON Schemas | MIT |
+| `esbuild` | bundle the CLI and the Builder's browser page (§5.4 clarification, WO-21) | MIT |
+
+Nothing above ships to a visitor. The Builder's page bundles only homespace's
+own packages plus `ajv` and `micromark`, which are already runtime
+dependencies — it adds no new ones.
 | `@types/node` | Node type definitions | MIT |
 
 No postinstall scripts. Lockfile committed. Vendored assets (e.g. archetype

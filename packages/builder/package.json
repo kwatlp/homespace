@@ -20,6 +20,7 @@
   "dependencies": {
     "homespace-renderer": "^0.2.0",
     "homespace-scanner": "^0.2.0",
-    "homespace-schema": "^0.2.0"
+    "homespace-schema": "^0.2.0",
+    "homespace-zip": "^0.2.0"
   }
 }

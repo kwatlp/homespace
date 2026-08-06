@@ -186,7 +186,8 @@ homespace/
 │   ├── renderer/     # (catalog, homespace manifest) → dist/  (pure; no fs-walking knowledge)
 │   ├── cli/          # homespace init|new|validate|build|dev  (thin orchestration)
 │   ├── serve/        # TIER 2 ONLY — optional daemon; nothing else imports it
-│   └── builder/      # browser build path for the Builder (§15); no fs, no network
+│   ├── zip/          # dependency-free, isomorphic ZIP writer (one shared home)
+│   └── builder/      # the Builder (§15): browser build path + wizard; no fs, no network
 ├── archetypes/
 │   ├── link-hub/     # linktree-with-depth
 │   ├── author/
@@ -525,14 +526,31 @@ controls on a phone, asset plug-in through the native picker/camera roll,
 downloads that work in mobile browsers, a phone/desktop viewport toggle on the
 preview, and wizard-produced sites that pass the same checks.
 
-### 15.4 Out of scope here
+### 15.4 Packaging the downloads
 
-No hosting-vendor integration, resale, or account flow of any kind. The hosting
-guide *names* one golden-path host with click-by-click steps plus a generic
-fallback — and because the wizard is mobile-first, that host must have a publish
-path that works from a phone browser ("drag the folder" is a desktop metaphor).
-Day-2 editing — reopening an existing homespace folder to add packs or re-theme
-— is **WO-23**; the seam and zip layout must not preclude it.
+ZIP writing has **one home**: `packages/zip` (`homespace-zip`) — dependency-free
+and isomorphic, so the browser, the daemon's tests, and WO-13's `homespace push`
+all use the same writer. It stores entries uncompressed by default (a homespace
+is mostly already-compressed images and wasm) and takes an optional `deflate`
+hook, so nothing in the budget changes and nothing needs `zlib` in a browser.
+`packages/serve` keeps its Node **reader** — streaming, capped, CRC-checked
+(§9.2) — and re-exports the shared writer.
+
+### 15.5 Hosting guide
+
+**Golden path: Neocities** (ruled 2026-08-06). It is the only well-known free
+host whose *whole* publish flow — sign up, upload a zip, get a URL — works in a
+phone browser, which the mobile-first rule (§5.3) demands, and an
+operator-owned page of files is exactly what it hosts. The guide gives
+click-by-click steps for it plus a generic "any static host" fallback page. We
+never integrate with, resell, or require an account on any host; the guide is
+prose, and the zip it describes is the same zip every other host takes.
+
+### 15.6 Out of scope here
+
+No hosting-vendor integration, resale, or account flow of any kind. Day-2
+editing — reopening an existing homespace folder to add packs or re-theme — is
+**WO-23**; the seam and zip layout must not preclude it.
 
 ---
 

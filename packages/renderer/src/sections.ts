@@ -16,6 +16,16 @@ export interface RenderContext {
   thumbnails?: boolean;
 }
 
+/**
+ * Resolve a homespace-relative asset reference (a section's `media` or `src`)
+ * to its URL in dist. `static/` is copied to the **dist root** (TDD §5.2) — it
+ * is the passthrough for `CNAME` and friends — so the prefix is not part of the
+ * URL. Without this, the manifest example in §4 renders a broken image.
+ */
+export function assetHref(basePrefix: string, ref: string): string {
+  return `${basePrefix}${ref.replace(/^\.?\/*static\//, "")}`;
+}
+
 /** Pick the thumbnail URL when enabled and the image is a raster; else full. */
 function imageUrl(pack: CatalogPack, rel: string, ctx: RenderContext): string {
   return ctx.thumbnails === true && isRasterImage(rel)
@@ -104,7 +114,7 @@ function hero(section: Section, ctx: RenderContext): string {
   if (typeof section.heading === "string") parts.push(`<h1>${escapeHtml(section.heading)}</h1>`);
   if (typeof section.sub === "string") parts.push(`<p>${escapeHtml(section.sub)}</p>`);
   if (typeof section.media === "string") {
-    parts.push(`<img src="${escapeAttr(ctx.basePrefix + section.media)}" alt="">`);
+    parts.push(`<img src="${escapeAttr(assetHref(ctx.basePrefix, section.media))}" alt="">`);
   }
   return wrapSection("hero", parts.join("\n"), "hero");
 }
@@ -182,7 +192,7 @@ function gallery(section: Section, ctx: RenderContext): string {
 
 function embed(section: Section, ctx: RenderContext): string {
   if (typeof section.src !== "string") return wrapSection("embed", heading(section.title));
-  const src = escapeAttr(ctx.basePrefix + section.src);
+  const src = escapeAttr(assetHref(ctx.basePrefix, section.src));
   const height = typeof section.height === "number" ? section.height : 420;
   const title = escapeAttr(sectionLabel(section));
   const iframe =

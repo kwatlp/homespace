@@ -9,6 +9,8 @@
 //
 // Usage: node scripts/bundle.mjs [outfile]
 import { build } from "esbuild";
+import { copyFile, mkdir } from "node:fs/promises";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = (p) => fileURLToPath(new URL(p, import.meta.url));
@@ -51,9 +53,50 @@ export async function bundleBuilder(outfile) {
   });
 }
 
+/**
+ * Build the Builder *page* into the docs homespace: `docs/static/` is copied
+ * verbatim to the site root, so this lands at `/builder/` when the docs are
+ * built (dogfooding, TDD §15.1). Minified, because it is a committed artifact.
+ */
+export async function bundlePage(outdir) {
+  await mkdir(outdir, { recursive: true });
+  for (const asset of ["index.html", "builder.css"]) {
+    await copyFile(here(`../page/${asset}`), join(outdir, asset));
+  }
+  return build({
+    entryPoints: [here("../src/ui/main.ts")],
+    outfile: join(outdir, "builder.js"),
+    bundle: true,
+    format: "esm",
+    platform: "neutral",
+    conditions: ["module"],
+    mainFields: ["module", "main"],
+    target: ["es2022"],
+    alias: BUNDLE_ALIASES,
+    external: ["sharp"],
+    minify: true,
+    logLevel: "silent",
+    metafile: true,
+  });
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const outfile = process.argv[2] ?? here("../dist-browser/homespace-build.js");
-  const result = await bundleBuilder(outfile);
-  const bytes = Object.values(result.metafile.outputs)[0]?.bytes ?? 0;
-  console.log(`bundled → ${outfile} (${Math.round(bytes / 1024)} kB)`);
+  const [outfile] = process.argv.slice(2);
+  if (outfile !== undefined) {
+    const result = await bundleBuilder(outfile);
+    const bytes = Object.values(result.metafile.outputs)[0]?.bytes ?? 0;
+    console.log(`bundled → ${outfile} (${Math.round(bytes / 1024)} kB)`);
+  } else {
+    const library = here("../dist-browser/homespace-build.js");
+    const lib = await bundleBuilder(library);
+    console.log(`bundled → ${library} (${Math.round(size(lib) / 1024)} kB)`);
+
+    const page = here("../../../docs/static/builder");
+    const built = await bundlePage(page);
+    console.log(`bundled → ${page}/builder.js (${Math.round(size(built) / 1024)} kB, minified)`);
+  }
+}
+
+function size(result) {
+  return Object.values(result.metafile.outputs)[0]?.bytes ?? 0;
 }

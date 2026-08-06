@@ -5,6 +5,7 @@
     { "path": "packages/scanner" },
     { "path": "packages/renderer" },
     { "path": "packages/cli" },
+    { "path": "packages/zip" },
     { "path": "packages/serve" },
     { "path": "packages/launcher" },
     { "path": "packages/builder" }

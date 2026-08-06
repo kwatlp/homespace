@@ -117,12 +117,25 @@ export async function scan(options: ScanOptions): Promise<ScanResult> {
 
   const packsDir = path.join(options.root, ...CONTENT_PACKS);
   if ((await files.kind(packsDir)) !== "dir") {
-    errors.push({
-      severity: "error",
-      location: toPosix(path.join(...CONTENT_PACKS)),
-      message: `no content/packs directory under '${options.root}' — a homespace needs content/packs/<id>/manifest.json`,
+    const location = toPosix(path.join(...CONTENT_PACKS));
+    // A homespace with nothing in it yet is a real state — a hero and no packs
+    // is a valid site, and the Builder starts there. Only a folder that is not
+    // a homespace at all is an error; the CLI catches that case earlier still,
+    // when it fails to find a manifest.
+    if ((await files.kind(options.root)) !== "dir") {
+      errors.push({
+        severity: "error",
+        location,
+        message: `no content/packs directory under '${options.root}' — a homespace needs content/packs/<id>/manifest.json`,
+      });
+      return { catalog: emptyCatalog(options.stamp), errors, warnings, ok: false };
+    }
+    warnings.push({
+      severity: "warning",
+      location,
+      message: "no packs yet — add a folder under content/packs/<id>/ with a manifest.json when you have something to publish",
     });
-    return { catalog: emptyCatalog(options.stamp), errors, warnings, ok: false };
+    return { catalog: emptyCatalog(options.stamp), errors, warnings, ok: true };
   }
 
   const entries = (await files.list(packsDir))

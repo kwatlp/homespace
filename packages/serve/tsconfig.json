@@ -11,6 +11,7 @@
     { "path": "../schema" },
     { "path": "../scanner" },
     { "path": "../renderer" },
-    { "path": "../cli" }
+    { "path": "../cli" },
+    { "path": "../zip" }
   ]
 }

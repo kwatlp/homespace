@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Make a homespace</title>
+<meta name="description" content="Answer a few questions and download a finished website. Nothing is uploaded; nothing leaves your device.">
+<link rel="stylesheet" href="builder.css">
+</head>
+<body>
+<a class="skip-link" href="#wizard">Skip to the questions</a>
+
+<header class="masthead">
+  <div class="wrap">
+    <h1>Make a homespace</h1>
+    <p class="lede">Answer a few questions, watch it take shape, and download a finished website.</p>
+    <p class="trust">
+      <strong>Nothing leaves this device.</strong> No account, no email, no upload — the whole thing is
+      built right here in your browser. You can turn off your internet after this page loads and it
+      still works.
+    </p>
+    <noscript>
+      <p class="warn">
+        This page needs JavaScript, because it builds your website here rather than on someone's
+        server. The rest of this documentation reads fine without it.
+      </p>
+    </noscript>
+  </div>
+</header>
+
+<main class="wrap layout">
+  <form id="wizard" novalidate>
+
+    <section class="step" aria-labelledby="step1">
+      <h2 id="step1"><span class="num">1</span> Name of space</h2>
+
+      <p class="field">
+        <label for="title">What is it called?</label>
+        <input id="title" name="title" type="text" autocomplete="off" spellcheck="false">
+      </p>
+
+      <p class="field">
+        <label for="tagline">A line about it <span class="hint">(optional)</span></label>
+        <input id="tagline" name="tagline" type="text" autocomplete="off">
+      </p>
+
+      <div class="row">
+        <p class="field">
+          <label for="slug">Folder name</label>
+          <input id="slug" name="slug" type="text" autocomplete="off" spellcheck="false">
+          <span class="hint">Made from the title. Change it if you like.</span>
+        </p>
+        <p class="field">
+          <label for="lang">Language</label>
+          <input id="lang" name="lang" type="text" size="4" autocomplete="off" spellcheck="false">
+          <span class="hint">Two letters, like <code>en</code>.</span>
+        </p>
+      </div>
+    </section>
+
+    <section class="step" aria-labelledby="step2">
+      <h2 id="step2"><span class="num">2</span> Types of spaces</h2>
+      <p class="lede">Pick everything you want room for. You can add more later.</p>
+      <ul class="choices" id="spaces"></ul>
+    </section>
+
+    <section class="step" aria-labelledby="step3">
+      <h2 id="step3"><span class="num">3</span> The rest of it</h2>
+
+      <fieldset class="field">
+        <legend>How should it be laid out?</legend>
+        <ul class="choices" id="layouts"></ul>
+      </fieldset>
+
+      <fieldset class="field">
+        <legend>Colours</legend>
+        <div class="swatches" id="colours"></div>
+      </fieldset>
+
+      <div class="row">
+        <p class="field">
+          <label for="radius">Corner roundness</label>
+          <input id="radius" type="range" min="0" max="28" step="1">
+        </p>
+        <p class="field">
+          <label for="maxWidth">Page width</label>
+          <input id="maxWidth" type="range" min="520" max="1200" step="20">
+        </p>
+        <p class="field">
+          <label for="fontScale">Text size</label>
+          <input id="fontScale" type="range" min="0.85" max="1.35" step="0.05">
+        </p>
+      </div>
+
+      <p class="field">
+        <label for="footer">Footer line <span class="hint">(optional)</span></label>
+        <input id="footer" type="text" autocomplete="off">
+      </p>
+
+      <fieldset class="field">
+        <legend>Your own pictures and files</legend>
+        <p class="hint">
+          Everything here is optional. Skip it and simple placeholder shapes are used instead — you
+          can swap them out any time.
+        </p>
+
+        <p class="field">
+          <label for="icon">Little icon for the browser tab</label>
+          <input id="icon" type="file" accept="image/*">
+        </p>
+        <p class="field">
+          <label for="banner">Picture across the top</label>
+          <input id="banner" type="file" accept="image/*">
+        </p>
+        <p class="field" data-space="art">
+          <label for="gallery">Pictures for the gallery</label>
+          <input id="gallery" type="file" accept="image/*" multiple>
+        </p>
+        <p class="field" data-space="games">
+          <label for="build">Your game or app build <span class="hint">(the whole exported folder)</span></label>
+          <input id="build" type="file" multiple>
+          <span class="hint">It needs an <code>index.html</code> inside.</span>
+        </p>
+      </fieldset>
+
+      <fieldset class="field" data-space="writing">
+        <legend>Your first post</legend>
+        <p class="field">
+          <label for="postTitle">Title</label>
+          <input id="postTitle" type="text" autocomplete="off">
+        </p>
+        <p class="field">
+          <label for="postBody">Write something</label>
+          <textarea id="postBody" rows="5"></textarea>
+        </p>
+      </fieldset>
+
+      <fieldset class="field" data-space="links">
+        <legend>Links out</legend>
+        <div id="links"></div>
+        <button type="button" class="ghost" id="addLink">Add another link</button>
+      </fieldset>
+    </section>
+
+    <section class="step" aria-labelledby="downloads">
+      <h2 id="downloads">Take it with you</h2>
+      <div class="downloads">
+        <p>
+          <button type="button" class="primary" id="downloadSite">Your website</button>
+          <span class="hint">The finished site. This is the one you put online.</span>
+        </p>
+        <p>
+          <button type="button" id="downloadMaster">Your master copy</button>
+          <span class="hint">The originals, so you can change things later. Keep it somewhere safe.</span>
+        </p>
+      </div>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+      <p class="hint">
+        Not sure where to put it? The <a href="../posts/putting-it-online/">hosting guide</a> walks
+        through it step by step.
+      </p>
+    </section>
+  </form>
+
+  <aside class="preview" aria-label="Preview">
+    <div class="preview-bar">
+      <span class="preview-title">Preview</span>
+      <span class="viewport-toggle" role="group" aria-label="Preview width">
+        <button type="button" id="viewPhone" aria-pressed="false">Phone</button>
+        <button type="button" id="viewDesktop" aria-pressed="true">Desktop</button>
+      </span>
+    </div>
+    <div class="preview-stage" id="stage">
+      <iframe id="preview" title="Preview of your homespace" sandbox="allow-scripts"></iframe>
+    </div>
+    <p class="hint">Links are switched off in the preview — this is your front page.</p>
+  </aside>
+</main>
+
+<footer class="wrap colophon">
+  <p>Built with <a href="../">homespace</a>. MIT licensed. Your content stays yours.</p>
+</footer>
+
+<script type="module" src="builder.js"></script>
+</body>
+</html>
