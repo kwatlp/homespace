@@ -63,7 +63,7 @@ jobs:
 
       - name: Build
         working-directory: docs
-        run: npx homespace build --base-url "${{ steps.pages.outputs.base_url }}"
+        run: node ../packages/launcher/dist/bin/homespace.js build --base-url "${{ steps.pages.outputs.base_url }}"
 
       - uses: actions/upload-pages-artifact@v3
         with:
