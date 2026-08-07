@@ -1,0 +1,50 @@
+### The gates, on every push — not only when someone remembers.
+#
+# `tsc --build`, the vitest suite (which carries the permanent offline-budget
+# gate, TDD §10.2), and a freshness check on the Builder's committed artifacts.
+# That last one is the point of this file: `docs/static/builder/` is build
+# output that lives in the repo, so without a gate it can drift from the
+# sources it was made from and nobody finds out until a visitor does.
+
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: typecheck, test, artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Rebundle the Builder
+        run: npm run bundle --workspace homespace-builder
+
+      - name: The committed Builder artifacts match their sources
+        run: |
+          # --intent-to-add so a *new* output file counts as a difference too;
+          # plain `git diff` only sees files git already tracks.
+          git add --intent-to-add docs/static/builder
+          git diff --exit-code docs/static/builder || {
+            echo "::error file=docs/static/builder::Committed Builder artifacts are stale. Run 'npm run bundle --workspace homespace-builder' and commit the result."
+            exit 1
+          }

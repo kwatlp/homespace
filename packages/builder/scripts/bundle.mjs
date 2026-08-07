@@ -57,6 +57,11 @@ export async function bundleBuilder(outfile) {
  * Build the Builder *page* into the docs homespace: `docs/static/` is copied
  * verbatim to the site root, so this lands at `/builder/` when the docs are
  * built (dogfooding, TDD §15.1). Minified, because it is a committed artifact.
+ *
+ * `iife`, not `esm`: a module script is fetched under CORS rules, and a page
+ * opened from `file://` has no origin to satisfy, so every browser refuses it.
+ * The Builder is a page you are meant to be able to download and double-click,
+ * so it ships as a classic script (request `internal-docs/003`, item 4).
  */
 export async function bundlePage(outdir) {
   await mkdir(outdir, { recursive: true });
@@ -67,7 +72,7 @@ export async function bundlePage(outdir) {
     entryPoints: [here("../src/ui/main.ts")],
     outfile: join(outdir, "builder.js"),
     bundle: true,
-    format: "esm",
+    format: "iife",
     platform: "neutral",
     conditions: ["module"],
     mainFields: ["module", "main"],

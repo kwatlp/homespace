@@ -13,10 +13,12 @@ npx homespace dev
 
 Open the printed URL. That's your space. Deploy = upload `dist/` to any static host.
 
-**Never opened a terminal?** Use **the Builder** instead: one web page that asks
-what you want, shows a live preview, and hands you a finished website as a zip.
-No account, no card, no upload — it builds in your browser, and your files never
-leave your device. It works on a phone.
+**Never opened a terminal?** Use **the Builder** instead —
+<https://kwatlp.github.io/homespace/builder/> — one web page that asks what you
+want, shows a live preview, and hands you a finished website as a zip. No
+account, no card, no upload: it builds in your browser, and your files never
+leave your device. It works on a phone. Save the page to your device and it
+works with no internet at all.
 
 **Requirements:** Node ≥ 20 (the Builder needs only a browser). **License:** MIT.
 

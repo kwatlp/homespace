@@ -26,6 +26,43 @@ function navHref(href: string, basePrefix: string): string {
   return href.startsWith("#") ? `${basePrefix}${href}` : href;
 }
 
+/**
+ * Resolve a homespace-relative asset reference (a section's `media` or `src`,
+ * the manifest's `icon`) to its URL in dist. `static/` is copied to the **dist
+ * root** (TDD §5.2) — it is the passthrough for `CNAME` and friends — so the
+ * prefix is not part of the URL. Without this, the manifest example in §4
+ * renders a broken image.
+ */
+export function assetHref(basePrefix: string, ref: string): string {
+  return `${basePrefix}${ref.replace(/^\.?\/*static\//, "")}`;
+}
+
+/** Image media types a browser-tab icon may arrive in (TDD §4, `icon`). */
+const ICON_TYPES: Readonly<Record<string, string>> = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  gif: "image/gif",
+  webp: "image/webp",
+  avif: "image/avif",
+  svg: "image/svg+xml",
+  ico: "image/x-icon",
+};
+
+/**
+ * `<link rel="icon">` for the manifest's `icon`, carrying the media type its
+ * extension declares. An unknown extension links the file without a `type`
+ * rather than guessing one — a wrong type is worse than none.
+ */
+function iconLink(homespace: HomespaceManifest, basePrefix: string): string {
+  const ref = homespace.icon;
+  if (typeof ref !== "string" || ref.trim() === "") return "";
+  const extension = /\.([a-z0-9]+)$/i.exec(ref)?.[1]?.toLowerCase() ?? "";
+  const type = ICON_TYPES[extension];
+  const typeAttr = type === undefined ? "" : ` type="${escapeAttr(type)}"`;
+  return `\n<link rel="icon" href="${escapeAttr(assetHref(basePrefix, ref))}"${typeAttr}>`;
+}
+
 /** Render a complete, self-contained HTML document. */
 export function page(options: PageOptions): string {
   const { homespace, basePrefix } = options;
@@ -62,7 +99,7 @@ export function page(options: PageOptions): string {
   typeof homespace.theme?.css === "string"
     ? `\n<link rel="stylesheet" href="${escapeAttr(basePrefix)}custom.css">`
     : ""
-}${feedLink}
+}${iconLink(homespace, basePrefix)}${feedLink}
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>

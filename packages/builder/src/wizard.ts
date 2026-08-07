@@ -12,12 +12,17 @@ import {
 /** The kinds of space step 2 offers. Driven by what the renderer can compose. */
 export type SpaceType = "art" | "writing" | "games" | "apps" | "links";
 
+/** The pack kinds that hold a plugged-in web build, each with its own slot. */
+export type BuildKind = "game" | "app";
+
+export const BUILD_KINDS: BuildKind[] = ["game", "app"];
+
 /** A file the person plugged in, already read into memory. */
 export interface WizardAsset {
   /** File name as it will sit in the homespace folder. */
   name: string;
   bytes: Uint8Array;
-  /** Description for screen readers; falls back to the pack title. */
+  /** Description for screen readers; blank or absent falls back to a caption. */
   alt?: string;
 }
 
@@ -59,7 +64,13 @@ export interface WizardState {
   banner?: WizardAsset;
   gallery: WizardAsset[];
   post?: { title: string; body: string };
-  build: WizardAsset[];
+  /**
+   * One plugged-in build per kind — a game and an app are different things and
+   * land in different packs. Flat file lists only: the page picker hands over
+   * files without their folder structure, so a foldered export goes in through
+   * the master copy instead (§15.3).
+   */
+  build: Record<BuildKind, WizardAsset[]>;
   links: WizardLink[];
   /**
    * Creation timestamp for the starter packs, as an ISO string. Passed in
@@ -100,7 +111,7 @@ export function defaultWizardState(created: string): WizardState {
     },
     footer: "",
     gallery: [],
-    build: [],
+    build: { game: [], app: [] },
     links: [],
     created,
   };
@@ -154,7 +165,10 @@ function artPack(state: WizardState): StarterPack {
       const name = `image-${index + 1}${extensionOf(asset.name, ".png")}`;
       files.push({ path: name, contents: asset.bytes });
       gallery.push(name);
-      alt[name] = asset.alt ?? `Picture ${index + 1}`;
+      // A described picture keeps its description; a blank field keeps the
+      // numbered fallback, so nothing ever ships with an empty alt (§5.3).
+      const described = asset.alt?.trim() ?? "";
+      alt[name] = described === "" ? `Picture ${index + 1}` : described;
     });
   } else {
     for (let index = 0; index < 3; index++) {
@@ -204,13 +218,14 @@ function writingPack(state: WizardState): StarterPack {
   };
 }
 
-function projectPack(state: WizardState, kind: "game" | "app"): StarterPack {
+function projectPack(state: WizardState, kind: BuildKind): StarterPack {
   const id = kind === "game" ? "first-game" : "first-app";
   const title = kind === "game" ? "My Game" : "My Toy";
   const files: PackFile[] = [];
 
-  if (state.build.length > 0 && kind === "game") {
-    for (const asset of state.build) files.push({ path: asset.name, contents: asset.bytes });
+  const plugged = state.build[kind];
+  if (plugged.length > 0) {
+    for (const asset of plugged) files.push({ path: asset.name, contents: asset.bytes });
   } else {
     files.push({ path: "index.html", contents: placeholderWebBuild(title, colorsOf(state)) });
   }
@@ -323,9 +338,13 @@ export function composeHomespace(state: WizardState): ComposedHomespace {
   const tree: MemoryTree = {};
   const colors = colorsOf(state);
 
-  // static/ — the browser-tab icon and the hero banner.
+  // static/ — the browser-tab icon and the hero banner. Both keep the format
+  // they arrived in: a PNG named .ico is a PNG that browsers may refuse to
+  // show, so the manifest names the real file and the renderer links its real
+  // type (TDD §4, `icon`).
   const icon = state.icon;
-  tree["static/favicon.ico"] = icon ? icon.bytes : placeholderIcon(colors);
+  const iconName = icon ? `icon${extensionOf(icon.name, ".png")}` : "icon.svg";
+  tree[`static/${iconName}`] = icon ? icon.bytes : placeholderIcon(colors);
 
   const banner = state.banner;
   const bannerName = banner ? `banner${extensionOf(banner.name, ".png")}` : "banner.svg";
@@ -349,6 +368,7 @@ export function composeHomespace(state: WizardState): ComposedHomespace {
     title: state.title,
     ...(state.tagline ? { tagline: state.tagline } : {}),
     lang: state.lang,
+    icon: `static/${iconName}`,
     layout: state.layout,
     theme: {
       tokens: {
@@ -419,6 +439,12 @@ export function startHere(state: WizardState): string {
       "**To add a picture:** put the image file in `content/packs/gallery/`, then open",
       "`content/packs/gallery/manifest.json` and add its file name to the `gallery` list.",
       "",
+      "**To describe a picture:** in that same `manifest.json` there is an `alt` list —",
+      "one line per picture, matching its file name. What you write there is read aloud",
+      "to people using a screen reader, and shows in place of the picture if it does not",
+      "load. Say what is in it, plainly: `\"image-1.png\": \"Two herons on a wet log\"`.",
+      "You can change these any time; they are just text.",
+      "",
     );
   }
   if (has("writing")) {
@@ -433,6 +459,11 @@ export function startHere(state: WizardState): string {
     lines.push(
       "**To put your own build in:** replace the files in `content/packs/first-game/`",
       "(or `first-app/`) with your exported build. It needs an `index.html` at the top.",
+      "",
+      "This is also where a build with **folders inside it** goes — a Unity or Godot",
+      "export with its own `Build/` and `TemplateData/` folders, say. The Builder page",
+      "could only take loose files, but here you can copy the whole exported folder in,",
+      "folders and all, and it will work.",
       "",
     );
   }

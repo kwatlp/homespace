@@ -107,19 +107,56 @@
         <p class="field">
           <label for="icon">Little icon for the browser tab</label>
           <input id="icon" type="file" accept="image/*">
+          <span class="chosen" id="iconChosen"></span>
+          <button type="button" class="ghost" id="iconClear" hidden>Use the placeholder instead</button>
         </p>
         <p class="field">
           <label for="banner">Picture across the top</label>
           <input id="banner" type="file" accept="image/*">
+          <span class="chosen" id="bannerChosen"></span>
+          <button type="button" class="ghost" id="bannerClear" hidden>Use the placeholder instead</button>
         </p>
-        <p class="field" data-space="art">
-          <label for="gallery">Pictures for the gallery</label>
-          <input id="gallery" type="file" accept="image/*" multiple>
-        </p>
+
+        <div class="field" data-space="art">
+          <p class="field">
+            <label for="gallery">Pictures for the gallery</label>
+            <input id="gallery" type="file" accept="image/*" multiple>
+            <span class="chosen" id="galleryChosen"></span>
+            <button type="button" class="ghost" id="galleryClear" hidden>Use the placeholders instead</button>
+          </p>
+          <div class="describe" id="describePictures" hidden>
+            <p class="hint">
+              A line about each picture. It is read aloud to people using a screen reader, and it
+              shows in place of the picture if the picture does not load. Say what is in it, plainly.
+              Leave one blank and it gets a plain “Picture 1”.
+            </p>
+            <div id="galleryAlts"></div>
+          </div>
+        </div>
+
         <p class="field" data-space="games">
-          <label for="build">Your game or app build <span class="hint">(the whole exported folder)</span></label>
-          <input id="build" type="file" multiple>
-          <span class="hint">It needs an <code>index.html</code> inside.</span>
+          <label for="buildGame">Your game build</label>
+          <input id="buildGame" type="file" multiple>
+          <span class="hint">
+            Pick the loose files from your export — it needs an <code>index.html</code> among them.
+            <strong>Flat files only, no folders:</strong> a browser's file picker cannot hand over an
+            export that has folders inside it (a Unity or Godot build, say). For one of those, use the
+            placeholder here and drop your export into your master copy afterwards —
+            <code>START-HERE.md</code> says where.
+          </span>
+          <span class="chosen" id="buildGameChosen"></span>
+          <button type="button" class="ghost" id="buildGameClear" hidden>Use the placeholder instead</button>
+        </p>
+        <p class="field" data-space="apps">
+          <label for="buildApp">Your app or toy build</label>
+          <input id="buildApp" type="file" multiple>
+          <span class="hint">
+            Same again — the loose files, with an <code>index.html</code> among them.
+            <strong>Flat files only, no folders;</strong> a foldered export goes in through your
+            master copy.
+          </span>
+          <span class="chosen" id="buildAppChosen"></span>
+          <button type="button" class="ghost" id="buildAppClear" hidden>Use the placeholder instead</button>
         </p>
       </fieldset>
 
@@ -181,6 +218,12 @@
   <p>Built with <a href="../">homespace</a>. MIT licensed. Your content stays yours.</p>
 </footer>
 
-<script type="module" src="builder.js"></script>
+<!--
+  A classic script, deliberately: a module is fetched under CORS rules, and
+  `file://` has no origin to satisfy, so a module build of this page is dead on
+  arrival when someone downloads it and double-clicks it. `defer` gives us the
+  same run-after-parsing that `type="module"` did.
+-->
+<script src="builder.js" defer></script>
 </body>
 </html>

@@ -121,6 +121,10 @@ export interface HomespaceManifest {
   title?: string;
   tagline?: string;
   lang?: string;
+  /**
+   * Browser-tab icon; homespace-relative, resolved like a section's media (TDD §4).
+   */
+  icon?: string;
   local?: LocalAddress;
   layout?: "scroll" | "pages" | "grid";
   theme?: Theme;

@@ -127,6 +127,12 @@ The composition layer. JSONC (JSON + comments) so archetype presets can be annot
   "tagline": "cedar, roots, worlds",
   "lang": "en",
 
+  // ── Browser-tab icon ─────────────────────────
+  // Homespace-relative path, resolved like a section's `media`. Any image
+  // format the browser knows; the renderer emits <link rel="icon"> with the
+  // matching `type`, so an icon keeps whatever format it arrived in.
+  "icon": "static/icon.png",
+
   // ── Local address (dev/serve) ────────────────
   // The homespace's local URL is part of its identity: http://<host>.local:<port>
   "local": { "host": "cedar", "port": 4321, "mdns": false },
@@ -173,6 +179,16 @@ The composition layer. JSONC (JSON + comments) so archetype presets can be annot
 **Archetype = preset.** An archetype is exactly: one annotated `homespace.manifest.jsonc` + `theme/` defaults + sample packs + a `THEME.md` explaining every exposed variable in designer language. Nothing else. `homespace init <archetype>` copies it.
 
 **Detail pages** are generated regardless of layout: `dist/packs/<id>/` for game/app/art/bundle, `dist/posts/<slug>/` for posts. `link` packs render as cards only (their destination *is* the page).
+
+> **Amendment (request `internal-docs/003`, item 7) — `icon`.** Optional,
+> homespace-relative, resolved exactly like a section's `media` (so
+> `static/icon.png` lands at the dist root). Every page emits
+> `<link rel="icon" href="…" type="…">`, the type inferred from the extension;
+> an unknown extension emits the link without a `type` rather than guessing.
+> A missing file is a **warning**, not an error — a tab icon is never worth
+> failing a build over. Rationale: before this, the Builder wrote any uploaded
+> bytes to `static/favicon.ico`, so a PNG was served as an ICO and browsers
+> that respect the declared format showed nothing.
 
 ---
 
@@ -525,6 +541,32 @@ keep it safe; `npx homespace build` reproduces the website from it byte for byte
 controls on a phone, asset plug-in through the native picker/camera roll,
 downloads that work in mobile browsers, a phone/desktop viewport toggle on the
 preview, and wizard-produced sites that pass the same checks.
+
+> **Amendment (request `internal-docs/003`, items 2–8).** Six clarifications,
+> all of them things the ruled criteria above already implied:
+>
+> - **One build slot per kind.** "Plug in your own assets" is per field, so a
+>   game build and an app build are separate slots landing in separate packs.
+>   One shared slot fed only the game pack, so an app upload went nowhere.
+> - **Descriptions are collected, not invented.** Every chosen gallery image
+>   gets a short description field, and what is typed lands in the pack's
+>   `media.alt`. Blank keeps the numbered fallback — nothing ever ships with an
+>   empty `alt` (§5.3). `START-HERE.md` teaches editing them later.
+> - **Flat files only.** A browser's file picker hands over files without the
+>   folders they were in, so a build with subdirectories (Unity, Godot) cannot
+>   come through the page. The limit is **stated at the input**, and the
+>   foldered export goes in through the master copy. A folder picker is future
+>   work, deliberately not held against this release.
+> - **The page is a classic script.** A module is fetched under CORS rules, and
+>   `file://` has no origin to satisfy — so the page bundle is `iife`. Saving
+>   the Builder and double-clicking it is a supported way to run it, which also
+>   makes it usable with no internet at all.
+> - **A picked asset can be un-picked.** Every asset field carries a control
+>   back to the placeholder, and cancelling the picker keeps the prior choice —
+>   an empty selection is a cancel, not a clear.
+> - **The slug field shows the slug.** The folder-name input settles to the
+>   value state holds when focus leaves it, so the download filename is never a
+>   surprise.
 
 ### 15.4 Packaging the downloads
 

@@ -67,6 +67,27 @@ That needs [Node](https://nodejs.org) on a computer. It makes a fresh `dist`
 folder, and that folder is the new version of your site — upload it the same
 way you uploaded the first one.
 
+## Putting in a game or app with folders inside it
+
+The Builder can take a game or app build as **loose files only** — the ones
+sitting next to each other, with an `index.html` among them. That is a limit of
+the file picker in a browser, not of homespace: a browser hands over files, and
+it drops the folders they were in.
+
+Plenty of exports have folders inside them. A Unity build has `Build/` and
+`TemplateData/`; a Godot export can too. For one of those, take the placeholder
+in the Builder and put your real build in afterwards:
+
+1. Unzip your master copy.
+2. Open `content/packs/first-game/` (or `first-app/`) and delete what is in it.
+3. Copy your whole exported folder's **contents** in — folders and all.
+   The `index.html` has to end up at the top of that pack folder, not inside
+   another folder.
+4. Build again with `npx homespace build`, and upload the new `dist`.
+
+Nothing about the build is different; it is the same site, with your real game
+in it.
+
 ## A word about what this is not
 
 We are not a host, we do not resell hosting, and we get nothing if you use one
