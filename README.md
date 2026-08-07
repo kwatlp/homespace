@@ -11,10 +11,12 @@ A [kʷátɬp](internal-docs/HomespaceTDD.md) studio project. MIT licensed. Node 
 > `homespace` is a working name; final naming is the operator's call and follows
 > the studio's Nlaka'pamux sourcing practice.
 
-> **Status: v0.2.0.** All eleven work orders (TDD §11) are complete — schema,
+> **Status: v0.3.0.** All eleven work orders (TDD §11) are complete — schema,
 > scanner, renderer (three layouts, seven section types, player, thumbnails),
 > the `homespace` CLI, the four archetypes, and the optional Tier-2 daemon.
-> v0.2.0 renamed the kit to **homespace** (WO-11). The design is detailed in the
+> v0.2.0 renamed the kit to **homespace** (WO-11); v0.3.0 adds the browser build
+> seam (WO-21) and **the Builder** (WO-22) — zero-terminal creation. The design
+> is detailed in the
 > [Technical Design Document](internal-docs/HomespaceTDD.md). Building the code?
 > See [CONTRIBUTING.md](CONTRIBUTING.md) and [CLAUDE.md](CLAUDE.md).
 

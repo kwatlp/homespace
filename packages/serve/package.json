@@ -1,6 +1,6 @@
 {
   "name": "homespace-serve",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Tier 2 only — optional daemon (watch-rebuild, upload API, scoped keys). Nothing else imports it.",
   "license": "MIT",
   "type": "module",
@@ -20,10 +20,10 @@
   },
   "dependencies": {
     "chokidar": "^4.0.3",
-    "homespace-cli": "^0.2.0",
-    "homespace-renderer": "^0.2.0",
-    "homespace-scanner": "^0.2.0",
-    "homespace-schema": "^0.2.0",
-    "homespace-zip": "^0.2.0"
+    "homespace-cli": "^0.3.0",
+    "homespace-renderer": "^0.3.0",
+    "homespace-scanner": "^0.3.0",
+    "homespace-schema": "^0.3.0",
+    "homespace-zip": "^0.3.0"
   }
 }

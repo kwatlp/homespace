@@ -1,6 +1,6 @@
 {
   "name": "homespace-zip",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Dependency-free, isomorphic ZIP writer — the one shared home for packaging a homespace.",
   "license": "MIT",
   "type": "module",

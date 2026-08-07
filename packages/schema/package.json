@@ -1,6 +1,6 @@
 {
   "name": "homespace-schema",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "JSON Schemas (pack, homespace, catalog) + generated TS types + validate().",
   "license": "MIT",
   "type": "module",
