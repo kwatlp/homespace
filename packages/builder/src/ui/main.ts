@@ -7,11 +7,14 @@ import { buildInMemory, type BuiltFile } from "../build.js";
 import { masterZip, websiteZip } from "../download.js";
 import { previewDocument } from "../preview.js";
 import {
+  BUILD_KINDS,
   composeHomespace,
   defaultWizardState,
   slugify,
   SPACE_LABELS,
+  type BuildKind,
   type SpaceType,
+  type WizardAsset,
   type WizardState,
 } from "../wizard.js";
 
@@ -188,6 +191,12 @@ function start(): void {
     state.slug = slugify(slug.value);
     schedule();
   });
+  // Settle the field to the value the state actually holds, so the download
+  // filename is never a surprise. On blur rather than per keystroke: slugifying
+  // mid-word would eat the separator the moment you typed a space.
+  slug.addEventListener("blur", () => {
+    slug.value = state.slug;
+  });
   tagline.addEventListener("input", () => {
     state.tagline = tagline.value;
     schedule();
@@ -241,38 +250,154 @@ function start(): void {
   postTitle.addEventListener("input", syncPost);
   postBody.addEventListener("input", syncPost);
 
-  el<HTMLInputElement>("icon").addEventListener("change", (event) => {
-    void (async () => {
-      const [file] = (event.target as HTMLInputElement).files ?? [];
-      if (file) state.icon = await readAsset(file);
+  // ── Plugged-in files ──
+  /**
+   * Wire one file input to a slot of wizard state. Two rules every asset field
+   * shares: an empty `files` list means the picker was *cancelled*, so the
+   * previous choice stands; and the only way back to the placeholder is to ask
+   * for it, through the field's own button.
+   */
+  interface AssetField {
+    /** Take a picked selection; false rejects it and leaves state alone. */
+    take: (files: File[]) => Promise<boolean>;
+    /** Empty the slot — back to the neutral placeholder. */
+    clear: () => void;
+    /** What is in the slot now, in plain words; "" when nothing is. */
+    describe: () => string;
+    /** Run after the slot changes, before the redraw. */
+    after?: () => void;
+  }
+
+  function assetField(id: string, field: AssetField): void {
+    const input = el<HTMLInputElement>(id);
+    const button = el<HTMLButtonElement>(`${id}Clear`);
+    const chosen = el<HTMLElement>(`${id}Chosen`);
+
+    const show = (): void => {
+      const description = field.describe();
+      chosen.textContent = description;
+      button.hidden = description === "";
+    };
+
+    input.addEventListener("change", () => {
+      void (async () => {
+        const picked = [...(input.files ?? [])];
+        if (picked.length === 0) return; // cancelled — keep what was there
+        if (!(await field.take(picked))) {
+          input.value = "";
+          return;
+        }
+        field.after?.();
+        show();
+        schedule();
+      })();
+    });
+
+    button.addEventListener("click", () => {
+      field.clear();
+      input.value = "";
+      field.after?.();
+      show();
       schedule();
-    })();
+    });
+
+    show();
+  }
+
+  /** "3 pictures" / "1 file" — the count, said the way a person would. */
+  const count = (n: number, one: string, many: string): string =>
+    n === 0 ? "" : n === 1 ? `1 ${one}` : `${n} ${many}`;
+
+  assetField("icon", {
+    take: async ([file]) => {
+      state.icon = await readAsset(file!);
+      return true;
+    },
+    clear: () => {
+      delete state.icon;
+    },
+    describe: () => state.icon?.name ?? "",
   });
-  el<HTMLInputElement>("banner").addEventListener("change", (event) => {
-    void (async () => {
-      const [file] = (event.target as HTMLInputElement).files ?? [];
-      if (file) state.banner = await readAsset(file);
-      schedule();
-    })();
+
+  assetField("banner", {
+    take: async ([file]) => {
+      state.banner = await readAsset(file!);
+      return true;
+    },
+    clear: () => {
+      delete state.banner;
+    },
+    describe: () => state.banner?.name ?? "",
   });
-  el<HTMLInputElement>("gallery").addEventListener("change", (event) => {
-    void (async () => {
-      const files = [...((event.target as HTMLInputElement).files ?? [])];
+
+  // Gallery pictures each get a description field — what a screen reader says,
+  // and what shows if the picture does not load (TDD §5.3).
+  const galleryAlts = el<HTMLDivElement>("galleryAlts");
+  const describePictures = el<HTMLDivElement>("describePictures");
+  function drawGalleryAlts(): void {
+    galleryAlts.replaceChildren();
+    describePictures.hidden = state.gallery.length === 0;
+    state.gallery.forEach((asset, index) => {
+      const row = document.createElement("p");
+      row.className = "field";
+      const label = document.createElement("label");
+      label.htmlFor = `alt${index}`;
+      // textContent, not innerHTML: a file name is the person's text, never markup.
+      label.textContent = asset.name;
+      const input = document.createElement("input");
+      input.id = `alt${index}`;
+      input.type = "text";
+      input.autocomplete = "off";
+      input.placeholder = "What is in this picture?";
+      input.value = asset.alt ?? "";
+      input.dataset["alt"] = String(index);
+      row.append(label, input);
+      galleryAlts.append(row);
+    });
+  }
+  galleryAlts.addEventListener("input", (event) => {
+    const input = event.target as HTMLInputElement;
+    const asset: WizardAsset | undefined = state.gallery[Number(input.dataset["alt"])];
+    if (asset === undefined) return;
+    asset.alt = input.value;
+    schedule();
+  });
+
+  assetField("gallery", {
+    take: async (files) => {
       state.gallery = await Promise.all(files.map(readAsset));
-      schedule();
-    })();
+      return true;
+    },
+    clear: () => {
+      state.gallery = [];
+    },
+    describe: () => count(state.gallery.length, "picture", "pictures"),
+    after: drawGalleryAlts,
   });
-  el<HTMLInputElement>("build").addEventListener("change", (event) => {
-    void (async () => {
-      const files = [...((event.target as HTMLInputElement).files ?? [])];
-      state.build = await Promise.all(files.map(readAsset));
-      if (state.build.length > 0 && !state.build.some((f) => f.name === "index.html")) {
-        say("That folder has no index.html, so there is nothing to launch. The placeholder stays for now.", "bad");
-        state.build = [];
-      }
-      schedule();
-    })();
-  });
+
+  // One build slot per kind: a game and an app are different things and land in
+  // different packs. Both take loose files only — see the hint on the page.
+  const BUILD_INPUT: Record<BuildKind, string> = { game: "buildGame", app: "buildApp" };
+  for (const kind of BUILD_KINDS) {
+    assetField(BUILD_INPUT[kind], {
+      take: async (files) => {
+        const picked = await Promise.all(files.map(readAsset));
+        if (!picked.some((f) => f.name === "index.html")) {
+          say(
+            `Those files have no index.html, so there is nothing to launch. The placeholder ${kind} stays for now.`,
+            "bad",
+          );
+          return false;
+        }
+        state.build[kind] = picked;
+        return true;
+      },
+      clear: () => {
+        state.build[kind] = [];
+      },
+      describe: () => count(state.build[kind].length, "file", "files"),
+    });
+  }
 
   // ── Links ──
   const links = el<HTMLDivElement>("links");

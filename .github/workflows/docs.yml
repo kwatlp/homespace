@@ -1,0 +1,83 @@
+### The docs homespace, published on every merge to main.
+#
+# The docs site is itself a homespace (dogfooding, TDD §11 WO-10), so this
+# workflow is the kit building the kit: `homespace build` in `docs/`, and the
+# result is the public site — including the Builder at `/builder/`, which is
+# how someone with no terminal reaches it.
+#
+# Pages serves a project site from a subpath (`/homespace/`). Every internal
+# link the renderer emits is relative, so the pages themselves do not care —
+# but `feed.xml` and `sitemap.txt` are absolute by nature, so the real base URL
+# is passed in with `--base-url` rather than guessed at.
+
+name: Docs
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One publish at a time. Never cancel a run mid-deploy: the site would be left
+# half-written.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build the docs homespace
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Compile the workspace
+        run: npm run build
+
+      - name: The committed Builder artifacts match their sources
+        run: |
+          # The Builder ships inside this site. Publishing a stale bundle would
+          # put a page online that no longer matches the code that made it.
+          npm run bundle --workspace homespace-builder
+          git add --intent-to-add docs/static/builder
+          git diff --exit-code docs/static/builder || {
+            echo "::error file=docs/static/builder::Committed Builder artifacts are stale; refusing to publish. Run 'npm run bundle --workspace homespace-builder' and commit the result."
+            exit 1
+          }
+
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Build
+        working-directory: docs
+        run: npx homespace build --base-url "${{ steps.pages.outputs.base_url }}"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/dist
+
+  deploy:
+    name: publish
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

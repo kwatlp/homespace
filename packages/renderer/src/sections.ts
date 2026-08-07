@@ -1,7 +1,7 @@
 import type { Catalog, CatalogPack, HomespaceManifest, Section } from "homespace-schema";
 
 import { escapeAttr, escapeHtml } from "./escape.js";
-import { packAssetUrl, packPageUrl, thumbAssetUrl } from "./html.js";
+import { assetHref, packAssetUrl, packPageUrl, thumbAssetUrl } from "./html.js";
 import { selectPacks } from "./select.js";
 import { isRasterImage } from "./thumbnails.js";
 
@@ -14,16 +14,6 @@ export interface RenderContext {
   htmlFiles?: ReadonlyMap<string, string>;
   /** When true, cards/gallery reference generated .thumbs/ images. */
   thumbnails?: boolean;
-}
-
-/**
- * Resolve a homespace-relative asset reference (a section's `media` or `src`)
- * to its URL in dist. `static/` is copied to the **dist root** (TDD §5.2) — it
- * is the passthrough for `CNAME` and friends — so the prefix is not part of the
- * URL. Without this, the manifest example in §4 renders a broken image.
- */
-export function assetHref(basePrefix: string, ref: string): string {
-  return `${basePrefix}${ref.replace(/^\.?\/*static\//, "")}`;
 }
 
 /** Pick the thumbnail URL when enabled and the image is a raster; else full. */

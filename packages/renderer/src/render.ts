@@ -124,6 +124,22 @@ export async function render(input: RenderInput): Promise<RenderResult> {
     else warnings.push({ severity: "warning", message: `font file '${font.path}' not found in the homespace` });
   }
 
+  // Optional browser-tab icon. `static/` is already copied wholesale below, so
+  // there is nothing to add to the copy plan — only a check that the file the
+  // manifest names is really there. A missing tab icon is never worth failing a
+  // build over (TDD §4).
+  if (typeof homespace.icon === "string" && homespace.icon.trim() !== "") {
+    const from = confinedPath(root, homespace.icon);
+    if (from === null) {
+      errors.push({ severity: "error", message: `icon '${homespace.icon}' escapes the homespace root` });
+    } else if (!(await exists(from))) {
+      warnings.push({
+        severity: "warning",
+        message: `icon '${homespace.icon}' not found in the homespace — the tab will show the browser's default. Put the file there, or drop 'icon' from the manifest.`,
+      });
+    }
+  }
+
   // Optional custom stylesheet, loaded last.
   if (typeof homespace.theme?.css === "string") {
     const from = path.join(root, homespace.theme.css);

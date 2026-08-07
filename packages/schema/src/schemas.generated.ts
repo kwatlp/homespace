@@ -286,6 +286,10 @@ export const homespaceSchema: Readonly<Record<string, unknown>> = {
       "type": "string",
       "default": "en"
     },
+    "icon": {
+      "type": "string",
+      "description": "Browser-tab icon; homespace-relative, resolved like a section's media (TDD §4)."
+    },
     "local": {
       "$ref": "#/$defs/LocalAddress"
     },

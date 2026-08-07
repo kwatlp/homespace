@@ -8,6 +8,9 @@ readable with JavaScript disabled.
 
 A [kʷátɬp](internal-docs/HomespaceTDD.md) studio project. MIT licensed. Node ≥ 20.
 
+**Docs:** <https://kwatlp.github.io/homespace/> · **Make one in your browser:**
+<https://kwatlp.github.io/homespace/builder/>
+
 > `homespace` is a working name; final naming is the operator's call and follows
 > the studio's Nlaka'pamux sourcing practice.
 
@@ -89,10 +92,11 @@ npx homespace build                 # → dist/, deploy anywhere
 npx homespace dev                   # local preview + live rebuild
 ```
 
-No terminal? **The Builder** (`/builder/` in the docs homespace) asks three
-groups of questions, previews the result live, and hands back the finished site
-and its master copy as two zips. It runs the same scanner and renderer in the
-browser — byte-identical output, no account, nothing uploaded.
+No terminal? **The Builder** — <https://kwatlp.github.io/homespace/builder/> —
+asks three groups of questions, previews the result live, and hands back the
+finished site and its master copy as two zips. It runs the same scanner and
+renderer in the browser: byte-identical output, no account, nothing uploaded.
+Save the page and it runs the same from `file://`, with no server at all.
 
 Restyle the entire homespace by editing `theme.tokens` in `homespace.manifest.jsonc`. Drop
 a folder + `manifest.json` into `content/packs/`, rebuild, and it appears — a web

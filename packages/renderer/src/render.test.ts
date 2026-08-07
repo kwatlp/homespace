@@ -145,6 +145,53 @@ describe("render — demo homespace", () => {
   });
 });
 
+describe("browser-tab icon (request 003, item 7)", () => {
+  const withIcon = (icon: string): HomespaceManifest => ({ ...homespace, icon });
+
+  test("every page links the icon with the type its extension declares", async () => {
+    const result = await render({ catalog, homespace: withIcon("static/hero.webp"), root: demoRoot });
+    expect(result.errors).toEqual([]);
+    expect(result.warnings).toEqual([]);
+
+    // static/ lands at the dist root, so the href drops the prefix — and the
+    // declared type matches the bytes, which is the whole point of the item.
+    expect(file(result, "index.html").contents).toContain(
+      '<link rel="icon" href="hero.webp" type="image/webp">',
+    );
+    // Detail pages sit two deep and must reach back out to the same file.
+    expect(file(result, "posts/hello-world/index.html").contents).toContain(
+      '<link rel="icon" href="../../hero.webp" type="image/webp">',
+    );
+  });
+
+  test("an unfamiliar extension is linked without a type rather than guessed at", async () => {
+    const result = await render({ catalog, homespace: withIcon("static/CNAME"), root: demoRoot });
+    expect(file(result, "index.html").contents).toContain('<link rel="icon" href="CNAME">');
+  });
+
+  test("no icon in the manifest means no link at all", async () => {
+    const result = await render({ catalog, homespace, root: demoRoot });
+    expect(file(result, "index.html").contents).not.toContain('rel="icon"');
+  });
+
+  test("a missing icon file warns and still builds — a tab icon never fails a build", async () => {
+    const result = await render({ catalog, homespace: withIcon("static/nope.png"), root: demoRoot });
+    expect(result.errors).toEqual([]);
+    expect(result.warnings.map((w) => w.message).join("\n")).toMatch(/icon 'static\/nope\.png' not found/);
+    expect(file(result, "index.html").contents).toContain('href="nope.png"');
+  });
+
+  test("an icon reaching outside the homespace is a hard error", async () => {
+    const result = await render({ catalog, homespace: withIcon("../../etc/passwd"), root: demoRoot });
+    expect(result.errors.map((e) => e.message).join("\n")).toMatch(/escapes the homespace root/);
+  });
+
+  test("the icon link keeps the offline budget", async () => {
+    const result = await render({ catalog, homespace: withIcon("static/hero.webp"), root: demoRoot });
+    expect(findBudgetViolations(result.files)).toEqual([]);
+  });
+});
+
 describe("offline-budget checker — unit", () => {
   test("flags an external image but ignores an <a> link", () => {
     const files = [

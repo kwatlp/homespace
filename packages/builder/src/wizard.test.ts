@@ -141,6 +141,89 @@ describe("wizard composition (WO-22)", () => {
     expect(text(plugged.tree["content/packs/gallery/manifest.json"])).toContain("A sunset");
   });
 
+  test("a game build and an app build land in their own packs (003 item 2)", () => {
+    const bytesOf = (s: string): Uint8Array => new TextEncoder().encode(s);
+    const gameFiles = [
+      { name: "index.html", bytes: bytesOf("<h1>the game</h1>") },
+      { name: "game.wasm", bytes: new Uint8Array([0, 97, 115, 109]) },
+    ];
+    const appFiles = [{ name: "index.html", bytes: bytesOf("<h1>the toy</h1>") }];
+
+    const both = composeHomespace(
+      state({ spaces: ["games", "apps"], build: { game: gameFiles, app: appFiles } }),
+    );
+    expect(text(both.tree["content/packs/first-game/index.html"])).toContain("the game");
+    expect(both.tree["content/packs/first-game/game.wasm"]).toEqual(new Uint8Array([0, 97, 115, 109]));
+    expect(text(both.tree["content/packs/first-app/index.html"])).toContain("the toy");
+
+    // Filling one slot must not spill into the other, and must not leave the
+    // other silently holding someone else's build.
+    const appOnly = composeHomespace(
+      state({ spaces: ["games", "apps"], build: { game: [], app: appFiles } }),
+    );
+    expect(text(appOnly.tree["content/packs/first-app/index.html"])).toContain("the toy");
+    expect(text(appOnly.tree["content/packs/first-game/index.html"])).toContain(
+      "This is where your build runs",
+    );
+
+    // And an app build reaches the app pack even with no games space at all —
+    // the bug this item fixes was an app upload landing nowhere.
+    const appsAlone = composeHomespace(state({ spaces: ["apps"], build: { game: [], app: appFiles } }));
+    expect(text(appsAlone.tree["content/packs/first-app/index.html"])).toContain("the toy");
+  });
+
+  test("a described picture keeps its words; a blank one keeps the fallback (003 item 3)", async () => {
+    const bytes = new Uint8Array([1]);
+    const answers = state({
+      spaces: ["art"],
+      gallery: [
+        { name: "herons.png", bytes, alt: "Two herons on a wet log" },
+        { name: "blank.png", bytes, alt: "   " },
+        { name: "absent.png", bytes },
+      ],
+    });
+    const { homespace, tree } = composeHomespace(answers);
+
+    const manifest = JSON.parse(text(tree["content/packs/gallery/manifest.json"])) as {
+      media: { alt: Record<string, string> };
+    };
+    expect(manifest.media.alt).toEqual({
+      "image-1.png": "Two herons on a wet log",
+      "image-2.png": "Picture 2",
+      "image-3.png": "Picture 3",
+    });
+
+    // The description has to survive all the way to the page, or it is decor.
+    const built = await buildInMemory({ homespace, tree });
+    expect(built.errors).toEqual([]);
+    const index = decoder.decode(built.files.find((f) => f.path === "index.html")!.bytes);
+    expect(index).toContain('alt="Two herons on a wet log"');
+    // Every picture says something. (The decorative hero banner is the one
+    // image entitled to an empty alt, so this looks only at the gallery.)
+    expect(index).not.toMatch(/<img src="[^"]*image-\d[^"]*" alt=""/);
+  });
+
+  test("an uploaded icon keeps its format, and the page links that format (003 item 7)", async () => {
+    const png = new Uint8Array([137, 80, 78, 71]);
+    const answers = state({ spaces: [], icon: { name: "mark.PNG", bytes: png } });
+    const { homespace, tree } = composeHomespace(answers);
+
+    expect(tree["static/icon.png"]).toEqual(png);
+    // Never again: PNG bytes filed under an .ico name.
+    expect(tree["static/favicon.ico"]).toBeUndefined();
+    expect(homespace.icon).toBe("static/icon.png");
+
+    const built = await buildInMemory({ homespace, tree });
+    expect(built.errors).toEqual([]);
+    const index = decoder.decode(built.files.find((f) => f.path === "index.html")!.bytes);
+    expect(index).toContain('<link rel="icon" href="icon.png" type="image/png">');
+
+    // Skipped, the placeholder is SVG and says so just as plainly.
+    const skipped = composeHomespace(state({ spaces: [] }));
+    expect(skipped.homespace.icon).toBe("static/icon.svg");
+    expect(text(skipped.tree["static/icon.svg"])).toContain("<svg");
+  });
+
   test("composition is deterministic", () => {
     expect(JSON.stringify(composeHomespace(state()))).toBe(JSON.stringify(composeHomespace(state())));
   });
@@ -151,6 +234,23 @@ describe("wizard composition (WO-22)", () => {
     expect(guide).toContain("To write another post");
     expect(guide).not.toContain("To add a picture");
     expect(guide).not.toMatch(/manifest schema|JSON Schema|scanner|renderer/i);
+  });
+
+  test("START-HERE.md teaches editing descriptions later (003 item 3)", () => {
+    const guide = startHere(state({ spaces: ["art"] }));
+    expect(guide).toContain("To describe a picture");
+    expect(guide).toContain("`alt`");
+    expect(guide).toMatch(/screen reader/i);
+    // A description a person can copy, not a schema fragment.
+    expect(guide).toMatch(/"image-1\.png":/);
+  });
+
+  test("START-HERE.md is where a foldered build goes (003 item 8)", () => {
+    const guide = startHere(state({ spaces: ["games"] }));
+    expect(guide).toMatch(/folders inside it/i);
+    expect(guide).toMatch(/Unity|Godot/);
+    // The Builder page cannot take one; this must not be a dead end.
+    expect(guide).toMatch(/folders and all/i);
   });
 });
 

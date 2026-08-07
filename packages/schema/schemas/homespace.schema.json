@@ -16,6 +16,10 @@
     "title": { "type": "string", "description": "Display name." },
     "tagline": { "type": "string" },
     "lang": { "type": "string", "default": "en" },
+    "icon": {
+      "type": "string",
+      "description": "Browser-tab icon; homespace-relative, resolved like a section's media (TDD §4)."
+    },
     "local": { "$ref": "#/$defs/LocalAddress" },
     "layout": {
       "type": "string",
