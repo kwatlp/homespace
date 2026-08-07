@@ -53,9 +53,11 @@ navigation is fine — that's the network.
 If you're working through the Cowork bridge (research/planning/docs only), don't
 edit code or run git. Instead, copy
 [`internal-docs/CODE_REQUEST_TEMPLATE.md`](internal-docs/CODE_REQUEST_TEMPLATE.md),
-fill it in, and save it under `code-requests/<milestone>/<NNN-slug>.md`. Keep
-requests outcome-oriented (what should be true + how to verify), not line-by-line
-edits. See [`code-requests/README.md`](code-requests/README.md).
+fill it in, and save it under
+`internal-docs/requests/<milestone>/<NNN-slug>.md`. Keep requests
+outcome-oriented (what should be true + how to verify), not line-by-line edits.
+See [`internal-docs/requests/README.md`](internal-docs/requests/README.md) for
+the layout, numbering, and lifecycle.
 
 ## Licensing
 

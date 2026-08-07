@@ -1,5 +1,5 @@
 {
-  "name": "homespace",
+  "name": "homespace-workspace",
   "version": "0.3.0",
   "private": true,
   "description": "A kit for composing self-hosted static homespaces.",
