@@ -7,9 +7,10 @@ what").
 **How to use**
 
 1. Copy everything below the `--- 8< ---` line into a new file.
-2. Save it as `code-requests/<milestone>/<NNN>-<short-slug>.md`
-   (e.g. `code-requests/WO-1/002-pack-schema.md`). `<NNN>` is the next global
-   request number; see `code-requests/README.md`.
+2. Save it as `internal-docs/requests/<milestone>/<NNN>-<short-slug>.md`
+   (e.g. `internal-docs/requests/WO-1/005-pack-schema.md`). `<NNN>` is the next
+   global request number; see [`requests/README.md`](requests/README.md) for the
+   layout, numbering, and lifecycle.
 3. Fill every section. Leave a section as `n/a` rather than deleting it.
 4. Tell the human the request is ready; they run it with Claude Code.
 

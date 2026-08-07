@@ -148,7 +148,7 @@ guide). Nothing is uploaded anywhere; the UI says so explicitly.
 ## References
 
 - `internal-docs/HomespaceTDD.md` §2, §4–§6, §8, §10.2, §11
-- `code-requests/_meta/001-v0.2.0-review-remediations.md` — roadmap this
+- `internal-docs/requests/_meta/001-v0.2.0-review-remediations.md` — roadmap this
   extends; WO numbering continues from it
 - Client-need roleplay findings (chat, 2026-08-04)
 

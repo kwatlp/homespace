@@ -8,8 +8,10 @@ Contents:
 - [`HomespaceTDD.md`](HomespaceTDD.md) — **the Technical Design Document.** Source of
   truth for product definition, the two contracts, module boundaries, the
   dependency budget, and the work-order build sequence (§11). Read it first.
-- [`CODE_REQUEST_TEMPLATE.md`](CODE_REQUEST_TEMPLATE.md) — template Cowork copies
-  to hand a code/git change to Claude Code (see `../code-requests/`).
+- [`requests/`](requests/README.md) — change requests from Cowork for Claude Code,
+  filed by work order. That README owns the request process; start there.
+- [`CODE_REQUEST_TEMPLATE.md`](CODE_REQUEST_TEMPLATE.md) — the form Cowork copies
+  to hand a code/git change to Claude Code.
 - [`chrome-howto.md`](chrome-howto.md) — how to drive a real browser from a
   session (headless Chrome and Firefox, no extension or MCP server needed).
   Read before verifying anything about the Builder in a browser.

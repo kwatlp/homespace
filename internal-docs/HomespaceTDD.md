@@ -180,7 +180,7 @@ The composition layer. JSONC (JSON + comments) so archetype presets can be annot
 
 **Detail pages** are generated regardless of layout: `dist/packs/<id>/` for game/app/art/bundle, `dist/posts/<slug>/` for posts. `link` packs render as cards only (their destination *is* the page).
 
-> **Amendment (request `internal-docs/003`, item 7) — `icon`.** Optional,
+> **Amendment (request `003`, item 7) — `icon`.** Optional,
 > homespace-relative, resolved exactly like a section's `media` (so
 > `static/icon.png` lands at the dist root). Every page emits
 > `<link rel="icon" href="…" type="…">`, the type inferred from the extension;
@@ -400,7 +400,7 @@ Accounts, sessions, comments, federation endpoints, analytics.
 - **WO-10 — Release.** docs/ rebuilt as a homespace (dogfood), THIRD_PARTY.md, `npx` path verified, v0.1.0. *Exit:* Definition of Done (§14) demonstrated end-to-end on a clean machine.
 - **WO-11 — Rename to `homespace` & republish.** *(v0.2.0 — complete)* Sweep the codebase to match this document: packages `homespace-*` (claim the npm scope at publish; if unavailable, fall back to `homespace-schema` etc. and amend §5), CLI/bin `homespace`, repo `homespace`, manifest filename `homespace.manifest.jsonc` (loader accepts legacy `node.manifest.jsonc` with a deprecation warning for one minor version), scaffold dirs `my-homespace/`, all docs/THEME.md/error strings; no instance branding in samples or scaffolds. Publish `homespace` v0.2.0 to npm. Golden-diff guard: `dist/` output identical to v0.1.0 except renamed strings. *Exit:* §14 stranger-test passes against the **published** package on a clean machine; `grep -ri kwatlp` returns nothing; `grep -riE '\bnode\b'` returns only Node-runtime references.
 
-### v0.3 sequence (adopted 2026-08-06 — request `internal-docs/001`)
+### v0.3 sequence (adopted 2026-08-06 — request `001`)
 
 Sequencing after WO-13 is flexible: WO-15, 16, 18, and 20 are independent of each other. No §5.4 dependency-budget changes are anticipated anywhere in this sequence — Node's `crypto` covers ed25519, and search/audio are hand-rolled per convention. Every user-facing WO below carries the §5.3 phone-width + desktop check in its exit criteria.
 
@@ -414,7 +414,7 @@ Sequencing after WO-13 is flexible: WO-15, 16, 18, and 20 are independent of eac
 - **WO-19 — Cross-origin pack serving (design-first).** Daemon option to serve `packs/*/files/**` from a second port so pack HTML is cross-origin to the shell; docs give the equivalent `packs.` subdomain pattern for static hosts. Resolve first: the renderer must emit absolute pack-asset URLs when configured, and §10.2 needs a "configured self-origins are not external" allowance. *Depends:* 12. *Amends:* §6, §9.1, §10.2. *Exit:* with the option on, player iframes and direct links use the pack origin while shell pages stay on the main origin; budget gate passes with the allowance.
 - **WO-20 — `homespace doctor`.** One command checking a built homespace end to end: internal link/asset 404s, image alt coverage, checksum `--verify`, and a budget scan of the *whole* `dist/` — including `static/` copies and pack HTML — reported as warnings per §10.2. *Amends:* §7. *Exit:* fixtures with a broken link / missing alt / tampered checksum each report path + problem + fix; a clean homespace exits 0.
 
-### The Builder (adopted 2026-08-06 — request `internal-docs/002`)
+### The Builder (adopted 2026-08-06 — request `002`)
 
 Runs parallel to the v0.3 sequence; does not block WO-13/14. Full design in §15.
 
@@ -542,7 +542,7 @@ controls on a phone, asset plug-in through the native picker/camera roll,
 downloads that work in mobile browsers, a phone/desktop viewport toggle on the
 preview, and wizard-produced sites that pass the same checks.
 
-> **Amendment (request `internal-docs/003`, items 2–8).** Six clarifications,
+> **Amendment (request `003`, items 2–8).** Six clarifications,
 > all of them things the ruled criteria above already implied:
 >
 > - **One build slot per kind.** "Plug in your own assets" is per field, so a

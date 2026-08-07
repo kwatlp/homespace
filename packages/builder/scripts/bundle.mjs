@@ -61,7 +61,7 @@ export async function bundleBuilder(outfile) {
  * `iife`, not `esm`: a module script is fetched under CORS rules, and a page
  * opened from `file://` has no origin to satisfy, so every browser refuses it.
  * The Builder is a page you are meant to be able to download and double-click,
- * so it ships as a classic script (request `internal-docs/003`, item 4).
+ * so it ships as a classic script (request `003`, item 4).
  */
 export async function bundlePage(outdir) {
   await mkdir(outdir, { recursive: true });

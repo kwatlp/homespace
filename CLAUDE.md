@@ -27,15 +27,15 @@ Two agents touch this repo, and they have **different jobs**:
 
 **Cowork MAY:** read anything; run **read-only** git (`status`, `log`, `diff`,
 `show`, `ls-files`); research; and create/edit **documentation and request
-specs** — Markdown under `internal-docs/`, `docs/` prose, `THEME.md` prose, and
-`code-requests/`. After writing any file, Cowork re-reads it to confirm the
-mount didn't truncate it.
+specs** — Markdown under `internal-docs/` (including `internal-docs/requests/`),
+`docs/` prose, and `THEME.md` prose. After writing any file, Cowork re-reads it
+to confirm the mount didn't truncate it.
 
 **How code/git work actually happens:** when a change needs code or git, Cowork
 fills out [`internal-docs/CODE_REQUEST_TEMPLATE.md`](internal-docs/CODE_REQUEST_TEMPLATE.md)
-and saves it to `code-requests/<milestone>/<NNN-slug>.md` (see
-[`code-requests/README.md`](code-requests/README.md)). The human then runs that
-request with Claude Code, which does the actual work.
+and saves it to `internal-docs/requests/<milestone>/<NNN-slug>.md` (see
+[`internal-docs/requests/README.md`](internal-docs/requests/README.md)). The
+human then runs that request with Claude Code, which does the actual work.
 
 ## What this is
 
@@ -86,8 +86,8 @@ dependency budget (§5.4) are binding; changing one means amending the TDD
 - `examples/` — fixture homespaces used by tests
 - `docs/` — **public** docs; the docs site is itself a homespace (dogfooding, WO-10)
 - `internal-docs/` — **private** planning: the TDD, milestones, plans, design;
-  never published
-- `code-requests/` — change requests from Cowork for Claude Code (internal)
+  never published. `internal-docs/requests/` holds the change requests Cowork
+  writes for Claude Code
 
 ## Common commands
 

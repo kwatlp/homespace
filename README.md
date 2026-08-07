@@ -125,11 +125,11 @@ sample packs, and a `THEME.md` documenting every exposed variable.
   browser over an in-memory homespace, plus the wizard page)
 - `archetypes/` — the four v0 presets
 - `examples/` — fixture homespaces used by tests
-- `docs/` — public docs (the docs site is itself a homespace — dogfooding)
+- `docs/` — public docs (the docs site is itself a homespace — dogfooding; it is
+  what's published at the address above)
 - `internal-docs/` — private planning, incl. the
-  [TDD](internal-docs/HomespaceTDD.md)
-- `code-requests/` — internal change-request workflow (see
-  [CLAUDE.md](CLAUDE.md))
+  [TDD](internal-docs/HomespaceTDD.md) and the internal change-request workflow
+  in [`internal-docs/requests/`](internal-docs/requests/README.md)
 
 ## Development
 

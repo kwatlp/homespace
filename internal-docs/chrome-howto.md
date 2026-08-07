@@ -4,7 +4,7 @@ How to verify browser behavior in this repo — the Builder especially, since it
 whole promise (§15.1) is *runs in your browser, from your disk, touching
 nothing*. That claim can only be checked in a browser.
 
-Written after request `internal-docs/003` item 4, where the fix was "the page
+Written after request `003` item 4, where the fix was "the page
 must run from `file://`" and the session had no working browser extension.
 
 ## First choice: the Claude-in-Chrome extension
