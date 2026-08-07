@@ -10,6 +10,9 @@ Contents:
   dependency budget, and the work-order build sequence (§11). Read it first.
 - [`CODE_REQUEST_TEMPLATE.md`](CODE_REQUEST_TEMPLATE.md) — template Cowork copies
   to hand a code/git change to Claude Code (see `../code-requests/`).
+- [`chrome-howto.md`](chrome-howto.md) — how to drive a real browser from a
+  session (headless Chrome and Firefox, no extension or MCP server needed).
+  Read before verifying anything about the Builder in a browser.
 
 As the project grows this is also home to per-work-order plans, milestone
 records, and design notes.
